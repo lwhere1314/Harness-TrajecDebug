@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "harness-trajecdebug"
+version = "0.1.0"
+description = "Explainable critical-step diagnostics for terminal-agent trajectories."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "Wenhao Liu" }
+]
+keywords = [
+  "agent",
+  "benchmark",
+  "terminal-bench",
+  "trajectory",
+  "evaluation",
+  "debugging"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+dependencies = []
+
+[project.scripts]
+harness-trajdebug = "harness_trajecdebug.cli:main"
+harness-trajecdebug = "harness_trajecdebug.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/harness_trajecdebug"]

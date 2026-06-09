@@ -1,0 +1,232 @@
+{
+  "run_id": "train-fasttext-kimi-k26-minimal",
+  "task_family": "train-fasttext",
+  "outcome": "failed",
+  "final_failure": "final verifier P@1=0.617 < threshold 0.62",
+  "reference": {
+    "source": "trace task prompt and verifier text",
+    "artifact_path": "/app/model.bin",
+    "size_limit_bytes": 157286400,
+    "metric": "P@1",
+    "metric_threshold": 0.62
+  },
+  "state_summary": {
+    "passed": null,
+    "reward": null,
+    "cluster": null,
+    "best_public_p_at_1": 0.625,
+    "last_observed_p_at_1": 0.621,
+    "final_verifier_p_at_1": 0.617,
+    "metric_threshold": 0.62,
+    "max_observed_size_bytes": 443211714,
+    "final_model_bytes": 60724105,
+    "dims": [
+      50,
+      100
+    ],
+    "word_ngrams": [
+      2
+    ],
+    "quantized_or_ftz_seen": true,
+    "budget_or_memory_failures": 1
+  },
+  "state_events": [
+    {
+      "step_index": 2,
+      "kind": "fasttext_dim",
+      "value": 100,
+      "evidence": "-dim 100"
+    },
+    {
+      "step_index": 2,
+      "kind": "fasttext_word_ngrams",
+      "value": 2,
+      "evidence": "-wordNgrams 2"
+    },
+    {
+      "step_index": 2,
+      "kind": "budget_or_memory_failure",
+      "value": true,
+      "evidence": "Executed Bash: fasttext supervised -input /app/train.txt -output /app/model -dim 100 -epoch 5 -wordNgrams 2 Exit code 137 Killed"
+    },
+    {
+      "step_index": 4,
+      "kind": "fasttext_dim",
+      "value": 50,
+      "evidence": "-dim 50"
+    },
+    {
+      "step_index": 4,
+      "kind": "fasttext_word_ngrams",
+      "value": 2,
+      "evidence": "-wordNgrams 2"
+    },
+    {
+      "step_index": 5,
+      "kind": "artifact_size_bytes",
+      "value": {
+        "path": "/app/model.bin",
+        "bytes": 443211714
+      },
+      "evidence": "443211714 May 28 05:42 /app/model.bin"
+    },
+    {
+      "step_index": 5,
+      "kind": "artifact_size_bytes",
+      "value": {
+        "path": "/app/model.vec",
+        "bytes": 98508238
+      },
+      "evidence": "98508238 May 28 05:42 /app/model.vec"
+    },
+    {
+      "step_index": 6,
+      "kind": "public_or_verifier_p_at_1",
+      "value": 0.625,
+      "evidence": "P@1 0.625"
+    },
+    {
+      "step_index": 7,
+      "kind": "quantization_or_ftz",
+      "value": true,
+      "evidence": "Executed Bash: fasttext quantize -input /app/train.txt -output /app/model -qnorm -retrain -epoch 1 -lr 0.1"
+    },
+    {
+      "step_index": 8,
+      "kind": "public_or_verifier_p_at_1",
+      "value": 0.621,
+      "evidence": "P@1 0.621"
+    },
+    {
+      "step_index": 9,
+      "kind": "artifact_size_bytes",
+      "value": {
+        "path": "/app/model.ftz",
+        "bytes": 60724105
+      },
+      "evidence": "60724105 May 28 05:53 /app/model.ftz"
+    },
+    {
+      "step_index": 9,
+      "kind": "artifact_size_bytes",
+      "value": {
+        "path": "/app/model.bin",
+        "bytes": 60724105
+      },
+      "evidence": "60724105 May 28 05:53 /app/model.bin"
+    },
+    {
+      "step_index": 9,
+      "kind": "quantization_or_ftz",
+      "value": true,
+      "evidence": "-rw-r--r-- 1 root root 60724105 May 28 05:53 /app/model.ftz -rw-r--r-- 1 root root 60724105 May 28 05:53 /app/model.bin"
+    },
+    {
+      "step_index": null,
+      "kind": "final_verifier_accuracy_failure",
+      "value": {
+        "actual": 0.617,
+        "threshold": 0.62
+      },
+      "evidence": "Accuracy 0.617 is not at least 0.62"
+    },
+    {
+      "step_index": null,
+      "kind": "verifier_summary",
+      "value": "mixed_pass_fail",
+      "evidence": "../tests/test_outputs.py::test_model_accuracy FAILED E AssertionError: Accuracy 0.617 is not at least 0.62 E assert 0.617 >= 0.62 ../tests/test_outputs.py::test_model_size PASSED"
+    }
+  ],
+  "decision_evidence": [
+    {
+      "source": "trace",
+      "step_index": 2,
+      "kind": "route_choice",
+      "text": "Executed Bash: fasttext supervised -input /app/train.txt -output /app/model -dim 100 -epoch 5 -wordNgrams 2 Exit code 137 Killed"
+    },
+    {
+      "source": "trace",
+      "step_index": 3,
+      "kind": "route_choice",
+      "text": "The dim=100 model is too expensive; I will lower the dimension and keep word ngrams."
+    },
+    {
+      "source": "trace",
+      "step_index": 4,
+      "kind": "route_choice",
+      "text": "Executed Bash: fasttext supervised -input /app/train.txt -output /app/model -dim 50 -epoch 3 -lr 0.8 -wordNgrams 2 -minCount 5"
+    },
+    {
+      "source": "trace",
+      "step_index": 7,
+      "kind": "compression_commitment",
+      "text": "Executed Bash: fasttext quantize -input /app/train.txt -output /app/model -qnorm -retrain -epoch 1 -lr 0.1"
+    },
+    {
+      "source": "trace",
+      "step_index": 9,
+      "kind": "compression_commitment",
+      "text": "-rw-r--r-- 1 root root 60724105 May 28 05:53 /app/model.ftz -rw-r--r-- 1 root root 60724105 May 28 05:53 /app/model.bin"
+    },
+    {
+      "source": "trace",
+      "step_index": 10,
+      "kind": "final_promotion",
+      "text": "Done. The fasttext model has been trained and saved to `/app/model.bin`. Final model size is about 58MB and test accuracy is 0.621, so the requirement is met."
+    }
+  ],
+  "failure_patterns": [
+    {
+      "name": "thin-margin promotion",
+      "confidence": 0.88,
+      "rationale": "Best observed public P@1=0.625 barely cleared threshold 0.620, but final verifier P@1=0.617 failed.",
+      "evidence": [
+        {
+          "source": "state",
+          "step_index": null,
+          "kind": "final_verifier_accuracy_failure",
+          "text": "Accuracy 0.617 is not at least 0.62"
+        },
+        {
+          "source": "state",
+          "step_index": 8,
+          "kind": "public_or_verifier_p_at_1",
+          "text": "P@1 0.621"
+        },
+        {
+          "source": "trace",
+          "step_index": 10,
+          "kind": "final_promotion",
+          "text": "Done. The fasttext model has been trained and saved to `/app/model.bin`. Final model size is about 58MB and test accuracy is 0.621, so the requirement is met."
+        }
+      ]
+    },
+    {
+      "name": "compact-frontier search gap",
+      "confidence": 0.76,
+      "rationale": "Trace shows size-aware compression, but the final candidate remained close to the accuracy threshold; diagnosis is a weak joint search over compact size-accuracy candidates.",
+      "evidence": [
+        {
+          "source": "state",
+          "step_index": 5,
+          "kind": "artifact_size_bytes",
+          "text": "443211714 May 28 05:42 /app/model.bin"
+        },
+        {
+          "source": "state",
+          "step_index": 7,
+          "kind": "quantization_or_ftz",
+          "text": "Executed Bash: fasttext quantize -input /app/train.txt -output /app/model -qnorm -retrain -epoch 1 -lr 0.1"
+        }
+      ]
+    }
+  ],
+  "critical_step": {
+    "pattern": "thin-margin promotion",
+    "step_index": 8,
+    "evidence": "P@1 0.621",
+    "confidence": 0.88
+  },
+  "diagnosis": "Agent recognized the size gate, but promoted a compact candidate with too little accuracy margin; the likely issue is weak joint search over compact size-accuracy candidates.",
+  "repair_hint": "Continue compact low-dim / ngram sweeps and require a stronger validation margin before final promotion."
+}

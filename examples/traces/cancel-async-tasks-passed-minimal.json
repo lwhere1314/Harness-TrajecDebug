@@ -1,0 +1,20 @@
+{
+  "steps": [
+    {
+      "index": 0,
+      "role": "assistant",
+      "text": "I will inspect run.py, implement cancellation-safe task orchestration, and run focused async checks."
+    },
+    {
+      "index": 1,
+      "role": "assistant",
+      "text": "The implementation uses asyncio.Semaphore, gathers active tasks, cancels pending work on the first exception, and awaits cleanup before re-raising."
+    },
+    {
+      "index": 2,
+      "role": "assistant",
+      "observation": "ok"
+    }
+  ],
+  "verifierLog": "collected 6 items\n../tests/test_outputs.py ...... [100%]\n6 passed in 13.76s"
+}
