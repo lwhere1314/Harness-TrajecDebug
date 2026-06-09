@@ -11,7 +11,9 @@ there is concrete trace evidence and a final verifier footprint.
 See [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the taxonomy diagram
 and [docs/framework.md](docs/framework.md) for the reference/state/commitment
 workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
-to-do list, and planned Harbor experiments.
+to-do list, and planned Harbor experiments. See
+[docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
+comparison with Meta-Harness.
 
 ## Project Positioning
 
