@@ -1,16 +1,33 @@
 # Harness-TrajecDebug
 
-Harness-TrajecDebug is a small, explainable prototype for diagnosing
-terminal-agent trajectories. It turns a pass/fail benchmark trace into a
-process-level diagnosis with reference objects, state events, decision evidence,
-failure patterns, a critical step, and a repair hint.
+Harness-TrajecDebug is an explainable trace diagnosis and data selection
+framework for terminal-agent in-context learning. It turns raw pass/fail
+benchmark trajectories into process-level records with reference objects, state
+events, decision evidence, failure patterns, a critical step, and a repair hint.
 
 The project is intentionally conservative: it only emits failure patterns when
 there is concrete trace evidence and a final verifier footprint.
 
 See [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the taxonomy diagram
 and [docs/framework.md](docs/framework.md) for the reference/state/commitment
-workflow.
+workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
+to-do list, and planned Harbor experiments.
+
+## Project Positioning
+
+The first target application is **ICL data selection** for smaller terminal
+agents. Instead of feeding small models random successful traces or traces chosen
+only by final outcome, Harness-TrajecDebug selects trajectories based on the
+process signal inside the trace:
+
+- successful traces with verifier-aligned artifact closure,
+- near-miss traces with clear critical-step evidence,
+- contrastive traces where a bad branch and a repairable decision are visible,
+- traces that demonstrate useful planning, validation, recovery, and state
+  checking behavior.
+
+SFT, RL, and preference-learning pipelines are future downstream applications.
+The immediate goal is to build a reliable trace-to-ICL-example pipeline first.
 
 ## Why This Exists
 
@@ -29,7 +46,13 @@ trace + verifier output
   -> failure pattern
   -> critical step
   -> repair hint
+  -> ICL data quality signal
 ```
+
+The core research question is:
+
+> Can process-aware trajectory selection produce better ICL examples for small
+> terminal agents than prompt-based LLM filtering or outcome-only filtering?
 
 ## Install
 
@@ -151,6 +174,17 @@ Implemented failure patterns:
 - `budget debt loop`
 - `no critical failure detected`
 
-The current implementation is a rule-based MVP. The next natural step is to add
-task-specific detectors and an optional LLM reviewer that consumes the same
-structured reference/state/commitment views.
+Current implementation:
+
+- rule-based reference/state/commitment parser,
+- failure taxonomy and critical-step selector,
+- bundled train-fasttext and cancel-async-tasks examples,
+- Vercel demo API that runs diagnosis on example traces,
+- initial GitHub CI.
+
+Next milestones:
+
+- adapters for common harness trace formats,
+- Harbor-style task support,
+- Harness x Model experiment runner,
+- ICL data selection benchmark against prompt-based and outcome-only baselines.

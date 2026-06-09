@@ -1,6 +1,8 @@
 # Framework
 
-Harness-TrajecDebug uses three views of the same terminal-agent trace.
+Harness-TrajecDebug uses three views of the same terminal-agent trace. These
+views are used first for diagnosis and then for selecting trajectories that are
+useful as in-context learning examples.
 
 ```mermaid
 flowchart LR
@@ -15,6 +17,7 @@ flowchart LR
   D --> F["Failure pattern"]
   F --> K["Critical step"]
   K --> H["Repair hint"]
+  H --> Q["ICL data quality signal"]
 
   R -. "What must be true?" .-> D
   S -. "What is observed?" .-> D
@@ -59,3 +62,23 @@ A critical step is the earliest actionable point where:
 - it conflicts with a reference object or state observation,
 - the conflict leaves a final verifier footprint,
 - a local counterfactual repair would plausibly change the outcome.
+
+## ICL Data Quality Signal
+
+For the current project stage, diagnosis is used to decide whether a trace is a
+good in-context learning example.
+
+Useful examples include:
+
+- passed traces with strong verifier-aligned closure,
+- near misses with a clear critical step,
+- contrastive traces where a bad route and a recoverable alternative are visible,
+- traces that demonstrate state checking, validation, recovery, and artifact
+  closure.
+
+Weak examples include:
+
+- pure tool loops,
+- accidental successes with little reusable process signal,
+- failures with diffuse root causes,
+- traces whose local validation conflicts with the official verifier.
