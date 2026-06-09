@@ -39,3 +39,6 @@ harness-trajecdebug = "harness_trajecdebug.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/harness_trajecdebug"]
+
+[tool.vercel]
+entrypoint = "api.diagnose:handler"
