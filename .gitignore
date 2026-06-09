@@ -12,3 +12,4 @@ build/
 venv/
 .DS_Store
 examples/diagnoses/*.tmp.json
+runs/
