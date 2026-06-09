@@ -39,6 +39,20 @@ def run_example(name: str) -> dict:
 
 
 class handler(BaseHTTPRequestHandler):
+    def _send_text(self, status: int, body: str, content_type: str) -> None:
+        encoded = body.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Cache-Control", "public, max-age=0, must-revalidate")
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    def _send_file(self, path: Path, content_type: str) -> None:
+        if not path.exists():
+            self._send_text(404, "Not found", "text/plain; charset=utf-8")
+            return
+        self._send_text(200, path.read_text(encoding="utf-8"), content_type)
+
     def _send_json(self, status: int, payload: dict) -> None:
         body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
@@ -50,6 +64,23 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path in ("/", "/index.html"):
+            self._send_file(ROOT / "index.html", "text/html; charset=utf-8")
+            return
+        if parsed.path == "/styles.css":
+            self._send_file(ROOT / "styles.css", "text/css; charset=utf-8")
+            return
+        if parsed.path == "/app.js":
+            self._send_file(ROOT / "app.js", "application/javascript; charset=utf-8")
+            return
+        if parsed.path == "/favicon.ico":
+            self.send_response(204)
+            self.end_headers()
+            return
+        if parsed.path != "/api/diagnose":
+            self._send_json(404, {"ok": False, "error": f"Unknown path: {parsed.path}"})
+            return
+
         query = parse_qs(parsed.query)
         selected = query.get("example", ["all"])[0]
         try:
