@@ -62,6 +62,25 @@ harness-trajdebug diagnose \
 
 The command alias `harness-trajecdebug` is also available.
 
+## Vercel Demo
+
+This repository also includes a lightweight Vercel demo:
+
+- `index.html`, `styles.css`, and `app.js` render the web interface.
+- `api/diagnose.py` runs the same Python diagnosis engine on bundled examples.
+
+Deploy it with:
+
+```bash
+npx vercel --prod
+```
+
+Then verify the cloud API:
+
+```bash
+curl https://your-deployment-url.vercel.app/api/diagnose?example=all
+```
+
 ## Example Output
 
 For the train-fasttext near miss, the prototype produces:

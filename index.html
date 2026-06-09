@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Harness-TrajecDebug</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="masthead">
+        <div>
+          <p class="eyebrow">Terminal-agent process evaluation</p>
+          <h1>Harness-TrajecDebug</h1>
+          <p class="summary">
+            A runnable prototype for turning pass/fail terminal-agent traces into
+            reference objects, state events, failure patterns, critical steps,
+            and repair hints.
+          </p>
+        </div>
+        <div class="run-panel" aria-live="polite">
+          <div class="run-panel-header">
+            <span>Cloud smoke test</span>
+            <button id="rerun" type="button">Run examples</button>
+          </div>
+          <div id="status" class="status">Waiting to run diagnostics...</div>
+        </div>
+      </section>
+
+      <section class="taxonomy-section">
+        <div class="section-heading">
+          <h2>Failure Taxonomy</h2>
+          <p>Route from final verifier footprint to process-level diagnosis.</p>
+        </div>
+        <div class="taxonomy-grid" aria-label="Failure taxonomy">
+          <div class="node root">Verifier footprint</div>
+          <div class="node pass">Passed<br><strong>No critical failure</strong></div>
+          <div class="node metric">Metric failure<br><strong>thin margin / mismatch / objective gap</strong></div>
+          <div class="node artifact">Artifact contract<br><strong>missing / unloadable / malformed</strong></div>
+          <div class="node tooling">Tooling failure<br><strong>API loop / budget debt</strong></div>
+          <div class="node search">Search framing<br><strong>compact-frontier gap</strong></div>
+        </div>
+      </section>
+
+      <section class="results-section">
+        <div class="section-heading">
+          <h2>Automated Diagnosis Run</h2>
+          <p>The page calls the Vercel Python API and renders live JSON output summaries.</p>
+        </div>
+        <div id="results" class="results"></div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
