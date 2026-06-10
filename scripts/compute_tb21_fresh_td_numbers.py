@@ -11,6 +11,7 @@ from typing import Any
 
 
 DEFAULT_TASK_ROOT = Path("/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks")
+DEFAULT_TD_CARD_MANIFEST = Path("runs/harbor_icl_baseline/tb21_full_td_td_full_manifest.json")
 
 
 @dataclass
@@ -113,16 +114,52 @@ def summarize(records: dict[str, TaskResult]) -> dict[str, Any]:
 def markdown(report: dict[str, Any]) -> str:
     base = report["without_td"]
     td = report["with_td"]
+    card_manifest = report.get("td_card_manifest") or {}
+    counts_by_source = card_manifest.get("counts_by_source") if isinstance(card_manifest, dict) else {}
     lines = [
         "# Fresh TB2.1 Claude Code + Kimi-k2.6 TD Rerun",
         "",
         "This report compares two fresh 89-task runs. It does not use old",
         "supplemental fills or scattered prior TD successes.",
         "",
+        "## Methodology Note",
+        "",
+        "The with-TD condition in this report is **TD-card injection**, not a",
+        "fully automatic online critical-step miner. During the run,",
+        "`DynamicIclClaudeCode` injects precomputed task cards into Claude Code +",
+        "Kimi-k2.6; it does not call a separate external LLM judge to decide the",
+        "critical step.",
+        "",
+        "For V1, failed-run `debug_action` cards are human/Codex-in-the-loop",
+        "diagnoses produced from trace evidence, verifier footprints, and case",
+        "study analysis. The remaining tasks use reference-only fallback cards so",
+        "the with-TD denominator stays at 89/89 without pretending every task has",
+        "a mined critical step.",
+        "",
+        "TD card provenance:",
+        "",
+        "| Source | Count | Meaning |",
+        "| --- | ---: | --- |",
+    ]
+    if counts_by_source:
+        meanings = {
+            "debug_action": "diagnosed TD card from prior human/Codex-in-the-loop trace analysis",
+            "debug_trajectory": "scripted process card from a passing teacher run",
+            "oracle_grounded": "oracle-assisted offline audit card; not an online mined label",
+            "reference_only_fallback": "reference-only TD checklist, no mined critical step",
+            "prompt_filtered": "generic filtered snippets, no TD critical-step label",
+            "outcome_only": "outcome summary only",
+        }
+        for source, count in sorted(counts_by_source.items()):
+            lines.append(f"| `{source}` | `{count}` | {meanings.get(source, '')} |")
+    else:
+        lines.append("| - | - | TD card manifest not found when report was generated |")
+    lines.extend([
+        "",
         "## Final Number",
         "",
         f"- without TrajectoryDebug: `{base['pass_count']}/{report['denominator']}`",
-        f"- with TrajectoryDebug: `{td['pass_count']}/{report['denominator']}`",
+        f"- with TD-card injection: `{td['pass_count']}/{report['denominator']}`",
         f"- delta `m`: `{report['delta']}` tasks",
         "",
         "## Coverage",
@@ -134,7 +171,7 @@ def markdown(report: dict[str, Any]) -> str:
         "",
         "| Task | without-TD | with-TD | Delta | without result | with result |",
         "| --- | ---: | ---: | ---: | --- | --- |",
-    ]
+    ])
     for row in report["task_rows"]:
         if row["delta"] == 0:
             continue
@@ -174,6 +211,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "task_root": str(args.task_root),
         "without_td_state": str(args.without_td_state),
         "with_td_state": str(args.with_td_state),
+        "td_card_manifest_path": str(args.td_card_manifest),
+        "td_card_manifest": read_json(args.td_card_manifest) or {},
         "denominator": len(tasks),
         "without_td": summarize(baseline),
         "with_td": summarize(td),
@@ -188,6 +227,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--task-root", type=Path, default=DEFAULT_TASK_ROOT)
     parser.add_argument("--without-td-state", type=Path, required=True)
     parser.add_argument("--with-td-state", type=Path, required=True)
+    parser.add_argument("--td-card-manifest", type=Path, default=DEFAULT_TD_CARD_MANIFEST)
     parser.add_argument("--json-output", type=Path, default=Path("runs/tb21_fresh_td_numbers.json"))
     parser.add_argument("--markdown-output", type=Path, default=Path("docs/tb21-kimi-k26-fresh-td-rerun.md"))
     return parser.parse_args()
