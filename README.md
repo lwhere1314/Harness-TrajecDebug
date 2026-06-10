@@ -13,6 +13,8 @@ and [docs/framework.md](docs/framework.md) for the reference/state/commitment
 workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
 to-do list, and planned Harbor experiments. See [docs/integrations.md](docs/integrations.md)
 for the local Codex / Claude Code / Kimi route and Harbor task/run adapters. See
+[docs/trajectorydebug-hint-and-icl-flow.md](docs/trajectorydebug-hint-and-icl-flow.md)
+for the current TD hint-generation algorithm and runtime ICL injection diagrams. See
 [AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) for the server migration
 and full Harbor -> diagnosis -> repair -> viewer workflow. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
