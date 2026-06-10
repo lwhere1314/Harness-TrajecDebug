@@ -26,6 +26,8 @@ HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See
 next accepted/rejected Codex + GPT-5.5 failure candidates and endpoint status.
 The
 blog-style case study
+[TrajectoryDebug Algorithm Flow](docs/blog/trajectorydebug-algorithm-flow.md)
+for the current hint-generation and runtime injection algorithm,
 [Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
 for the first interactive repair canary, and
 [Lifting a Joint Failure on `sanitize-git-repo`](docs/blog/sanitize-git-repo-joint-failure-lifting.md)
