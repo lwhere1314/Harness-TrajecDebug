@@ -141,6 +141,13 @@ improve a weaker model through ICL, before touching SFT or RL.
 
 ## Proposed Experiments Against Meta-Harness-Inspired Baselines
 
+Important fairness boundary: Meta-Harness should not be the primary baseline
+for the ICL-selection claim because it changes the runtime harness. Use it as a
+system-level harness-engineering comparator or upper bound. For the primary
+claim, compare only methods that change the selected/injected ICL context while
+holding the target harness fixed. The detailed protocol is in
+[experiments/harbor_icl_baseline/fairness_protocol.md](../experiments/harbor_icl_baseline/fairness_protocol.md).
+
 ### Experiment 1: Trace Access vs Trace Diagnosis
 
 Compare:
