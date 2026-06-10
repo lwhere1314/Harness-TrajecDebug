@@ -149,22 +149,252 @@ flowchart LR
 
 ## 当前实现边界
 
-这里需要诚实地区分两层：
+这里需要诚实地区分两层。否则很容易把“能自动生成一张 card”和“能自动判断真正的
+critical step”混在一起。
 
-1. `reward=1 teacher -> card` 的 baseline pack 现在已经是脚本化的：读取
-   `state.json`、任务说明、verifier 输出、event log 和 `/app/...` artifact，
-   自动生成 `outcome_only`、`raw_trace`、`prompt_filtered`、`debug_trajectory`
-   和 `debug_action`。
-2. `failed run -> corrective card` 是更核心的 TD 路线，但目前还不是完全自动的
-   end-to-end learner。现在的做法是先用 TD 框架读失败轨迹和 verifier footprint，
-   归纳 critical commitment，再把这个诊断写成 Debug-Action card。`sanitize-git-repo`
-   和 `filter-js-from-html` 属于这条路线。
+第一层是 `reward=1 teacher -> card` 的 baseline pack。这部分现在已经是脚本化的：
+读取 `state.json`、任务说明、verifier 输出、event log 和 `/app/...` artifact，
+自动生成 `outcome_only`、`raw_trace`、`prompt_filtered`、`debug_trajectory` 和
+`debug_action`。
+
+第二层是 `failed run -> corrective card`。这才是更核心的 TD 路线，但目前还不是完全
+自动的 end-to-end learner。现在的做法是半自动诊断：先用脚本把候选失败、verifier
+footprint、对比 run 和 artifact 组织出来，再由人按照 TD 框架归纳 critical
+commitment，最后把诊断写成 Debug-Action card 并用 rerun 验证。`sanitize-git-repo`、
+`filter-js-from-html`、`sam-cell-seg` 属于这条路线。
 
 所以当前最准确的表述是：
 
 > 我们已经打通了 failed-trace evidence -> corrective hint -> runtime injection ->
 > verifier pass 的闭环；下一步是把其中的 critical-step extraction 和 card synthesis
 > 从人工/半自动诊断推进到更自动的数据生产流程。
+
+## 半自动诊断现在怎么做？
+
+半自动诊断不是“凭感觉读日志写建议”。它大概有一个固定流程：
+
+```mermaid
+flowchart TD
+  A["Candidate failed task"] --> B["Collect source runs"]
+  B --> B1["Student failed run"]
+  B --> B2["Teacher / comparison run"]
+  B --> B3["Optional oracle for offline audit"]
+
+  B1 --> C["Build verifier footprint table"]
+  B2 --> C
+  B3 --> C
+
+  C --> D["Read task spec and tests"]
+  D --> E["Extract reference gates"]
+  E --> E1["artifact path"]
+  E --> E2["metric / runtime gate"]
+  E --> E3["forbidden side effects"]
+  E --> E4["semantic invariants"]
+
+  C --> F["Trace scan"]
+  F --> F1["commands and artifacts"]
+  F --> F2["agent plans and route choices"]
+  F --> F3["promotion / final answer point"]
+  F --> F4["recovery attempts"]
+
+  E --> G["Conflict diagnosis"]
+  F --> G
+  C --> G
+
+  G --> H["Draft critical commitment"]
+  H --> I["Write Debug-Action card"]
+  I --> J["Run closure smoke test"]
+  J --> K["Runtime ICL rerun"]
+  K --> L{"Official verifier pass?"}
+  L -->|"No"| F
+  L -->|"Yes"| M["Promote as TD evidence"]
+```
+
+展开成操作步骤，大概是：
+
+1. **找候选任务**：先用脚本扫本地 Harbor / Terminal-Bench 结果，找出 baseline 失败、
+   对比 run 失败、或者同一任务多个 agent 都失败的 case。
+2. **读 verifier footprint**：不是先读完整日志，而是先看失败落在哪个 verifier gate：
+   runtime 太慢、artifact 不存在、clean input 被修改、schema 不匹配、metric 差一点、
+   或者 forbidden side effect。
+3. **抽 reference gate**：从 `instruction.md`、`tests/test.sh`、pytest 文件、golden
+   output 或 artifact 约束里抽出真正的任务边界。
+4. **扫 trace 里的 commitment**：找 agent 在哪一步开始相信某条路线是对的，例如
+   “语义等价 SQL 就够了”、“sanitize repo 等于清理 git history”、“XSS blocking 是主目标，
+   clean HTML 可以被重写”。
+5. **对齐冲突**：把 commitment 和 reference / state 对上。如果只是一个局部命令报错，
+   后面已经修复了，就不标成 critical step。只有它持续影响最终 verifier，才进入候选。
+6. **写 repair boundary**：不要直接写“正确答案”，而是写下一次 run 应该遵守的决策边界，
+   例如 preserve git history、clean-preservation first、materialize verified artifact
+   before recomputation。
+7. **跑闭环验证**：把 Debug-Action card 通过 `prelude`、`sdk_live` 或 hooks 注入新 run，
+   看 official verifier 是否真的从 0 变 1。
+
+这就是现在的“半自动”：候选发现、结果表、运行脚本、注入和 verifier 闭环是脚本化的；
+critical-step 归因和 card synthesis 还需要人读 evidence、做因果判断、写成可执行 hint。
+
+## 为什么 reward=1 的 card 更容易脚本化？
+
+`reward=1` 的成功 run 有一个很强的锚点：最终 artifact 已经被 official verifier 接受。
+所以脚本可以比较安全地做几件事：
+
+- 读取任务说明，知道这个 artifact 属于哪个 contract；
+- 读取 verifier summary，知道最终确实 pass；
+- 抓取 `/app/...` 下的安全文本 artifact；
+- 抽取和 verifier、promotion、artifact closure 有关的日志片段；
+- 生成一张“这是一个已通过路径的 evidence bundle”。
+
+这不要求脚本证明“哪一步是 critical step”。它只需要把成功 run 里可复用的 evidence
+整理出来。对于 ICL baseline 来说，这已经有价值，因为它回答的是：
+
+> 如果给小模型一个成功样本的 artifact、closure protocol 和少量 trace evidence，它会不会更容易过？
+
+但你说得对：成功 run 里的 critical step 也不一定显而易见。一个成功 trace 可能有很多
+看起来重要的动作：
+
+- 读了测试；
+- 改了实现；
+- 运行了本地验证；
+- 修了一个 bug；
+- 最后复制 artifact；
+- 停在正确时机。
+
+这些动作里哪一个是“真正改变结果”的 critical step，并不总能从 reward=1 自动推出。
+因为成功 trace 没有负例 footprint。它告诉我们“这条路径可行”，但不一定告诉我们
+“如果删掉哪一步就会失败”。
+
+所以当前脚本化的 `reward=1 -> debug_action` 更准确地说是：
+
+```text
+passed trajectory -> reusable positive evidence card
+```
+
+还不是：
+
+```text
+passed trajectory -> automatically proven critical-step label
+```
+
+这也是为什么要把 baseline pack 和 TD critical-step diagnosis 分开讲。前者是可自动化的
+数据整理，后者是更难的因果归因。
+
+## 为什么 failed-run 自动化更难？
+
+失败轨迹的难点不是“没有答案”，而是有太多可能的解释。
+
+同样 reward 0，可能代表：
+
+- agent 根本没理解任务；
+- agent 理解了任务，但把主约束排错了优先级；
+- local validation 和 official verifier 不对齐；
+- artifact 写对了但放错路径；
+- 工具/API 被误用；
+- dependency 或 sandbox 环境失败；
+- 已经很接近，只是 margin 太薄；
+- 任务本身的 verifier 有工程噪声；
+- 多个错误叠在一起，没有单一 root cause。
+
+要自动生成 corrective hint，系统必须解决几个比“日志摘要”难得多的问题。
+
+### 1. Reference object 不总是显式的
+
+有些任务的关键约束写在自然语言里，有些藏在 `tests/test.sh`，有些藏在 pytest 的断言，
+有些藏在 golden file 或私有 verifier 语义里。脚本可以抽文件路径和 reward，但很难自动知道：
+
+- clean HTML unchanged 才是 `filter-js-from-html` 的 binding constraint；
+- preserve reference commit 才是 `sanitize-git-repo` 的核心边界；
+- runtime gate 比语义等价更关键；
+- size gate 不是后处理，而是搜索主约束。
+
+这一步需要把 task spec、test code 和 verifier output 统一成 reference objects。
+
+### 2. Commitment 经常不是一句话写出来的
+
+agent 很少明确说“我决定犯这个错”。很多 commitment 是从行动序列里体现出来的：
+
+- 反复调大模型，而不是搜索 compact frontier；
+- 通过本地 validation 后直接 promote；
+- 看到 artifact 过大后只走 quantization；
+- 运行 history-rewriting 命令；
+- 用 aggressive sanitizer 重写 clean input。
+
+自动化系统必须从 message、command、file diff 和后续行动中推断“它此刻相信了什么”。
+这比抽关键词难，因为同一个命令在不同上下文里可能是正常探索，也可能是错误承诺。
+
+### 3. Critical step 不是最后一个错误
+
+最终 verifier error 往往只是症状。真正 critical 的可能早很多。
+
+例如一个 run 最后失败在 runtime gate，但关键问题不是最后一次运行慢，而是很早就把任务
+理解成“写一个语义等价 SQL”而不是“写一个比 golden 足够快的 SQL”。一个 run 最后失败在
+clean HTML unchanged，但关键问题不是最后输出格式，而是开始就把任务当成 aggressive
+sanitization。
+
+自动化要找的是 earliest decisive commitment，而不是最后的 error line。
+
+### 4. 需要反事实判断
+
+判断 critical step，本质上要问一个反事实问题：
+
+> 如果在这一步换成正确承诺，后面的结果会不会改变？
+
+这个问题很难完全自动证明。因为 agent 后续可能仍然失败，另一个路线可能也有坑，
+同一个 repair boundary 可能有多种实现。现在的实践是用 runtime rerun 近似检验：
+把 Debug-Action 注入下一次 run，如果 official verifier 从 0 变 1，说明这个诊断至少有
+实际干预价值。
+
+### 5. Card synthesis 不能只是“把答案贴上去”
+
+如果 card 写得太弱，模型不会改变路线；如果写得太强，就变成同题答案泄漏，不能支持
+更一般的数据选择 claim。尤其是 oracle-grounded audit，要非常小心：
+
+- oracle 可以帮助离线识别 critical boundary；
+- 但 blog 和实验要区分“oracle 用于诊断”与“oracle script 直接进入 prompt”；
+- 更有说服力的是 oracle-free joint-failure card，也就是只从失败 trace 和 verifier
+  footprint 里合成 repair boundary。
+
+Card synthesis 的难点是控制粒度：既要 actionable，又不能把所有东西退化成复制答案。
+
+## 自动化数据生产的真正瓶颈
+
+所以瓶颈不是“让 LLM 写一段总结”。真正难的是把每个 TD card 变成一个有证据、有因果
+含义、能被 verifier 验证的数据点。
+
+可以把瓶颈拆成五个模块：
+
+| 模块 | 自动化难点 | 失败风险 |
+| --- | --- | --- |
+| Reference extraction | 从自然语言、test code、verifier 中抽真实约束 | 把次要约束当主约束 |
+| State reconstruction | 统一命令、artifact、metric、diff、stderr | 漏掉关键状态变化 |
+| Commitment inference | 从行动序列推断 agent 的路线选择 | 把正常探索误判成错误承诺 |
+| Counterfactual attribution | 判断哪个 step 改了结果分支 | 只标到最后症状，不是根因 |
+| Card synthesis | 写出可执行但不过度泄漏的 hint | 过弱无效，过强变答案复制 |
+
+这也是为什么这个问题是开放式的：自动化数据生产不是把 trace 过滤一下，而是要做
+process-level causal labeling。
+
+一个比较现实的路线可能是分阶段推进：
+
+1. **规则抽取 reference/state**：先把 artifact path、failed tests、metric、file diff、
+   verifier output 自动结构化。
+2. **LLM 生成候选 critical commitments**：让模型提出 2 到 3 个可引用的候选，而不是直接
+   给最终结论。
+3. **证据约束过滤**：要求每个候选绑定具体 trace quote、reference object 和 terminal
+   footprint。
+4. **生成多张候选 Debug-Action card**：每张 card 对应一个 repair boundary。
+5. **用 verifier 做选择**：真正能把 rerun 从 fail 变 pass 的 card，才进入高质量数据池。
+
+换句话说，最终的自动化不应该只相信 LLM judge。它应该是：
+
+```text
+LLM proposes causal hypotheses
+  -> structured evidence checker filters them
+  -> runtime rerun tests them
+  -> verifier selects useful cards
+```
+
+这条路线慢一些，但更符合 TD 的目标：让每条训练数据都带着可审计的过程证据，而不是只带
+一个漂亮的自然语言总结。
 
 ## 成功 Run 和失败 Run 的区别
 
