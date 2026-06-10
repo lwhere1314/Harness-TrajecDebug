@@ -29,6 +29,12 @@ are retained for trajectory analysis only and are explicitly excluded from the
 valid reward comparison because they timed out or were interrupted before a
 clean without/with pair was available.
 
+Additional `break-filter-js-from-html` probe logs are included as
+`raw-logs/break-filter-js-from-html-kimicode-20260610.tar.zst`. These runs are
+also trajectory-only: the without run wrote `/app/out.html` but verifier failed
+while creating the local ChromeDriver session with `503 Service Unavailable`;
+the with Meta-Harness run timed out without writing `/app/out.html`.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -49,12 +55,40 @@ Completed task families so far:
   creating `/app/move.txt`; verifier reward was `0.0` with
   `AgentTimeoutError`. This is useful trajectory evidence, but not a clean
   reward comparison.
+- `break-filter-js-from-html`: selected from the K2.6 clean reward-0 pool. The
+  Kimi Code without run wrote a meta-refresh/data-URL payload but the verifier
+  failed before evaluating it because Selenium/ChromeDriver returned proxy
+  `503`. The with Meta-Harness run had environment and prior-failure context
+  injected, but timed out without creating `out.html`.
 
 ## Evaluation
 
 Each run used Harbor reward files and verifier stdout from the official task
 tests. See `runs.csv` for the run-level reward/error table and `summary.json`
 for the structured summary.
+
+## 89-Task Audit
+
+`tb21_89_audit.csv` and `tb21_89_audit.json` reconstruct the current task-level
+score from local Harbor `result.json` files.
+
+Current auditable snapshot:
+
+- without Meta-Harness baseline: `33/89` tasks have reward `1.0` in the
+  `claude-code + kimi-k2.6` run root.
+- with Meta-Harness-style Kimi Code context: `39/89` currently proven, i.e.
+  `33 + 6`.
+- current additional solved tasks: `cancel-async-tasks`, `kv-store-grpc`,
+  `openssl-selfsigned-cert`, `query-optimize`, `sanitize-git-repo`, and
+  `torch-tensor-parallelism`.
+- baseline invalid/missing-rerun bucket: `build-pov-ray`, `crack-7z-hash`,
+  `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
+  `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
+- baseline failure bucket still requiring Meta-Harness traversal: 47 tasks.
+
+This is not yet the final requested number. The final report must first rerun
+the invalid baseline bucket and finish Meta-Harness traversal over the remaining
+baseline failures, then regenerate the audit from raw logs.
 
 ## Trajectory Notes
 
@@ -87,6 +121,12 @@ environment snapshot. The strongest trajectory diffs observed:
   `move.txt` before timeout. The trajectory diff is therefore not a solution
   improvement; it is evidence that prior-failure feedback was present but not
   followed.
+- `break-filter-js-from-html`: without Meta-Harness eventually wrote an
+  `out.html` payload, but the verifier hit the same class of local proxy/browser
+  automation problem as other ChromeDriver/Selenium tasks before evaluating the
+  payload. With Meta-Harness, the prompt included the proxy-only environment
+  snapshot and prior failure details, but the trajectory regressed to a timeout
+  with no `out.html` artifact.
 
 ## Current Negative Candidate
 
@@ -115,3 +155,8 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   repair brief included that exact feedback. The with Meta-Harness run still
   timed out after writing only analysis scripts and no `move.txt`, so it is a
   trajectory-only negative signal rather than a completed valid pair.
+- `break-filter-js-from-html`: prior K2.6 was a clean verifier failure because
+  `/app/out.html` was missing. The Kimi Code without run produced `out.html`,
+  but the verifier failed while creating ChromeDriver (`503 Service
+  Unavailable`), so no payload assertion was reached. The with Meta-Harness run
+  timed out before creating `out.html`.
