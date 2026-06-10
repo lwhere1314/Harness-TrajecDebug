@@ -51,6 +51,11 @@ def main() -> int:
     parser.add_argument("--task", action="append", help="Restrict to task; repeatable.")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--no-force-build",
+        action="store_true",
+        help="Do not pass Harbor --force-build; useful when a valid task image already exists.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "--include-invalid-baseline",
@@ -98,7 +103,6 @@ def main() -> int:
             "1",
             "--n-attempts",
             "1",
-            "--force-build",
             "--agent-import-path",
             "harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
             "--model",
@@ -124,6 +128,8 @@ def main() -> int:
             "--path",
             str(task_path),
         ]
+        if not args.no_force_build:
+            cmd.insert(cmd.index("--agent-import-path"), "--force-build")
         if args.stop_after_path:
             cmd.extend(["--ak", f"stop_after_path={args.stop_after_path}"])
         env = os.environ.copy()
