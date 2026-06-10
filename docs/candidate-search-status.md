@@ -22,16 +22,20 @@ historical Codex + GPT-5.5 reward = 0.0
 
 ## Endpoint Status
 
-As of 2026-06-10, new Kimi reruns cannot start from this checkout:
+As of 2026-06-10, new Kimi reruns should use `seed-coding-plan` when
+`SEED_CODING_PLAN_BASE_URL` and `SEED_CODING_PLAN_API_KEY` are available:
 
 - `token-plan` preflight returns HTTP `429` with quota exhausted.
 - `ark` profile has no `ARK_API_KEY` in the current environment.
+- `auto` resolves `ANTHROPIC_*`, then `SEED_CODING_PLAN_*`, then
+  `TOKEN_PLAN_*`; use the explicit profile below when you want to bypass
+  token-plan entirely.
 
 Use this preflight before launching any new rerun:
 
 ```bash
 source ~/.bashrc >/dev/null 2>&1 || true
-scripts/check_model_endpoint.py --endpoint-profile auto --model kimi-k2.6
+scripts/check_model_endpoint.py --endpoint-profile seed-coding-plan --model kimi-k2.6
 ```
 
 Do not report a model-method failure unless endpoint preflight succeeds and the
@@ -97,8 +101,8 @@ export DOCKER_HOST=unix:///Users/hugo/.colima/tb21-harbor/docker.sock
 Kimi reruns for `make-mips-interpreter` once preflight is green:
 
 ```bash
-scripts/run_candidate_kimi_reruns.sh --dry-run
-scripts/run_candidate_kimi_reruns.sh
+scripts/run_candidate_kimi_reruns.sh --endpoint-profile seed-coding-plan --dry-run
+scripts/run_candidate_kimi_reruns.sh --endpoint-profile seed-coding-plan
 ```
 
 The queue preflights the model endpoint, runs each task/method pair
@@ -131,7 +135,7 @@ scripts/run_harbor_dynamic_icl.sh \
   --jobs-dir runs/harbor_icl_baseline/harbor_runs_oracle_grounded \
   --model kimi-k2.6 \
   --task make-mips-interpreter \
-  --endpoint-profile auto \
+  --endpoint-profile seed-coding-plan \
   --context-variant oracle_grounded \
   --inject-mode prelude \
   --agent-timeout 1200 \
@@ -143,7 +147,7 @@ scripts/run_harbor_dynamic_icl.sh \
   --jobs-dir runs/harbor_icl_baseline/harbor_runs_joint_failure \
   --model kimi-k2.6 \
   --task make-mips-interpreter \
-  --endpoint-profile auto \
+  --endpoint-profile seed-coding-plan \
   --context-variant debug_action \
   --inject-mode prelude \
   --agent-timeout 1200 \

@@ -478,6 +478,10 @@ Runtime ICL scripts also support explicit Anthropic-compatible endpoint
 profiles. Keep keys in the shell environment, not in config files:
 
 ```bash
+export SEED_CODING_PLAN_BASE_URL="https://..."
+export SEED_CODING_PLAN_API_KEY="..."
+scripts/run_daily_icl_canary.sh --endpoint-profile seed-coding-plan --model kimi-k2.6
+
 export ARK_API_KEY="..."
 scripts/run_daily_icl_canary.sh --endpoint-profile ark --model kimi-k2.6
 
@@ -485,7 +489,8 @@ export DASHSCOPE_API_KEY="..."
 scripts/run_daily_icl_canary.sh --endpoint-profile dashscope --model kimi-k2.5
 ```
 
-`ark` defaults to `https://ark.cn-beijing.volces.com/api/coding`;
+`auto` resolves `ANTHROPIC_*`, then `SEED_CODING_PLAN_*`, then
+`TOKEN_PLAN_*`. `ark` defaults to `https://ark.cn-beijing.volces.com/api/coding`;
 `dashscope` defaults to `https://coding.dashscope.aliyuncs.com/apps/anthropic`;
 `kimi` defaults to `https://api.kimi.com/coding/`. Override the default base
 URLs with `ARK_BASE_URL`, `DASHSCOPE_BASE_URL`, or `KIMI_BASE_URL` when needed.

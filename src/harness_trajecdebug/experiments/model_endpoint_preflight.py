@@ -11,12 +11,15 @@ from urllib import error, request
 
 PROFILE_ALIASES = {
     "token_plan": "token-plan",
+    "seed": "seed-coding-plan",
+    "seed_coding_plan": "seed-coding-plan",
     "kimi-code": "kimi",
     "kimi_code": "kimi",
 }
 
 PROFILE_ENV = {
     "anthropic": ("ANTHROPIC_BASE_URL", "ANTHROPIC_API_KEY", None),
+    "seed-coding-plan": ("SEED_CODING_PLAN_BASE_URL", "SEED_CODING_PLAN_API_KEY", None),
     "token-plan": ("TOKEN_PLAN_BASE_URL", "TOKEN_PLAN_API_KEY", None),
     "ark": ("ARK_BASE_URL", "ARK_API_KEY", "https://ark.cn-beijing.volces.com/api/coding"),
     "dashscope": (
@@ -42,6 +45,13 @@ def normalize_profile(profile: str | None) -> str:
     return PROFILE_ALIASES.get(raw, raw)
 
 
+def _first_present_source(values: dict[str, str], names: tuple[str, ...]) -> str:
+    for name in names:
+        if values.get(name):
+            return name
+    return names[-1]
+
+
 def resolve_endpoint_config(
     *,
     profile: str | None = None,
@@ -56,6 +66,8 @@ def resolve_endpoint_config(
         if not resolved_profile:
             if values.get("ANTHROPIC_BASE_URL") or values.get("ANTHROPIC_API_KEY"):
                 resolved_profile = "anthropic"
+            elif values.get("SEED_CODING_PLAN_BASE_URL") or values.get("SEED_CODING_PLAN_API_KEY"):
+                resolved_profile = "seed-coding-plan"
             elif values.get("TOKEN_PLAN_BASE_URL") or values.get("TOKEN_PLAN_API_KEY"):
                 resolved_profile = "token-plan"
             else:
@@ -65,16 +77,24 @@ def resolve_endpoint_config(
             "resolved_profile": resolved_profile,
             "base_url": base_url
             or values.get("ANTHROPIC_BASE_URL")
+            or values.get("SEED_CODING_PLAN_BASE_URL")
             or values.get("TOKEN_PLAN_BASE_URL"),
             "api_key": api_key
             or values.get("ANTHROPIC_API_KEY")
+            or values.get("SEED_CODING_PLAN_API_KEY")
             or values.get("TOKEN_PLAN_API_KEY"),
             "base_url_source": "explicit"
             if base_url
-            else ("ANTHROPIC_BASE_URL" if values.get("ANTHROPIC_BASE_URL") else "TOKEN_PLAN_BASE_URL"),
+            else _first_present_source(
+                values,
+                ("ANTHROPIC_BASE_URL", "SEED_CODING_PLAN_BASE_URL", "TOKEN_PLAN_BASE_URL"),
+            ),
             "api_key_source": "explicit"
             if api_key
-            else ("ANTHROPIC_API_KEY" if values.get("ANTHROPIC_API_KEY") else "TOKEN_PLAN_API_KEY"),
+            else _first_present_source(
+                values,
+                ("ANTHROPIC_API_KEY", "SEED_CODING_PLAN_API_KEY", "TOKEN_PLAN_API_KEY"),
+            ),
         }
 
     if normalized not in PROFILE_ENV:
@@ -154,7 +174,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--endpoint-profile",
         default=os.environ.get("HTD_ENDPOINT_PROFILE", "auto"),
-        help="Endpoint profile: auto, anthropic, token-plan, ark, dashscope, or kimi.",
+        help="Endpoint profile: auto, anthropic, seed-coding-plan, token-plan, ark, dashscope, or kimi.",
     )
     parser.add_argument("--base-url")
     parser.add_argument("--api-key")

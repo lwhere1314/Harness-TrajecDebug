@@ -38,7 +38,9 @@ Purpose:
 Options:
   --pack-dir DIR              ICL pack. Default: runs/harbor_icl_baseline
   --model NAME                Model name. Default: $MODEL or kimi-k2.6
-  --endpoint-profile NAME     Endpoint profile. Default: $HTD_ENDPOINT_PROFILE or auto
+  --endpoint-profile NAME     Endpoint profile, e.g. auto, seed-coding-plan,
+                              token-plan, ark, dashscope, or kimi. Default:
+                              $HTD_ENDPOINT_PROFILE or auto
   --inject-mode MODE          prelude, continue_after, hooks_live, sdk_live, or tool.
                               Default: prelude
   --task NAME                 Candidate task. May repeat. Replaces defaults.

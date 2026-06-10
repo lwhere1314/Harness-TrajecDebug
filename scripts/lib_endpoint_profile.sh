@@ -6,13 +6,15 @@ apply_endpoint_profile() {
     auto)
       if [[ -n "${ANTHROPIC_BASE_URL:-}" || -n "${ANTHROPIC_API_KEY:-}" ]]; then
         export HTD_ENDPOINT_RESOLVED_PROFILE="anthropic"
+      elif [[ -n "${SEED_CODING_PLAN_BASE_URL:-}" || -n "${SEED_CODING_PLAN_API_KEY:-}" ]]; then
+        export HTD_ENDPOINT_RESOLVED_PROFILE="seed-coding-plan"
       elif [[ -n "${TOKEN_PLAN_BASE_URL:-}" || -n "${TOKEN_PLAN_API_KEY:-}" ]]; then
         export HTD_ENDPOINT_RESOLVED_PROFILE="token-plan"
       else
         export HTD_ENDPOINT_RESOLVED_PROFILE="auto"
       fi
-      export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-${TOKEN_PLAN_BASE_URL:-}}"
-      export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-${TOKEN_PLAN_API_KEY:-}}"
+      export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-${SEED_CODING_PLAN_BASE_URL:-${TOKEN_PLAN_BASE_URL:-}}}"
+      export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-${SEED_CODING_PLAN_API_KEY:-${TOKEN_PLAN_API_KEY:-}}}"
       ;;
     anthropic)
       export HTD_ENDPOINT_RESOLVED_PROFILE="anthropic"
@@ -23,6 +25,11 @@ apply_endpoint_profile() {
       export HTD_ENDPOINT_RESOLVED_PROFILE="token-plan"
       export ANTHROPIC_BASE_URL="${TOKEN_PLAN_BASE_URL:-}"
       export ANTHROPIC_API_KEY="${TOKEN_PLAN_API_KEY:-}"
+      ;;
+    seed-coding-plan|seed_coding_plan|seed)
+      export HTD_ENDPOINT_RESOLVED_PROFILE="seed-coding-plan"
+      export ANTHROPIC_BASE_URL="${SEED_CODING_PLAN_BASE_URL:-}"
+      export ANTHROPIC_API_KEY="${SEED_CODING_PLAN_API_KEY:-}"
       ;;
     ark)
       export HTD_ENDPOINT_RESOLVED_PROFILE="ark"
