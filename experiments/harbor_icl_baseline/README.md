@@ -103,6 +103,27 @@ Current smoke-test status:
   historical trace passed, but one supplied the schema-contract failure and the
   other supplied the alignment-margin failure. Harness-TrajecDebug fused those
   into one bounded Debug-Action card that Claude Code + Kimi-k2.6 could execute.
+- `raman-fitting` is an additional **Codex-failed critical-step lifting** case:
+  - historical Codex + GPT-5.5 reward `0.0`, with `/app/results.json` present
+    and schema-valid but both peak tests failing after the agent explicitly
+    committed to fitting the raw instrument x-coordinate;
+  - the critical step was the axis-framing action: parse comma-decimal data,
+    convert `raw_x` with `x = 1e7 / raw_x`, then fit only the converted G
+    (`1500 < x < 1700`) and 2D (`2500 < x < 2900`) Raman windows;
+  - Stage A `prelude + oracle_grounded` rerun reward `1.0`, official verifier
+    `3/3` passed;
+  - Stage B `prelude + debug_action` rerun reward `1.0`, official verifier
+    `3/3` passed, using only the failed Codex trace footprint plus the repair
+    boundary rather than a successful teacher trajectory.
+- The successful oracle-grounded `raman-fitting` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_oracle_grounded/htd-dynamic-icl-prelude-oracle_grounded-raman-fitting-kimi-k2-6/raman-fitting__MjbR2nV`.
+- The successful oracle-free `raman-fitting` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_joint_failure/htd-dynamic-icl-prelude-debug_action-raman-fitting-kimi-k2-6/raman-fitting__RFdou7e`.
+- This case is not reported as a clean joint-failure lift: the compared
+  historical Kimi trace did not provide a model-quality verifier footprint
+  because of local verifier infrastructure noise. Its value is narrower but
+  sharp: a failed frontier-model trajectory can still contain enough
+  process-level evidence to synthesize a corrective Debug-Action card.
 
 The stronger claim requires a held-out experiment:
 
