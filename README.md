@@ -15,7 +15,10 @@ to-do list, and planned Harbor experiments. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
 comparison with Meta-Harness. See the blog-style case study
 [Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
-for the first interactive repair canary. See
+for the first interactive repair canary, and
+[Lifting a Joint Failure on `sanitize-git-repo`](docs/blog/sanitize-git-repo-joint-failure-lifting.md)
+for the first case where both historical compared runs failed but an
+HTD-derived runtime hint repaired the rerun. See
 [experiments/harbor_icl_baseline/README.md](experiments/harbor_icl_baseline/README.md)
 for the first Kimi ICL baseline design and runner scripts, and
 [experiments/harbor_icl_baseline/fairness_protocol.md](experiments/harbor_icl_baseline/fairness_protocol.md)
@@ -37,7 +40,7 @@ process signal inside the trace:
 SFT, RL, and preference-learning pipelines are future downstream applications.
 The immediate goal is to build a reliable trace-to-ICL-example pipeline first.
 
-## Current Mechanism Result
+## Current Mechanism Results
 
 The first runtime-ICL canary is now working end to end on Harbor /
 Terminal-Bench-style tasks. On `query-optimize`, Claude Code + `kimi-k2.6`
@@ -58,6 +61,23 @@ This is not yet the final held-out generalization claim. It is a mechanism
 check showing that process-aware Debug-Trajectory examples can correct a
 previously failing interactive run, while outcome-only context does not provide
 enough guidance on the same case.
+
+The stronger current result is `sanitize-git-repo`: both historical compared
+runs failed, but their failure footprints were complementary. Claude Code +
+Kimi-k2.6 missed a token embedded in a JSON diff string; Codex + GPT-5.5
+over-solved by mutating git history, which broke the verifier's reference
+commit check. Harness-TrajecDebug synthesized a bounded Debug-Action card:
+edit only the contaminated working-tree files, replace all secret-shaped
+patterns, and do not rewrite history. Injected once at the first `Bash`
+tool-use boundary through `sdk_live`, the rerun passed the official verifier:
+
+| Task | Historical Codex + GPT-5.5 | Historical Claude Code + Kimi-k2.6 | HTD runtime rerun |
+| --- | ---: | ---: | ---: |
+| `sanitize-git-repo` | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
+
+This is a joint-failure lifting result: a pair of failed traces can still be
+useful ICL data if their process evidence identifies the critical decision
+boundary.
 
 ## Why This Exists
 
@@ -202,6 +222,15 @@ scripts/build_icl_task_matrix.py
 
 The matrix is written to `runs/harbor_icl_baseline/task_matrix.json` and
 `runs/harbor_icl_baseline/task_matrix.md`.
+
+Build the joint-failure matrix for tasks where both compared runs failed:
+
+```bash
+scripts/build_joint_failure_matrix.py
+```
+
+The matrix is written to `runs/harbor_icl_baseline/joint_failure_matrix.json`
+and `runs/harbor_icl_baseline/joint_failure_matrix.md`.
 
 Replay the next matrix canaries without launching Harbor:
 

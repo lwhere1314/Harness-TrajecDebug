@@ -13,6 +13,7 @@ from harness_trajecdebug.experiments.harbor_icl_baseline import patch_local_pyte
 from harness_trajecdebug.experiments.harbor_icl_baseline import patch_dockerfile_no_proxy
 from harness_trajecdebug.experiments.icl_task_matrix import build_matrix
 from harness_trajecdebug.experiments.icl_readiness import build_readiness
+from harness_trajecdebug.experiments.joint_failure_matrix import build_joint_matrix
 from harness_trajecdebug.experiments.live_icl_hook import (
     build_hook_settings,
     run_pre_tool_hook,
@@ -392,6 +393,93 @@ HTD_ARTIFACT_EOF
         self.assertEqual(len(candidates), 1)
         self.assertEqual(candidates[0].student_reward, 0.0)
         self.assertEqual(candidates[0].student_status, "failed_reward")
+
+    def test_joint_failure_matrix_prefers_verifier_footprints(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            student_trial = root / "student" / "task-a__123"
+            teacher_task = root / "teacher" / "task-a"
+            student_trial.joinpath("verifier").mkdir(parents=True)
+            teacher_task.joinpath("verifier").mkdir(parents=True)
+            student_trial.joinpath("verifier", "ctrf.json").write_text(
+                json.dumps(
+                    {
+                        "results": {
+                            "tests": [
+                                {
+                                    "name": "test_outputs.py::test_secret_removed",
+                                    "status": "failed",
+                                },
+                                {"name": "test_outputs.py::test_other", "status": "passed"},
+                            ]
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            teacher_task.joinpath("verifier", "ctrf.json").write_text(
+                json.dumps(
+                    {
+                        "results": {
+                            "tests": [
+                                {
+                                    "name": "test_outputs.py::test_no_other_files_changed",
+                                    "status": "failed",
+                                }
+                            ]
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            student_state = root / "student-state.json"
+            teacher_state = root / "teacher-state.json"
+            student_state.write_text(
+                json.dumps(
+                    {
+                        "tasks": {
+                            "task-a": {
+                                "result_summary": {
+                                    "reward": 0,
+                                    "trial_results": [{"trial_dir": str(student_trial)}],
+                                }
+                            },
+                            "task-b": {
+                                "result_summary": {
+                                    "reward": 1,
+                                    "trial_results": [{"trial_dir": str(root / "student" / "task-b")}],
+                                }
+                            },
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            teacher_state.write_text(
+                json.dumps(
+                    {
+                        "tasks": {
+                            "task-a": {
+                                "reward": 0,
+                                "status": "finished",
+                                "task_run_dir": str(teacher_task),
+                            },
+                            "task-b": {
+                                "reward": 0,
+                                "status": "finished",
+                                "task_run_dir": str(root / "teacher" / "task-b"),
+                            },
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            candidates = build_joint_matrix(student_state, teacher_state)
+
+        self.assertEqual([candidate.task for candidate in candidates], ["task-a"])
+        self.assertEqual(candidates[0].failure_kind, "complementary_verifier_failure")
+        self.assertEqual(candidates[0].htd_suitability, "high")
 
     def test_sdk_live_summary_rate_limit(self):
         with tempfile.TemporaryDirectory() as tmp:

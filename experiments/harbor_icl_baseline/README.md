@@ -42,6 +42,18 @@ Current smoke-test status:
 - This is still a same-task repair smoke test, but it is a useful mechanism
   check: runtime injection alone did not solve the task; the selected
   Debug-Action example did.
+- `sanitize-git-repo` is now the first **joint-failure lifting** case:
+  - historical Claude Code + Kimi-k2.6 reward `0.0`, failing because it missed
+    a token occurrence embedded inside the JSON metadata diff;
+  - historical Codex + GPT-5.5 reward `0.0`, failing because it over-solved by
+    mutating git history and broke the verifier's reference-commit check;
+  - `sdk_live + debug_action` rerun on Claude Code + Kimi-k2.6 reward `1.0`,
+    with one `PreToolUse(Bash)` injection and official verifier `3/3` passed.
+- The successful `sanitize-git-repo` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_joint_failure/htd-dynamic-icl-sdk_live-debug_action-sanitize-git-repo-kimi-k2-6/sanitize-git-repo__JPnpGsH`.
+- This is stronger than a teacher-success replay: both compared historical
+  traces failed, but their complementary verifier footprints were enough for
+  Harness-TrajecDebug to synthesize a bounded repair hint.
 
 The stronger claim requires a held-out experiment:
 
