@@ -7,6 +7,8 @@ For the generated local failure-pool inventory, see
 [`codex-failure-pool-audit.md`](codex-failure-pool-audit.md). The current audit
 finds no remaining unclassified canonical Codex + GPT-5.5 failures in the local
 SSD run roots; the clean next candidates are the two MIPS/DOOM tasks below.
+For the current Kimi rerun queue result status, see
+[`candidate-kimi-rerun-status.md`](candidate-kimi-rerun-status.md).
 
 Goal:
 
@@ -88,6 +90,14 @@ Kimi reruns for `make-mips-interpreter` once preflight is green:
 ```bash
 scripts/run_candidate_kimi_reruns.sh --dry-run
 scripts/run_candidate_kimi_reruns.sh
+```
+
+After the queue runs, regenerate the local status report:
+
+```bash
+scripts/summarize_candidate_kimi_reruns.py \
+  --markdown-output docs/candidate-kimi-rerun-status.md \
+  --json-output runs/harbor_icl_baseline/candidate_kimi_rerun_status.json
 ```
 
 The script above runs the full accepted queue:
