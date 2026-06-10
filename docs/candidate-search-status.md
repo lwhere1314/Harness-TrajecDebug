@@ -37,6 +37,15 @@ scripts/check_model_endpoint.py --endpoint-profile auto --model kimi-k2.6
 Do not report a model-method failure unless endpoint preflight succeeds and the
 agent enters the Claude Code loop.
 
+To refresh the Codex + GPT-5.5 failure-pool audit across the known local roots:
+
+```bash
+scripts/audit_codex_failure_pool.py \
+  --runs-root /Volumes/SSD/terminal-bench-harbor/harbor/runs \
+  --runs-root /Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs \
+  --output docs/codex-failure-pool-audit.md
+```
+
 ## Accepted Candidates
 
 | Candidate | Historical Codex + GPT-5.5 failure | Card status | Sanity status | Next action |

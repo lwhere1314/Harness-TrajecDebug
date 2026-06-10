@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Iterable
 
 
-DEFAULT_RUNS_ROOT = Path("/Volumes/SSD/terminal-bench-harbor/harbor/runs")
+DEFAULT_RUNS_ROOTS = (Path("/Volumes/SSD/terminal-bench-harbor/harbor/runs"),)
 
 
 DISPOSITION = {
@@ -87,15 +87,22 @@ class RewardRecord:
         return self.reward not in {"1", "1.0"}
 
 
-def codex_gpt55_roots(runs_root: Path) -> list[Path]:
-    if not runs_root.exists():
-        return []
+def codex_gpt55_roots(runs_roots: Iterable[Path]) -> list[Path]:
     roots = []
-    for path in runs_root.iterdir():
-        if not path.is_dir():
+    seen: set[Path] = set()
+    for runs_root in runs_roots:
+        if not runs_root.exists():
             continue
-        name = path.name.lower()
-        if "codex" in name and ("gpt55" in name or "gpt-5" in name):
+        for path in runs_root.iterdir():
+            if not path.is_dir():
+                continue
+            name = path.name.lower()
+            if "codex" not in name or ("gpt55" not in name and "gpt-5" not in name):
+                continue
+            resolved = path.resolve()
+            if resolved in seen:
+                continue
+            seen.add(resolved)
             roots.append(path)
     return sorted(roots, key=lambda p: p.name)
 
@@ -183,7 +190,7 @@ def short_tests(tests: tuple[str, ...], limit: int = 3) -> str:
     return "<br>".join(shown)
 
 
-def render_markdown(records: list[RewardRecord], roots: list[Path], runs_root: Path) -> str:
+def render_markdown(records: list[RewardRecord], roots: list[Path], runs_roots: list[Path]) -> str:
     canonical = canonical_records(records)
     failures = [record for record in canonical if record.failed]
     passes = [record for record in canonical if not record.failed]
@@ -199,19 +206,25 @@ def render_markdown(records: list[RewardRecord], roots: list[Path], runs_root: P
         "",
         "## Scope",
         "",
-        f"- Runs root: `{runs_root}`",
+        "- Run roots searched:",
+    ]
+    for runs_root in runs_roots:
+        lines.append(f"  - `{runs_root}`")
+    lines.extend(
+        [
         f"- Codex + GPT-5.5 run roots scanned: `{len(roots)}`",
         f"- Canonical task records: `{len(canonical)}`",
         f"- Unique task names: `{len(unique_tasks)}`",
         f"- Canonical reward failures: `{len(failures)}`",
         f"- Canonical reward passes: `{len(passes)}`",
         f"- Unclassified reward failures: `{unclassified_count}`",
-        "",
-        "## Failure Disposition Counts",
-        "",
-        "| Disposition | Count |",
-        "| --- | ---: |",
-    ]
+            "",
+            "## Failure Disposition Counts",
+            "",
+            "| Disposition | Count |",
+            "| --- | ---: |",
+        ]
+    )
     for label, count in sorted(disposition_counts.items()):
         lines.append(f"| `{label}` | {count} |")
     if not disposition_counts:
@@ -270,13 +283,22 @@ def render_markdown(records: list[RewardRecord], roots: list[Path], runs_root: P
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runs-root", type=Path, default=DEFAULT_RUNS_ROOT)
+    parser.add_argument(
+        "--runs-root",
+        type=Path,
+        action="append",
+        help=(
+            "Harbor runs root to scan. May repeat. Defaults to "
+            "/Volumes/SSD/terminal-bench-harbor/harbor/runs."
+        ),
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
-    roots = codex_gpt55_roots(args.runs_root)
+    runs_roots = args.runs_root or list(DEFAULT_RUNS_ROOTS)
+    roots = codex_gpt55_roots(runs_roots)
     records = collect_records(roots)
-    markdown = render_markdown(records, roots, args.runs_root)
+    markdown = render_markdown(records, roots, runs_roots)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(markdown, encoding="utf-8")

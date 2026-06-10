@@ -5,7 +5,9 @@ launch Docker, Harbor, or model calls.
 
 ## Scope
 
-- Runs root: `/Volumes/SSD/terminal-bench-harbor/harbor/runs`
+- Run roots searched:
+  - `/Volumes/SSD/terminal-bench-harbor/harbor/runs`
+  - `/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs`
 - Codex + GPT-5.5 run roots scanned: `16`
 - Canonical task records: `56`
 - Unique task names: `51`
