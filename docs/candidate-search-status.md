@@ -3,6 +3,11 @@
 This note tracks the next Codex + GPT-5.5 failed cases for the
 Harness-TrajecDebug closed-loop experiment.
 
+For the generated local failure-pool inventory, see
+[`codex-failure-pool-audit.md`](codex-failure-pool-audit.md). The current audit
+finds no remaining unclassified canonical Codex + GPT-5.5 failures in the local
+SSD run roots; the clean next candidates are the two MIPS/DOOM tasks below.
+
 Goal:
 
 ```text
