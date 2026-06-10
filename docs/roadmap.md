@@ -19,6 +19,10 @@ trajectory selection improves in-context learning for smaller terminal agents.
   - `budget debt loop`
   - `no critical failure detected`
 - Added a CLI: `harness-trajdebug diagnose`.
+- Added integration commands for:
+  - local harness discovery across Codex, Claude Code, and Kimi routes,
+  - Harbor-compatible task discovery,
+  - Harbor run import from Claude Code ATIF traces and Codex JSONL traces.
 - Added bundled examples for:
   - `train-fasttext` near miss,
   - `cancel-async-tasks` passed trajectory.
@@ -31,8 +35,8 @@ trajectory selection improves in-context learning for smaller terminal agents.
 
 Build adapters for trace formats produced by common agent harnesses:
 
-- Terminal-Bench / Harbor-style JSON traces,
-- Claude Code / Codex / Kimi-Code terminal-agent traces,
+- Terminal-Bench / Harbor-style JSON traces (initial import path done),
+- Claude Code / Codex / Kimi-Code terminal-agent traces (initial ATIF/JSONL path done),
 - generic tool-call logs with `steps`, `toolCalls`, `observation`, and
   `verifierLog`,
 - auto-code-bench-style coding task traces when available.
@@ -54,7 +58,8 @@ reward / pass-fail signal
 
 Add first-class Harbor-style task support:
 
-- parse task spec, tests, oracle/reference solution, and verifier output,
+- parse task spec, tests, oracle/reference solution, and verifier output
+  (initial task/trial scanner done),
 - preserve container artifacts and command outputs,
 - reconstruct artifact lifecycle and metric changes,
 - expose task-level dashboards for comparing harnesses and models.

@@ -11,7 +11,10 @@ there is concrete trace evidence and a final verifier footprint.
 See [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the taxonomy diagram
 and [docs/framework.md](docs/framework.md) for the reference/state/commitment
 workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
-to-do list, and planned Harbor experiments. See
+to-do list, and planned Harbor experiments. See [docs/integrations.md](docs/integrations.md)
+for the local Codex / Claude Code / Kimi route and Harbor task/run adapters. See
+[AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) for the server migration
+and full Harbor -> diagnosis -> repair -> viewer workflow. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
 comparison with Meta-Harness.
 
@@ -65,6 +68,22 @@ python3 -m pip install -e .
 
 No runtime dependencies are required.
 
+## Server Migration
+
+For a new server, clone the repo and run the preflight first:
+
+```bash
+cd /path/to/Harness-TrajecDebug
+bash scripts/preflight.sh
+```
+
+The preflight checks the host without printing secret values: Python, Node/npm,
+Harbor, Docker, Seed/Kimi variables, Codex hints, the ATIF viewer checkout, and
+the local harness inventory. Then follow
+[AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) to choose a harness,
+run Harbor tasks, diagnose critical steps, launch repair passes, and export the
+process into the ATIF trajectory viewer.
+
 ## Quick Start
 
 Run the built-in train-fasttext example:
@@ -86,6 +105,35 @@ harness-trajdebug diagnose \
 ```
 
 The command alias `harness-trajecdebug` is also available.
+
+Inspect local harness backends:
+
+```bash
+harness-trajdebug harnesses
+```
+
+List Harbor-compatible tasks and import a Harbor run:
+
+```bash
+harness-trajdebug harbor-tasks \
+  --root /Volumes/SSD/terminal-bench-harbor/harbor/datasets/terminal-bench-2.1-proxy/tasks \
+  --limit 5
+
+harness-trajdebug harbor-import \
+  --run /Volumes/SSD/terminal-bench-harbor/harbor/runs/tb21-train-fasttext-claude-code-kimi-k26 \
+  --output-dir artifacts/normalized-harbor \
+  --diagnose
+```
+
+Export a Harbor run into the local ATIF trajectory viewer:
+
+```bash
+harness-trajdebug atif-viewer-export \
+  --run /path/to/harbor/runs/swebenchpro-fix-ansible-invalid-hosts-claude-code-kimi-k26 \
+  --viewer-root /Users/hugo/Documents/terminal-bench-3.0-PR/ATIF-trajectory-viewer \
+  --label swebenchpro-fix-ansible-invalid-hosts-claude-code-kimi-k26 \
+  --diagnose
+```
 
 ## Vercel Demo
 
@@ -180,13 +228,17 @@ Current implementation:
 
 - rule-based reference/state/commitment parser,
 - failure taxonomy and critical-step selector,
+- harness inventory for Codex, Claude Code, and Kimi routes,
+- Harbor-compatible task discovery,
+- Harbor run import for Claude Code ATIF traces and Codex JSONL traces,
+- ATIF trajectory viewer local-bundle export for Harbor runs,
 - bundled train-fasttext and cancel-async-tasks examples,
 - Vercel demo API that runs diagnosis on example traces,
 - initial GitHub CI.
 
 Next milestones:
 
-- adapters for common harness trace formats,
-- Harbor-style task support,
+- broader adapters for common harness trace formats,
+- Harbor-compatible dataset adapters beyond Terminal-Bench, such as SWE-bench Pro,
 - Harness x Model experiment runner,
 - ICL data selection benchmark against prompt-based and outcome-only baselines.

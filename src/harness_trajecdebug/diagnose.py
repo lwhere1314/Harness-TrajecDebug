@@ -14,11 +14,11 @@ from harness_trajecdebug.parsing import (
     extract_decision_evidence,
     extract_reference,
     extract_state_events,
-    load_json,
     verifier_has_test_failure,
     verifier_has_test_pass,
 )
 from harness_trajecdebug.patterns import choose_critical_step, classify_patterns, final_failure, make_diagnosis_text
+from harness_trajecdebug.trace_adapters import load_trace_for_diagnosis
 
 
 def read_metrics(path: Path | None, run_id: str | None) -> dict[str, str]:
@@ -34,7 +34,7 @@ def read_metrics(path: Path | None, run_id: str | None) -> dict[str, str]:
 def read_case_run(path: Path | None, run_id: str | None) -> dict[str, Any]:
     if not path or not run_id or not path.exists():
         return {}
-    obj = load_json(path)
+    obj = load_trace_for_diagnosis(path)
     for run in obj.get("runs", []):
         if run.get("runId") == run_id:
             return run
@@ -96,11 +96,13 @@ def diagnose_trace(
     metrics_csv: Path | None = None,
     case_json: Path | None = None,
 ) -> Diagnosis:
-    trace = load_json(trace_path)
+    trace = load_trace_for_diagnosis(trace_path)
     verifier_log = trace.get("verifierLog") or ""
     task_family = detect_task_family(trace, trace_path, run_id)
     metrics = read_metrics(metrics_csv, run_id)
     case_run = read_case_run(case_json, run_id)
+    if not case_run and isinstance(trace.get("harbor"), dict):
+        case_run = trace["harbor"]
     reference = extract_reference(trace, task_family)
     events = extract_state_events(trace)
     decisions = extract_decision_evidence(trace)
@@ -116,11 +118,17 @@ def diagnose_trace(
     elif verifier_has_test_pass(verifier_log) and not verifier_has_test_failure(verifier_log):
         outcome = "passed"
 
+    failure = final_failure(events, verifier_log)
+    if failure is None and case_run:
+        reward = state.get("reward")
+        if case_run.get("passed") is False or (isinstance(reward, float) and reward < 1.0):
+            failure = f"Harbor reward={reward}" if reward is not None else "Harbor trial did not pass"
+
     return Diagnosis(
         run_id=run_id,
         task_family=task_family,
         outcome=outcome,
-        final_failure=final_failure(events, verifier_log),
+        final_failure=failure,
         reference=reference,
         state_summary=state,
         state_events=events,

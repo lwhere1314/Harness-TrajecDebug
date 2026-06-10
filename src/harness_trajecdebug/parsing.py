@@ -43,7 +43,7 @@ def step_blob(step: dict[str, Any]) -> str:
     """Flatten common trace fields into a searchable text blob."""
 
     parts: list[str] = []
-    for key in ("text", "reasoning", "observation"):
+    for key in ("text", "message", "reasoning", "reasoning_content", "observation"):
         value = step.get(key)
         if isinstance(value, str) and value.strip():
             parts.append(value)
@@ -52,6 +52,17 @@ def step_blob(step: dict[str, Any]) -> str:
             continue
         name = call.get("name")
         args = call.get("args")
+        if name:
+            parts.append(str(name))
+        if isinstance(args, str):
+            parts.append(args)
+        elif isinstance(args, dict):
+            parts.append(json.dumps(args, ensure_ascii=False))
+    for call in step.get("tool_calls") or []:
+        if not isinstance(call, dict):
+            continue
+        name = call.get("function_name") or call.get("name")
+        args = call.get("arguments") or call.get("args")
         if name:
             parts.append(str(name))
         if isinstance(args, str):
@@ -72,7 +83,17 @@ def is_diagnostic_noise(text: str) -> bool:
     """Skip harness/skill boilerplate that can mention unrelated task names."""
 
     return bool(
-        re.search(r"name:\s*terminal-bench-harbor-runner|# Terminal Bench Harbor Runner", text, re.I)
+        re.search(
+            (
+                r"name:\s*terminal-bench-harbor-runner|"
+                r"# Terminal Bench Harbor Runner|"
+                r"## Known Local Notes|"
+                r"harbor/runs/<job-name>|"
+                r"Terminal-Bench 2\.1 local task copy"
+            ),
+            text,
+            re.I,
+        )
     )
 
 
@@ -93,10 +114,18 @@ def verifier_has_test_pass(verifier_log: str) -> bool:
 
 def detect_task_family(trace: dict[str, Any], trace_path: Path, run_id: str | None) -> str:
     identity = f"{run_id or ''}\n{trace_path.name}\n{trace_path.parent.name}".lower()
+    harbor = trace.get("harbor")
+    if isinstance(harbor, dict):
+        identity += "\n" + "\n".join(
+            str(harbor.get(key) or "")
+            for key in ("task_name", "task_path", "source", "run_name", "trial_name")
+        ).lower()
     if "cancel-async" in identity or "cancel async" in identity:
         return "cancel-async-tasks"
     if "train-fasttext" in identity or "fasttext" in identity:
         return "train-fasttext"
+    if "swebenchpro" in identity or "swe-bench-pro" in identity or "instance_" in identity:
+        return "swe-bench-pro"
 
     prompt_blobs: list[str] = []
     for step in trace.get("steps", [])[:8]:
@@ -116,6 +145,8 @@ def detect_task_family(trace: dict[str, Any], trace_path: Path, run_id: str | No
         return "cancel-async-tasks"
     if "train-fasttext" in haystack or "fasttext" in haystack:
         return "train-fasttext"
+    if "pr_description" in haystack or "swe-bench pro" in haystack or "swebenchpro" in haystack:
+        return "swe-bench-pro"
     return "generic-terminal-agent"
 
 
@@ -154,6 +185,13 @@ def extract_reference(trace: dict[str, Any], task_family: str) -> dict[str, Any]
             {
                 "expected_behavior": "run_tasks should cancel active async tasks and await cleanup under failures or outer cancellation",
                 "verifier": "pytest task tests",
+            }
+        )
+    elif task_family == "swe-bench-pro":
+        reference.update(
+            {
+                "expected_behavior": "patch the uploaded repository so hidden and gold tests pass",
+                "verifier": "SWE-bench Pro pytest/gold test harness",
             }
         )
 
