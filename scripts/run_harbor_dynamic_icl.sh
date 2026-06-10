@@ -35,8 +35,8 @@ Options:
   --context-variant NAME  Teacher card to expose at runtime. Default: debug_trajectory
   --inject-mode MODE      Runtime injection mode: tool, prelude, continue_after,
                           sdk_live, or hooks_live. Default: tool
-  --endpoint-profile NAME Endpoint profile: auto, anthropic, token-plan, ark,
-                          dashscope, or kimi. Default: auto
+  --endpoint-profile NAME Endpoint profile: auto, anthropic, seed-coding-plan,
+                          token-plan, ark, dashscope, or kimi. Default: auto
   --sdk-live-intercept-tool NAME
                           In sdk_live mode, inject context before this tool name. May repeat.
   --setup-timeout SEC     Agent setup timeout. Default: 1200
@@ -56,9 +56,10 @@ Options:
   -h, --help              Show this help
 
 Environment:
-  auto uses ANTHROPIC_* first, then TOKEN_PLAN_*. Explicit profiles read:
-  TOKEN_PLAN_*, ARK_*, DASHSCOPE_*, KIMI_*, or ANTHROPIC_* variables. The script
-  also sets PYTHONPATH so Harbor can import the local DynamicIclClaudeCode agent.
+  auto uses ANTHROPIC_* first, then SEED_CODING_PLAN_*, then TOKEN_PLAN_*.
+  Explicit profiles read SEED_CODING_PLAN_*, TOKEN_PLAN_*, ARK_*,
+  DASHSCOPE_*, KIMI_*, or ANTHROPIC_* variables. The script also sets
+  PYTHONPATH so Harbor can import the local DynamicIclClaudeCode agent.
 USAGE
 }
 

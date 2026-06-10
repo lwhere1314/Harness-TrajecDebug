@@ -33,8 +33,9 @@ Options:
   --context-variant NAME      Teacher card. Default: debug_action
   --inject-mode MODE          tool, prelude, continue_after, sdk_live, or hooks_live.
                               Default: continue_after
-  --endpoint-profile NAME     Endpoint profile: auto, anthropic, token-plan,
-                              ark, dashscope, or kimi. Default: auto
+  --endpoint-profile NAME     Endpoint profile: auto, anthropic,
+                              seed-coding-plan, token-plan, ark, dashscope,
+                              or kimi. Default: auto
   --jobs-dir DIR              Harbor output dir. Default: <pack-dir>/harbor_runs
   --first-turn-timeout SEC    continue_after first-turn timeout. Default: 75
   --verifier-timeout SEC      Official verifier timeout. Default: 600
@@ -49,8 +50,9 @@ Options:
   -h, --help                  Show help.
 
 Environment:
-  auto uses ANTHROPIC_* first, then TOKEN_PLAN_*. Explicit profiles read:
-  TOKEN_PLAN_*, ARK_*, DASHSCOPE_*, KIMI_*, or ANTHROPIC_* variables.
+  auto uses ANTHROPIC_* first, then SEED_CODING_PLAN_*, then TOKEN_PLAN_*.
+  Explicit profiles read SEED_CODING_PLAN_*, TOKEN_PLAN_*, ARK_*,
+  DASHSCOPE_*, KIMI_*, or ANTHROPIC_* variables.
 
 This script never prints API keys. Keep credentials in the shell environment,
 ~/.bashrc, Keychain, or another local secret store.

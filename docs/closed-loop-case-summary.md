@@ -54,6 +54,12 @@ tasks. Codex passed 40 and failed 11. Some failures are not counted as primary
 closed-loop cases because they are QEMU-heavy, verifier-infra contaminated, or
 not yet lifted by Kimi reruns.
 
+The next accepted/rejected candidates are tracked in
+[`candidate-search-status.md`](candidate-search-status.md). Current accepted
+but not yet closed candidates are `make-mips-interpreter` and
+`make-doom-for-mips`; both are waiting on endpoint availability before Kimi
+reruns can be launched.
+
 `overfull-hbox` is now included as the sixth case. Its original copied verifier
 depended on `apt/curl/uvx`, which repeatedly introduced local proxy and mirror
 noise. The final successful runs use a no-network verifier script that

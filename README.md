@@ -13,14 +13,21 @@ and [docs/framework.md](docs/framework.md) for the reference/state/commitment
 workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
 to-do list, and planned Harbor experiments. See [docs/integrations.md](docs/integrations.md)
 for the local Codex / Claude Code / Kimi route and Harbor task/run adapters. See
+[docs/trajectorydebug-hint-and-icl-flow.md](docs/trajectorydebug-hint-and-icl-flow.md)
+for the current TD hint-generation algorithm and runtime ICL injection diagrams. See
 [AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) for the server migration
 and full Harbor -> diagnosis -> repair -> viewer workflow. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
 comparison with Meta-Harness. See
 [docs/closed-loop-case-summary.md](docs/closed-loop-case-summary.md) for the
 current 6-case closed-loop summary where Codex + GPT-5.5 failed and
-HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See the
+HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See
+[docs/candidate-search-status.md](docs/candidate-search-status.md) for the
+next accepted/rejected Codex + GPT-5.5 failure candidates and endpoint status.
+The
 blog-style case study
+[TrajectoryDebug Algorithm Flow](docs/blog/trajectorydebug-algorithm-flow.md)
+for the current hint-generation and runtime injection algorithm,
 [Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
 for the first interactive repair canary, and
 [Lifting a Joint Failure on `sanitize-git-repo`](docs/blog/sanitize-git-repo-joint-failure-lifting.md)

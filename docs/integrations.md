@@ -137,13 +137,22 @@ under the viewer's public directory.
 ## Harbor Registry Datasets
 
 The local Harbor CLI can run registry-backed datasets, including
-`swebenchpro@1.0`, directly with `harbor run -d`. For Claude Code through a
-Seed Anthropic-compatible route, map the Seed variables to the names Claude Code
-expects:
+`swebenchpro@1.0`, directly with `harbor run -d`. The HTD runtime scripts can
+read a Seed Anthropic-compatible route directly with
+`--endpoint-profile seed-coding-plan`, which maps `SEED_CODING_PLAN_BASE_URL`
+and `SEED_CODING_PLAN_API_KEY` into the Claude Code environment.
 
 ```bash
-export ANTHROPIC_BASE_URL="$SEED_CODING_PLAN_BASE_URL"
-export ANTHROPIC_API_KEY="$SEED_CODING_PLAN_API_KEY"
+scripts/check_model_endpoint.py --endpoint-profile seed-coding-plan --model kimi-k2.6
+scripts/run_candidate_kimi_reruns.sh --endpoint-profile seed-coding-plan
+```
+
+For raw Harbor commands outside the HTD wrappers, map the Seed variables to the
+names Claude Code expects:
+
+```bash
+export ANTHROPIC_BASE_URL="${SEED_CODING_PLAN_BASE_URL}"
+export ANTHROPIC_API_KEY="${SEED_CODING_PLAN_API_KEY}"
 
 /opt/miniconda3/envs/terminal-bench/bin/harbor run \
   -d swebenchpro@1.0 \

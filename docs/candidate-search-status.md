@@ -1,0 +1,159 @@
+# Candidate Search Status
+
+This note tracks the next Codex + GPT-5.5 failed cases for the
+Harness-TrajecDebug closed-loop experiment.
+
+For the generated local failure-pool inventory, see
+[`codex-failure-pool-audit.md`](codex-failure-pool-audit.md). The current audit
+finds no remaining unclassified canonical Codex + GPT-5.5 failures in the local
+SSD run roots; the clean next candidates are the two MIPS/DOOM tasks below.
+For the current Kimi rerun queue result status, see
+[`candidate-kimi-rerun-status.md`](candidate-kimi-rerun-status.md).
+
+Goal:
+
+```text
+historical Codex + GPT-5.5 reward = 0.0
++ HTD oracle-grounded card
++ HTD Debug-Action card
++ Claude Code + Kimi-k2.6 reruns for both cards
++ task verifier reward = 1.0
+```
+
+## Endpoint Status
+
+As of 2026-06-10, new Kimi reruns should use `seed-coding-plan` when
+`SEED_CODING_PLAN_BASE_URL` and `SEED_CODING_PLAN_API_KEY` are available:
+
+- `token-plan` preflight returns HTTP `429` with quota exhausted.
+- `ark` profile has no `ARK_API_KEY` in the current environment.
+- `auto` resolves `ANTHROPIC_*`, then `SEED_CODING_PLAN_*`, then
+  `TOKEN_PLAN_*`; use the explicit profile below when you want to bypass
+  token-plan entirely.
+
+Use this preflight before launching any new rerun:
+
+```bash
+source ~/.bashrc >/dev/null 2>&1 || true
+scripts/check_model_endpoint.py --endpoint-profile seed-coding-plan --model kimi-k2.6
+```
+
+Do not report a model-method failure unless endpoint preflight succeeds and the
+agent enters the Claude Code loop.
+
+To refresh the Codex + GPT-5.5 failure-pool audit across the known local roots:
+
+```bash
+scripts/audit_codex_failure_pool.py \
+  --runs-root /Volumes/SSD/terminal-bench-harbor/harbor/runs \
+  --runs-root /Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs \
+  --output docs/codex-failure-pool-audit.md
+```
+
+## Accepted Candidates
+
+| Candidate | Historical Codex + GPT-5.5 failure | Card status | Sanity status | Next action |
+| --- | --- | --- | --- | --- |
+| `make-mips-interpreter` | `test_vm_execution` failed while frame existence and visual similarity passed; stdout only said `saved 1 frame(s)`. | Tracked `oracle_grounded` and `debug_action` cards. | Oracle sanity passed, verifier reward `1.0`. | Run Kimi-k2.6 with both cards when endpoint quota/credentials recover. |
+| `make-doom-for-mips` | `test_vm_execution` failed while frame existence and visual similarity passed; trace evidence shows local smoke runs printed the target line, but the final handoff left stale `/tmp/frame.bmp`. | Tracked `oracle_grounded` and `debug_action` cards. | Oracle sanity passed, verifier reward `1.0`, official verifier `3/3` passed. | Run Kimi-k2.6 with both cards when endpoint quota/credentials recover. |
+
+`make-mips-interpreter` and `make-doom-for-mips` are sibling tasks, but they
+exercise different process failures:
+
+- `make-mips-interpreter`: output-contract miss. The VM produced the right
+  frame but not the exact DOOM graphics-init stdout line.
+- `make-doom-for-mips`: state-handoff miss. The VM could produce both frame and
+  stdout in local checks, but stale `/tmp/frame.bmp` let the verifier kill the
+  fresh process too early.
+
+## Deprioritized Or Rejected Candidates
+
+| Candidate | Decision | Reason |
+| --- | --- | --- |
+| `install-windows-3.11` | Deprioritized | QEMU-heavy, and the user flagged QEMU as a likely source of `agentRunTimeout`. Keep it for later only after a timeout-specific harness plan exists. |
+| `mteb-leaderboard` | Rejected as primary evidence | Failure appears tied to a fixed leaderboard snapshot / fixed-answer target, which risks turning the card into answer leakage rather than process evaluation. |
+| `nginx-request-logging` | Rejected as primary evidence | Historical Codex configuration looked plausible, but verifier requests were contaminated by local proxy routing, so the failure is infra/proxy noise rather than a clean agent-process error. |
+
+## Resume Commands
+
+Verified oracle sanity for `make-doom-for-mips`:
+
+```text
+runs/harbor_icl_baseline/harbor_runs_sanity/htd-oracle-sanity-make-doom-for-mips-rerun/
+reward = 1.0
+verifier = 3/3 passed
+```
+
+Reproduction command:
+
+```bash
+export DOCKER_HOST=unix:///Users/hugo/.colima/tb21-harbor/docker.sock
+/Users/hugo/.codex/skills/terminal-bench-harbor-runner/scripts/run_terminal_bench_harbor.sh \
+  --task runs/harbor_icl_baseline/task_variants/no_icl/make-doom-for-mips \
+  --agent oracle \
+  --job-name htd-oracle-sanity-make-doom-for-mips \
+  --jobs-dir runs/harbor_icl_baseline/harbor_runs_sanity \
+  --setup-timeout 1200 \
+  --agent-timeout 1200 \
+  --no-force-build
+```
+
+Kimi reruns for `make-mips-interpreter` once preflight is green:
+
+```bash
+scripts/run_candidate_kimi_reruns.sh --endpoint-profile seed-coding-plan --dry-run
+scripts/run_candidate_kimi_reruns.sh --endpoint-profile seed-coding-plan
+```
+
+The queue preflights the model endpoint, runs each task/method pair
+sequentially, continues past individual Harbor failures, and regenerates the
+local status report at the end. To refresh the report without launching Harbor,
+run:
+
+```bash
+scripts/summarize_candidate_kimi_reruns.py \
+  --markdown-output docs/candidate-kimi-rerun-status.md \
+  --json-output runs/harbor_icl_baseline/candidate_kimi_rerun_status.json
+```
+
+The script above runs the full accepted queue:
+
+```text
+make-mips-interpreter x oracle_grounded
+make-mips-interpreter x debug_action
+make-doom-for-mips x oracle_grounded
+make-doom-for-mips x debug_action
+```
+
+It preflights the endpoint first and exits before launching Harbor if the model
+API is quota-limited or missing credentials. The expanded single-run commands
+are:
+
+```bash
+scripts/run_harbor_dynamic_icl.sh \
+  --pack-dir runs/harbor_icl_baseline \
+  --jobs-dir runs/harbor_icl_baseline/harbor_runs_oracle_grounded \
+  --model kimi-k2.6 \
+  --task make-mips-interpreter \
+  --endpoint-profile seed-coding-plan \
+  --context-variant oracle_grounded \
+  --inject-mode prelude \
+  --agent-timeout 1200 \
+  --verifier-timeout 1200 \
+  --no-force-build
+
+scripts/run_harbor_dynamic_icl.sh \
+  --pack-dir runs/harbor_icl_baseline \
+  --jobs-dir runs/harbor_icl_baseline/harbor_runs_joint_failure \
+  --model kimi-k2.6 \
+  --task make-mips-interpreter \
+  --endpoint-profile seed-coding-plan \
+  --context-variant debug_action \
+  --inject-mode prelude \
+  --agent-timeout 1200 \
+  --verifier-timeout 1200 \
+  --no-force-build
+```
+
+Use the same command shape for `make-doom-for-mips`; its oracle sanity has now
+passed.

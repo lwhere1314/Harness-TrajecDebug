@@ -140,14 +140,37 @@ class DynamicIclClaudeCode(ClaudeCode):
     def create_run_agent_commands(self, instruction: str):
         instruction = claude_prompt_cli_safe(instruction)
         if self._inject_mode == "prelude":
-            return super().create_run_agent_commands(self._with_runtime_context_prelude(instruction))
+            return self._with_pipefail(
+                super().create_run_agent_commands(self._with_runtime_context_prelude(instruction))
+            )
         if self._inject_mode == "continue_after":
             return self._continue_after_commands(instruction)
         if self._inject_mode == "sdk_live":
             return self._sdk_live_commands(instruction)
         if self._inject_mode == "hooks_live":
             return self._hooks_live_commands(instruction)
-        return super().create_run_agent_commands(self._with_runtime_context_policy(instruction))
+        return self._with_pipefail(
+            super().create_run_agent_commands(self._with_runtime_context_policy(instruction))
+        )
+
+    @staticmethod
+    def _pipefail_command(command: str) -> str:
+        if "| tee /logs/agent/claude-code" not in command:
+            return command
+        if command.lstrip().startswith("set -o pipefail"):
+            return command
+        return "set -o pipefail; " + command
+
+    def _with_pipefail(self, commands: list[ExecInput]) -> list[ExecInput]:
+        return [
+            ExecInput(
+                command=self._pipefail_command(item.command),
+                cwd=item.cwd,
+                env=item.env,
+                timeout_sec=item.timeout_sec,
+            )
+            for item in commands
+        ]
 
     def _load_context_payload(self) -> str:
         if not self._context_path or not self._context_path.exists():
@@ -244,8 +267,9 @@ artifact.
             "| tee /logs/agent/claude-code.txt",
             "| tee /logs/agent/claude-code-first.txt | tee /logs/agent/claude-code.txt",
         )
+        first_command = self._pipefail_command(first_command)
 
-        continue_command = "\n".join(
+        continue_command = self._pipefail_command("\n".join(
             [
                 "htd-controller-decision",
                 "if python3 - <<'PY'",
@@ -262,7 +286,7 @@ artifact.
                 "  echo '[Harness-TrajecDebug] controller skipped follow-up injection' | tee -a /logs/agent/claude-code.txt",
                 "fi",
             ]
-        )
+        ))
 
         return [
             setup,
@@ -352,6 +376,7 @@ fi""",
             "| tee /logs/agent/claude-code.txt",
             "| tee /logs/agent/claude-code-hooks-live.txt | tee /logs/agent/claude-code.txt",
         )
+        hook_command = self._pipefail_command(hook_command)
         return [
             setup,
             ExecInput(
