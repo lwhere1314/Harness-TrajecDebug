@@ -106,6 +106,58 @@ def verifier_failure_hint(result_path: Path, exception: str | None) -> str | Non
     return None
 
 
+def classify_failure_text(text: str) -> str | None:
+    lowered = text.lower()
+    if "503" in text and "service unavailable" in lowered:
+        if "apt-get" in lowered or "ports.ubuntu.com" in lowered or "deb.debian.org" in lowered:
+            return "infra: package mirror/proxy 503 during apt setup"
+        return "infra: Service Unavailable"
+    if "AddTestsDirError" in text:
+        return "harness setup: AddTestsDirError while adding tests directory"
+    if "Docker compose command failed" in text:
+        return "harness setup: Docker compose command failed"
+    if "return code: 100" in lowered and ("apt-get" in lowered or "apt " in lowered):
+        return "infra: apt setup failed with return code 100"
+    if "AgentTimeoutError" in text:
+        return "agent exception: AgentTimeoutError"
+    if "VerifierTimeoutError" in text:
+        return "verifier exception: VerifierTimeoutError"
+    return None
+
+
+def state_failure_hint(row: dict[str, Any], job_dir_value: str | None) -> str | None:
+    summary = row.get("result_summary")
+    if isinstance(summary, dict):
+        trial_results = summary.get("trial_results")
+        if isinstance(trial_results, list):
+            for trial in trial_results:
+                if not isinstance(trial, dict):
+                    continue
+                parts = [
+                    trial.get("exception_type"),
+                    trial.get("exception_message"),
+                    trial.get("agent_error"),
+                    trial.get("verifier_error"),
+                ]
+                text = "\n".join(str(part) for part in parts if part)
+                hint = classify_failure_text(text)
+                if hint:
+                    return hint
+        hint = classify_failure_text(json.dumps(summary, ensure_ascii=False))
+        if hint:
+            return hint
+    if isinstance(job_dir_value, str):
+        job_log = Path(job_dir_value) / "job.log"
+        if job_log.exists():
+            try:
+                hint = classify_failure_text(job_log.read_text(encoding="utf-8", errors="replace")[-12000:])
+            except OSError:
+                hint = None
+            if hint:
+                return hint
+    return None
+
+
 def has_agent_result(data: dict[str, Any]) -> bool:
     agent = data.get("agent_result")
     return isinstance(agent, dict) and any(value is not None for value in agent.values())
@@ -156,7 +208,7 @@ def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
             job_dir_value,
             False,
             None,
-            "missing result.json",
+            state_failure_hint(row, job_dir_value) or "missing result.json",
             trace_artifact_count,
             len(trace_exports),
             container_count,
@@ -173,7 +225,9 @@ def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
         status = "fail_no_agent_result"
     else:
         status = "infra_or_unknown"
-    hint = verifier_failure_hint(result_path, exc) if r != 1.0 else None
+    hint = None
+    if r != 1.0:
+        hint = verifier_failure_hint(result_path, exc) or state_failure_hint(row, job_dir_value)
     return TaskResult(
         task,
         status,
