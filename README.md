@@ -62,18 +62,22 @@ check showing that process-aware Debug-Trajectory examples can correct a
 previously failing interactive run, while outcome-only context does not provide
 enough guidance on the same case.
 
-The stronger current result is `sanitize-git-repo`: both historical compared
-runs failed, but their failure footprints were complementary. Claude Code +
-Kimi-k2.6 missed a token embedded in a JSON diff string; Codex + GPT-5.5
-over-solved by mutating git history, which broke the verifier's reference
-commit check. Harness-TrajecDebug synthesized a bounded Debug-Action card:
-edit only the contaminated working-tree files, replace all secret-shaped
-patterns, and do not rewrite history. Injected once at the first `Bash`
-tool-use boundary through `sdk_live`, the rerun passed the official verifier:
+The stronger current result is `sanitize-git-repo`, now organized as a two-stage
+critical-step experiment. Stage A lowers the difficulty by using the oracle
+solution for offline audit: the oracle shows that the critical step is task
+framing, namely bounded working-tree sanitization rather than git-history
+purging. Harness-TrajecDebug turns that oracle signal into a correction boundary,
+not a raw pasted oracle script. Stage B removes the oracle and recovers the same
+boundary from complementary failed traces: Claude Code + Kimi-k2.6 missed a
+token embedded in a JSON diff string, while Codex + GPT-5.5 over-solved by
+mutating git history and breaking the verifier's reference-commit check.
 
-| Task | Historical Codex + GPT-5.5 | Historical Claude Code + Kimi-k2.6 | HTD runtime rerun |
-| --- | ---: | ---: | ---: |
-| `sanitize-git-repo` | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
+Both runtime-injected reruns passed:
+
+| Task | Context source | Historical Codex + GPT-5.5 | Historical Claude Code + Kimi-k2.6 | HTD runtime rerun |
+| --- | --- | ---: | ---: | ---: |
+| `sanitize-git-repo` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
+| `sanitize-git-repo` | oracle-free joint-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
 
 This is a joint-failure lifting result: a pair of failed traces can still be
 useful ICL data if their process evidence identifies the critical decision

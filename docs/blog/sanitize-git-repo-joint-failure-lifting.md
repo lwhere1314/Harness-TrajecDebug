@@ -16,6 +16,24 @@ rerun passed the official Harbor verifier with reward `1.0`.
 This is the "left foot steps on right foot" pattern: two failed traces can still
 contain enough complementary process evidence to produce a repair hint.
 
+## Two-Stage Protocol
+
+We now treat this case as a two-stage experiment.
+
+| Stage | Inputs allowed | Purpose | Result |
+| --- | --- | --- | --- |
+| A. Oracle-grounded HTD | task spec, failed trace, verifier footprint, oracle solution for audit only | Lower difficulty: use oracle ground truth to identify the critical step and translate it into a corrective direction | reward `1.0`, verifier `3/3` passed |
+| B. Oracle-free HTD | task spec, failed traces, verifier footprints, no oracle solution | Harder setting: infer the same corrective direction from complementary failure evidence | reward `1.0`, verifier `3/3` passed |
+
+The important distinction is that Stage A does not paste the oracle `solve.sh`
+into the agent prompt. The oracle is used to label the critical step: the task
+should be solved as bounded working-tree sanitization, not repository-history
+purging. The injected hint is a repair boundary and checklist, not a raw oracle
+script.
+
+Stage B removes the oracle and asks whether Harness-TrajecDebug can recover the
+same repair boundary from failures alone.
+
 ## Task
 
 `sanitize-git-repo` asks the agent to sanitize the `/app/dclm` repository by
@@ -58,7 +76,88 @@ The two failures are complementary:
   repository history, so the verifier could not resolve the original reference
   commit for the "no other files changed" check.
 
-## Critical Step
+## Stage A: Oracle-Grounded Critical Step
+
+The lower-difficulty path uses the oracle solution as ground truth for
+diagnosis. The oracle route searches the working tree, excludes `.git`, and
+performs pattern replacement. It does not run any history-rewriting command.
+
+From that oracle, Harness-TrajecDebug labels the critical step as task framing:
+
+```text
+wrong framing: sanitize all git history / purge the repository
+right framing: bounded working-tree edit, preserving the reference commit
+```
+
+The committed oracle-grounded card is:
+
+```text
+experiments/harbor_icl_baseline/oracle_grounded_cards/
+  sanitize-git-repo-oracle-grounded.md
+```
+
+It states the correction in process terms:
+
+- search working-tree files for AWS, GitHub, and HuggingFace token patterns;
+- exclude `.git`;
+- preserve git history and refs;
+- use the exact placeholders;
+- verify that only contaminated files changed.
+
+The successful run used the card as `oracle_grounded` runtime context:
+
+```bash
+TB21_TASKS=/Volumes/SSD/terminal-bench-harbor/harbor/datasets/terminal-bench-2.1/tasks
+
+mkdir -p runs/harbor_icl_baseline/task_variants/no_icl
+rm -rf runs/harbor_icl_baseline/task_variants/no_icl/sanitize-git-repo
+cp -R "$TB21_TASKS/sanitize-git-repo" \
+  runs/harbor_icl_baseline/task_variants/no_icl/sanitize-git-repo
+
+mkdir -p runs/harbor_icl_baseline/teacher_cards/sanitize-git-repo
+cp experiments/harbor_icl_baseline/oracle_grounded_cards/sanitize-git-repo-oracle-grounded.md \
+  runs/harbor_icl_baseline/teacher_cards/sanitize-git-repo/oracle_grounded.md
+
+scripts/run_harbor_dynamic_icl.sh \
+  --task sanitize-git-repo \
+  --model kimi-k2.6 \
+  --context-variant oracle_grounded \
+  --inject-mode sdk_live \
+  --endpoint-profile ark \
+  --sdk-live-intercept-tool Bash \
+  --jobs-dir runs/harbor_icl_baseline/harbor_runs_oracle_grounded \
+  --agent-timeout 900 \
+  --verifier-timeout 900
+```
+
+Result:
+
+```text
+trial: runs/harbor_icl_baseline/harbor_runs_oracle_grounded/
+  htd-dynamic-icl-sdk_live-oracle_grounded-sanitize-git-repo-kimi-k2-6/
+    sanitize-git-repo__JsqpC9o
+
+injection_count = 1
+injection_reasons = ["Bash"]
+tool_event_count = 14
+reward = 1.0
+verifier = 3/3 passed
+```
+
+This validates the easier workflow: if an oracle answer is available for
+offline audit, it can identify a critical step and produce a useful correction
+without directly exposing the oracle script.
+
+## Stage B: Oracle-Free Critical Step
+
+After Stage A, we remove the oracle. The harder path only uses:
+
+- the task instruction;
+- verifier footprints from the failed runs;
+- trace evidence from Codex + GPT-5.5 and Claude Code + Kimi-k2.6;
+- the Harness-TrajecDebug reference/state/commitment framing.
+
+From this evidence, Harness-TrajecDebug can infer the same critical boundary:
 
 The critical commitment is the task framing:
 
@@ -73,10 +172,18 @@ The correct action boundary is:
 - do not run history-mutating commands such as `git filter-branch`,
   `git filter-repo`, `git rebase`, `git gc`, `git prune`, or deleting `.git`.
 
-That is the HTD signal: not "here is the answer", but "this is the decision
-boundary that both failed traces got wrong in different ways."
+The oracle-free card is:
 
-## Runtime Injection
+```text
+experiments/harbor_icl_baseline/joint_failure_cards/
+  sanitize-git-repo-debug-action.md
+```
+
+That is the HTD signal: not "here is the answer", and not "ask a stronger model
+to solve it from scratch", but "here is the decision boundary that both failed
+traces got wrong in different ways."
+
+## Oracle-Free Runtime Injection
 
 The successful rerun used the existing `sdk_live` runtime injection path:
 
@@ -168,6 +275,10 @@ This result is stronger than a teacher-success replay:
 So the useful data object is not simply a successful trace. It can also be a
 pair of failed traces whose errors are complementary. Harness-TrajecDebug turns
 that pair into a process-aware repair hint.
+
+The oracle-grounded stage de-risks the method by showing that the chosen
+critical step matches ground truth. The oracle-free stage is the actual target:
+recover that same kind of repair direction from trace evidence alone.
 
 That supports the project thesis:
 
