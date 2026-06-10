@@ -12,12 +12,9 @@ Prior-failure source: `claude-code + kimi-k2.6` failed cases from
 
 ## Status
 
-This is a preliminary reproduction snapshot. The lightweight diagnosis archive
-is included under `raw-logs/` and tracked through Git LFS. The full Harbor raw
-log archive was prepared locally as
-`raw-logs/harbor-runs-kimicode-tb21-sweep-20260610.tar.zst` and can be added as
-a follow-up LFS commit; it is intentionally left out of this quick PR because it
-is about 438 MB.
+This is a reproduction snapshot. The lightweight diagnosis archive and Harbor
+raw log archives are included under `raw-logs/` and tracked through Git LFS,
+including `raw-logs/harbor-runs-kimicode-tb21-sweep-20260610.tar.zst`.
 
 The additional `headless-terminal` probe logs are included as
 `raw-logs/headless-terminal-kimicode-20260610.tar.zst`.
@@ -40,6 +37,10 @@ Additional `configure-git-webserver` probe logs are included as
 with Meta-Harness verifier failure: the timeout-upload path preserved a
 post-upload script, the git push/deploy path ran, but the webserver check still
 returned HTTP `503`.
+
+Additional queue-run logs for `count-dataset-tokens`, `dna-insert`,
+`filter-js-from-html`, and `gcode-to-text` are included as
+`raw-logs/metaharness-queue-batch1-kimicode-20260610.tar.zst`.
 
 Completed task families so far:
 
@@ -72,6 +73,18 @@ Completed task families so far:
   Harbor timed the agent out, but `upload_on_timeout=true` preserved the
   workspace and ran the verifier. The verifier still failed because the final
   `curl` returned HTTP `503`.
+- `count-dataset-tokens`: selected from the K2.6 clean reward-0 pool. The
+  prior verifier tail exposed the expected output `79586`. Kimi Code wrote a
+  recomputation script and timed out, but `upload_on_timeout=true` preserved the
+  workspace; the official verifier then passed with reward `1.0`.
+- `dna-insert`: selected from the K2.6 clean reward-0 pool. Kimi Code wrote
+  `primers.fasta`, but the official verifier still failed with reward `0.0`.
+- `filter-js-from-html`: selected from the K2.6 clean reward-0 pool. The run
+  completed with reward `0.0` after receiving the prior failure and environment
+  snapshot.
+- `gcode-to-text`: selected from the K2.6 clean reward-0 pool. Kimi Code timed
+  out without a passing `out.txt`; the timeout-upload verifier path ran and
+  returned reward `0.0`.
 
 ## Evaluation
 
@@ -88,18 +101,19 @@ Current auditable snapshot:
 
 - without Meta-Harness baseline: `33/89` tasks have reward `1.0` in the
   `claude-code + kimi-k2.6` run root.
-- with Meta-Harness-style Kimi Code context: `39/89` currently proven, i.e.
-  `33 + 6`.
+- with Meta-Harness-style Kimi Code context: `40/89` currently proven, i.e.
+  `33 + 7`.
 - current additional solved tasks: `cancel-async-tasks`, `kv-store-grpc`,
-  `openssl-selfsigned-cert`, `query-optimize`, `sanitize-git-repo`, and
-  `torch-tensor-parallelism`.
+  `openssl-selfsigned-cert`, `query-optimize`, `sanitize-git-repo`,
+  `torch-tensor-parallelism`, and `count-dataset-tokens`.
 - baseline invalid/missing-rerun bucket: `build-pov-ray`, `crack-7z-hash`,
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
 - baseline failure bucket still requiring Meta-Harness traversal or confirmation:
-  47 tasks, of which 4 now have observed with Meta-Harness failures
+  47 tasks, of which 7 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
-  and `headless-terminal`).
+  `dna-insert`, `filter-js-from-html`, `gcode-to-text`, and
+  `headless-terminal`).
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -147,6 +161,21 @@ environment snapshot. The strongest trajectory diffs observed:
   git and nginx pieces. The trajectory improved over the prior K2.6 failure
   because the verifier's git push/deploy completed, but the final webserver
   request still returned `503`, so the task remains unsolved.
+- `count-dataset-tokens`: Meta-Harness exposed the prior assertion directly:
+  the K2.6 baseline wrote `79566` while the official test expected `79586`.
+  Kimi Code did not simply write the known value; it created a tokenizer-based
+  recomputation script and then timed out. The timeout-upload path preserved the
+  resulting workspace, and the official verifier passed. This is counted as a
+  Meta-Harness win, with the important caveat that the successful upload
+  happened after agent timeout.
+- `dna-insert`: Meta-Harness supplied prior failure context and the run wrote a
+  new `primers.fasta`, but the final verifier reward stayed `0.0`.
+- `filter-js-from-html`: Meta-Harness supplied prior failure and proxy
+  environment context, but the produced result still failed official tests.
+- `gcode-to-text`: Meta-Harness supplied prior verifier output showing the
+  earlier dependency/proxy failure, but Kimi Code did not reach a passing
+  `out.txt` before timeout; the verifier ran after upload and returned reward
+  `0.0`.
 
 ## Current Negative Candidate
 
@@ -183,3 +212,8 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `configure-git-webserver`: prior K2.6 failed with HTTP `503` and git-repo
   errors. The with Meta-Harness run fixed the git push/deploy path but still
   returned HTTP `503` on the webserver check.
+- `count-dataset-tokens`: prior K2.6 failed by 20 tokens (`79566` vs expected
+  `79586`). The with Meta-Harness run passed after timeout-upload, adding one
+  new task to the current `m` count.
+- `dna-insert`, `filter-js-from-html`, and `gcode-to-text`: all have raw
+  with-Meta-Harness verifier results and remain reward-0 observed failures.

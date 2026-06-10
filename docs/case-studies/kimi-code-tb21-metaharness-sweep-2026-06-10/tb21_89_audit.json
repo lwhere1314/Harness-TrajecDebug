@@ -67,20 +67,24 @@
       "tasks_dir": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks"
     },
     "task_count": 89,
-    "with_metaharness_m_current": 6,
+    "with_metaharness_m_current": 7,
     "with_metaharness_solved_tasks": [
       "cancel-async-tasks",
+      "count-dataset-tokens",
       "kv-store-grpc",
       "openssl-selfsigned-cert",
       "query-optimize",
       "sanitize-git-repo",
       "torch-tensor-parallelism"
     ],
-    "with_metaharness_total_current": 39,
+    "with_metaharness_total_current": 40,
     "with_metaharness_unsolved_observed_tasks": [
       "break-filter-js-from-html",
       "chess-best-move",
       "configure-git-webserver",
+      "dna-insert",
+      "filter-js-from-html",
+      "gcode-to-text",
       "headless-terminal"
     ],
     "without_metaharness_n": 33
@@ -317,14 +321,14 @@
       "baseline_reward": 0.0,
       "baseline_status": "failed",
       "baseline_trial": "count-dataset-tokens__bMTDtbq",
-      "counts_for_m": false,
+      "counts_for_m": true,
       "counts_for_without_n": false,
       "task": "count-dataset-tokens",
-      "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_exception": "AgentTimeoutError",
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-count-dataset-tokens-kimicode-with-metaharness-20260610T214015/count-dataset-tokens__syFscbp/result.json",
+      "with_metaharness_reward": 1.0,
+      "with_metaharness_status": "passed",
+      "with_metaharness_trial": "count-dataset-tokens__syFscbp"
     },
     {
       "baseline_exception": "EnvironmentStartTimeoutError",
@@ -411,10 +415,10 @@
       "counts_for_without_n": false,
       "task": "dna-insert",
       "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-dna-insert-kimicode-with-metaharness-20260610T215623/dna-insert__5sUn5fD/result.json",
+      "with_metaharness_reward": 0.0,
+      "with_metaharness_status": "failed",
+      "with_metaharness_trial": "dna-insert__5sUn5fD"
     },
     {
       "baseline_exception": "EnvironmentStartTimeoutError",
@@ -486,10 +490,10 @@
       "counts_for_without_n": false,
       "task": "filter-js-from-html",
       "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-filter-js-from-html-kimicode-with-metaharness-20260610T220723/filter-js-from-html__ZfjJFB7/result.json",
+      "with_metaharness_reward": 0.0,
+      "with_metaharness_status": "failed",
+      "with_metaharness_trial": "filter-js-from-html__ZfjJFB7"
     },
     {
       "baseline_exception": null,
@@ -560,11 +564,11 @@
       "counts_for_m": false,
       "counts_for_without_n": false,
       "task": "gcode-to-text",
-      "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_exception": "AgentTimeoutError",
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-gcode-to-text-kimicode-with-metaharness-20260610T221801/gcode-to-text__5avJ8q4/result.json",
+      "with_metaharness_reward": 0.0,
+      "with_metaharness_status": "timeout_failure",
+      "with_metaharness_trial": "gcode-to-text__5avJ8q4"
     },
     {
       "baseline_exception": null,
