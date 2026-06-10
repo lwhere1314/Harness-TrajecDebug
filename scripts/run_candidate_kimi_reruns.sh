@@ -178,13 +178,31 @@ printf '  - %s\n' "${TASKS[@]}"
 echo "Context variants:"
 printf '  - %s\n' "${CONTEXT_VARIANTS[@]}"
 
+if [[ -z "${HARBOR_CLAUDE_CODE_BINARY:-}" ]]; then
+  for candidate in \
+    /Users/hugo/Desktop/super-refactor/harbor/cache/claude-code/claude-linux-x64 \
+    /Volumes/SSD/terminal-bench-harbor/harbor/cache/claude-code/claude-linux-x64
+  do
+    if [[ -x "$candidate" ]]; then
+      export HARBOR_CLAUDE_CODE_BINARY="$candidate"
+      break
+    fi
+  done
+fi
+if [[ -n "${HARBOR_CLAUDE_CODE_BINARY:-}" ]]; then
+  echo "Claude Code binary: $HARBOR_CLAUDE_CODE_BINARY"
+  file "$HARBOR_CLAUDE_CODE_BINARY" || true
+else
+  echo "Warning: HARBOR_CLAUDE_CODE_BINARY is unset; Harbor will use its default." >&2
+fi
+
 if [[ "$DRY_RUN" != "1" && "$PREFLIGHT" == "1" ]]; then
   echo
   echo "== Endpoint preflight =="
   if ! scripts/check_model_endpoint.py \
     --endpoint-profile "$ENDPOINT_PROFILE" \
     --model "$MODEL" \
-    --timeout "$PREFLIGHT_TIMEOUT"; then
+    --timeout-sec "$PREFLIGHT_TIMEOUT"; then
     echo
     echo "Endpoint preflight failed; no Harbor reruns were launched." >&2
     exit 75
