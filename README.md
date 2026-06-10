@@ -19,7 +19,10 @@ and full Harbor -> diagnosis -> repair -> viewer workflow. See
 comparison with Meta-Harness. See
 [docs/closed-loop-case-summary.md](docs/closed-loop-case-summary.md) for the
 current 6-case closed-loop summary where Codex + GPT-5.5 failed and
-HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See the
+HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See
+[docs/candidate-search-status.md](docs/candidate-search-status.md) for the
+next accepted/rejected Codex + GPT-5.5 failure candidates and endpoint status.
+The
 blog-style case study
 [Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
 for the first interactive repair canary, and
