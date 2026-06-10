@@ -28,6 +28,43 @@ The paper's central claim is that full execution traces are valuable because
 scalar scores or summaries compress away the information needed for harness
 engineering. This is strongly aligned with Harness-TrajecDebug's motivation.
 
+## Insight From The Terminal-Bench Harness
+
+The most concrete Terminal-Bench insight from Meta-Harness is not a larger
+prompt or a new model. It is an initial environment injection. The optimized
+Terminal-Bench artifact adds an environment bootstrap step before the agent loop
+starts: the harness probes the sandbox for the working directory, `/app` file
+listing, language/toolchain versions, package managers, and memory, then appends
+that compact snapshot to the first prompt.
+
+The relevant files are:
+
+- [`meta-harness-tbench2-artifact/agent.py`](https://github.com/stanford-iris-lab/meta-harness-tbench2-artifact/blob/main/agent.py), where `_gather_env_snapshot()` builds the snapshot and `_run_agent_loop()` injects it into the initial prompt.
+- [`meta-harness/reference_examples/terminal_bench_2/agents/baseline_kira.py`](https://github.com/stanford-iris-lab/meta-harness/blob/main/reference_examples/terminal_bench_2/agents/baseline_kira.py), the Terminus-KIRA baseline that the artifact extends.
+- [`meta-harness/reference_examples/text_classification/benchmark.py`](https://github.com/stanford-iris-lab/meta-harness/blob/main/reference_examples/text_classification/benchmark.py), which illustrates the benchmark sweep layer: candidate discovery, fixed model/dataset/seed settings, validation/test separation, saved memory, and frontier reporting.
+- [`meta-harness/reference_examples/text_classification/meta_harness.py`](https://github.com/stanford-iris-lab/meta-harness/blob/main/reference_examples/text_classification/meta_harness.py), which illustrates the outer loop that asks a proposer agent to inspect prior files, scores, and traces, then write new candidate harness code.
+
+The harness-level lesson is:
+
+```text
+Do not make the model spend its first turns rediscovering stable environment facts.
+Probe them deterministically, then inject them before the first decision.
+```
+
+This is best understood as a trajectory-distribution intervention. The harness
+does not solve the task, leak the answer, or update the model weights. Instead,
+it removes low-value early uncertainty from the model's policy. Without the
+bootstrap, a weaker terminal agent may spend the first few turns on `pwd`, `ls`,
+`which python3`, package-manager checks, or even wrong assumptions about the
+sandbox. With the bootstrap, the first model decision is conditioned on a true
+environment snapshot, so the opening trajectory is less likely to drift.
+
+In critical-step language, Meta-Harness is not primarily repairing a later
+critical step after it appears. It is moving a recurring precondition out of the
+model's free-form action space and into deterministic harness code. That
+prevents some wrong or wasteful early commitments from being made in the first
+place.
+
 ## What Harness-TrajecDebug Does
 
 Harness-TrajecDebug is not currently trying to evolve harness code. Its first
@@ -58,6 +95,8 @@ This is a different downstream objective from Meta-Harness.
 | Main objective | Search for better harness code | Select better trajectory data for ICL |
 | Unit optimized | Candidate harness implementation | Candidate trace / trace segment / contrastive pair |
 | Primary output | New task-specific harness | Diagnosed trace record + ICL data quality signal |
+| Intervention time | Before and during the agent run | After the run, then before future ICL runs |
+| Intervention mechanism | Modify harness code, prompt assembly, tool loop, or environment injection | Diagnose traces, localize critical steps, select/rewrite learning context |
 | Feedback representation | Filesystem of prior code, scores, traces | Structured reference/state/commitment views |
 | Credit assignment | Mostly delegated to proposer agent reading raw history | Explicit failure taxonomy + critical-step localization |
 | Current downstream | Better benchmark pass rate via harness evolution | Better small-agent ICL examples on Harbor-style tasks |
@@ -81,6 +120,7 @@ Both also care about:
 - trace observability,
 - harness effects beyond model weights,
 - task-level verifier signals,
+- interventions that shift trajectory quality without changing model weights,
 - comparing harness/model combinations on Terminal-Bench or Harbor-style tasks.
 
 ## Where We Need To Be Different
@@ -138,6 +178,33 @@ The output should be comparable across harnesses and models.
 Meta-Harness demonstrates that changing the harness can improve a fixed model.
 Harness-TrajecDebug should test whether process-aware trajectory selection can
 improve a weaker model through ICL, before touching SFT or RL.
+
+### 5. Different intervention layer
+
+The two systems intervene at different layers of the same agent lifecycle:
+
+```text
+Meta-Harness:
+  trace history -> better harness code -> next run starts differently
+
+Harness-TrajecDebug:
+  trace history -> diagnosed critical steps -> better ICL examples -> next model
+  enters the run with better process priors
+```
+
+Meta-Harness acts on the harness boundary: it can change what the model sees,
+which tools are available, how the loop handles completion, and what
+deterministic probes happen before the first model call. Harness-TrajecDebug acts
+on the trajectory bank: it decides which traces are worth teaching from, which
+segments should be highlighted, and which critical decisions should become
+contrastive examples for a smaller model.
+
+These are complementary. A Harness-TrajecDebug label such as `tool/API loop`,
+`budget debt loop`, or `final artifact validation` can suggest a future
+harness-level intervention, while a Meta-Harness-discovered intervention such as
+environment bootstrapping gives Harness-TrajecDebug a concrete pattern to encode
+as a positive ICL example: inspect stable environment facts early, avoid
+unnecessary exploratory turns, then spend the budget on task-specific validation.
 
 ## Proposed Experiments Against Meta-Harness-Inspired Baselines
 
