@@ -8,7 +8,8 @@
     "sanitize-git-repo",
     "kv-store-grpc",
     "torch-tensor-parallelism",
-    "query-optimize"
+    "query-optimize",
+    "headless-terminal"
   ],
   "headline_results": {
     "positive_metaharness_examples": [
@@ -17,9 +18,16 @@
       "kv-store-grpc",
       "torch-tensor-parallelism"
     ],
-    "query_optimize": "mixed/preliminary: without-stop passed once, with-stop had one missing-artifact failure and one pass; repetition was stopped for PR prep"
+    "query_optimize": "mixed/preliminary: without-stop passed once, with-stop had one missing-artifact failure and one pass; repetition was stopped for PR prep",
+    "metaharness_unsolved_candidates": [
+      "headless-terminal"
+    ],
+    "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0"
   },
   "raw_log_archive_local_followup": "raw-logs/harbor-runs-kimicode-tb21-sweep-20260610.tar.zst",
   "raw_log_archive_note": "Prepared locally but not included in this quick PR; add with git add -f for a follow-up Git LFS commit.",
-  "diagnosis_archive": "raw-logs/diagnoses-kimicode-tb21-sweep-20260610.tar.zst"
+  "diagnosis_archive": "raw-logs/diagnoses-kimicode-tb21-sweep-20260610.tar.zst",
+  "additional_raw_archives": [
+    "raw-logs/headless-terminal-kimicode-20260610.tar.zst"
+  ]
 }

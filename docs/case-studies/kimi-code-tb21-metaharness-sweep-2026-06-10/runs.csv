@@ -9,6 +9,10 @@ tb21-queryopt-kimicode-with-metaharness-stop-r2-20260610T174611,query-optimize,w
 tb21-queryopt-kimicode-with-metaharness-stop-r3-20260610T175618,query-optimize,with Meta-Harness,,,,no,query-optimize__FJDRNfB,aborted when preparing PR after user asked to stop and publish
 tb21-queryopt-kimicode-without-metaharness-20260610T163208,query-optimize,without Meta-Harness,0.0,0,,no,query-optimize__EjXWKut,verifier uv download failed before pytest assertions
 tb21-queryopt-kimicode-without-metaharness-stop-20260610T171537,query-optimize,without Meta-Harness,1.0,0,,yes,query-optimize__J3frX2U,
+tb21-headless-terminal-kimicode-without-metaharness-20260610T181748,headless-terminal,without Meta-Harness,,,RuntimeError:1,no,headless-terminal__afgxeD8,Docker/Colima daemon stopped during workspace upload; invalid infrastructure failure
+tb21-headless-terminal-kimicode-without-metaharness-stop-20260610T184030,headless-terminal,without Meta-Harness,0.0,0,,yes,headless-terminal__QDHQYLX,valid verifier failure: 6 passed / 1 failed; background localhost request returned proxy 503
+tb21-headless-terminal-kimicode-with-metaharness-stop-20260610T184525,headless-terminal,with Meta-Harness,0.0,0,,no,headless-terminal__HoQcxhP,adapter stop artifact: stopped after headless_terminal.py before post-upload dependency install; verifier failed missing pexpect
+tb21-headless-terminal-kimicode-with-metaharness-nostop-20260610T185053,headless-terminal,with Meta-Harness,0.0,0,,yes,headless-terminal__KWjJ8Za,valid verifier failure: Meta-Harness added NO_PROXY and pexpect install but introduced prompt-wait issues; 5 passed / 2 failed
 tb21-sanitize-kimicode-with-metaharness-20260610T154556,sanitize-git-repo,with Meta-Harness,1.0,0,,yes,sanitize-git-repo__27w76Zf,
 tb21-sanitize-kimicode-without-metaharness-20260610T153124,sanitize-git-repo,without Meta-Harness,0.0,0,,yes,sanitize-git-repo__bhtJLtu,early run before workspace ownership normalization; retained as raw diagnostic
 tb21-sanitize-kimicode-without-metaharness-fixed-20260610T153736,sanitize-git-repo,without Meta-Harness,0.0,0,,yes,sanitize-git-repo__eMzBpYn,
