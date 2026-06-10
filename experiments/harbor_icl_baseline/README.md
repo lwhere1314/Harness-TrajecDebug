@@ -124,6 +124,29 @@ Current smoke-test status:
   because of local verifier infrastructure noise. Its value is narrower but
   sharp: a failed frontier-model trajectory can still contain enough
   process-level evidence to synthesize a corrective Debug-Action card.
+- `pytorch-model-recovery` is another **Codex-failed critical-step lifting**
+  case, centered on an artifact API contract:
+  - historical Codex + GPT-5.5 reward `0.0`; it created `/app/model.pt`,
+    preserved `/app/weights.pt`, loaded the checkpoint, changed only
+    `output_layer`, and self-reported lower loss, but the official verifier
+    failed `test_model_loss` because the scripted model exposed
+    `forward(self, src)` while the verifier calls `model(src, tgt)`;
+  - the critical step was not "train harder"; it was to reconstruct the
+    verifier-compatible two-input Transformer API, keep `pos_encoder.pe` shape
+    compatible with the checkpoint, tune only `output_layer`, and self-check the
+    saved TorchScript through the same two-input call path;
+  - Stage A `prelude + oracle_grounded` rerun reward `1.0`, official verifier
+    `5/5` passed;
+  - Stage B `prelude + debug_action` rerun reward `1.0`, official verifier
+    `5/5` passed, using the failed Codex footprint and repair boundary rather
+    than a successful teacher trajectory.
+- The successful oracle-grounded `pytorch-model-recovery` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_oracle_grounded/htd-dynamic-icl-prelude-oracle_grounded-pytorch-model-recovery-kimi-k2-6/pytorch-model-recovery__a3HryyZ`.
+- The successful oracle-free `pytorch-model-recovery` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_joint_failure/htd-dynamic-icl-prelude-debug_action-pytorch-model-recovery-kimi-k2-6/pytorch-model-recovery__hdDWAc6`.
+- A runner-side prompt-safety fix was added while running this case: Harbor task
+  prompts that begin with `-` are now wrapped before being passed to Claude
+  Code, so the CLI does not parse the task text as command-line options.
 
 The stronger claim requires a held-out experiment:
 

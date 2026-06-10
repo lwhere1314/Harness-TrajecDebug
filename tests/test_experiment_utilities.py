@@ -23,10 +23,19 @@ from harness_trajecdebug.experiments.model_endpoint_preflight import (
     messages_url,
     resolve_endpoint_config,
 )
+from harness_trajecdebug.experiments.prompt_safety import claude_prompt_cli_safe
 from harness_trajecdebug.experiments.sdk_live_summary import summarize_trial
 
 
 class ExperimentUtilitiesTest(unittest.TestCase):
+    def test_claude_prompt_cli_safe_prefixes_leading_dash_prompt(self):
+        prompt = "- task starts with a dash"
+        safe = claude_prompt_cli_safe(prompt)
+
+        self.assertTrue(safe.startswith("Task instructions:\n"))
+        self.assertIn(prompt, safe)
+        self.assertEqual(claude_prompt_cli_safe("normal task"), "normal task")
+
     def test_prompt_filtered_card_has_no_htd_process_labels(self):
         card = make_prompt_filtered_card(
             task="demo-task",

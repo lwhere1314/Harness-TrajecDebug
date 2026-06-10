@@ -19,6 +19,7 @@ from harbor.environments.base import BaseEnvironment
 
 from harness_trajecdebug.experiments.live_icl_controller import minimal_live_policy
 from harness_trajecdebug.experiments.live_icl_hook import build_hook_settings
+from harness_trajecdebug.experiments.prompt_safety import claude_prompt_cli_safe
 
 
 class DynamicIclClaudeCode(ClaudeCode):
@@ -137,6 +138,7 @@ class DynamicIclClaudeCode(ClaudeCode):
         await environment.exec(command="chmod +x /usr/local/bin/htd-context /usr/local/bin/htd-controller-decision")
 
     def create_run_agent_commands(self, instruction: str):
+        instruction = claude_prompt_cli_safe(instruction)
         if self._inject_mode == "prelude":
             return super().create_run_agent_commands(self._with_runtime_context_prelude(instruction))
         if self._inject_mode == "continue_after":
