@@ -80,6 +80,7 @@
     "with_metaharness_unsolved_observed_tasks": [
       "break-filter-js-from-html",
       "chess-best-move",
+      "configure-git-webserver",
       "headless-terminal"
     ],
     "without_metaharness_n": 33
@@ -290,10 +291,10 @@
       "counts_for_without_n": false,
       "task": "configure-git-webserver",
       "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-configure-git-webserver-kimicode-with-metaharness-20260610T212420/configure-git-webserver__TcPkHzp/result.json",
+      "with_metaharness_reward": 0.0,
+      "with_metaharness_status": "failed",
+      "with_metaharness_trial": "configure-git-webserver__TcPkHzp"
     },
     {
       "baseline_exception": null,

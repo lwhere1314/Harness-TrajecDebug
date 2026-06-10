@@ -35,6 +35,12 @@ also trajectory-only: the without run wrote `/app/out.html` but verifier failed
 while creating the local ChromeDriver session with `503 Service Unavailable`;
 the with Meta-Harness run timed out without writing `/app/out.html`.
 
+Additional `configure-git-webserver` probe logs are included as
+`raw-logs/configure-git-webserver-kimicode-20260610.tar.zst`. This is a valid
+with Meta-Harness verifier failure: the timeout-upload path preserved a
+post-upload script, the git push/deploy path ran, but the webserver check still
+returned HTTP `503`.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -60,6 +66,12 @@ Completed task families so far:
   failed before evaluating it because Selenium/ChromeDriver returned proxy
   `503`. The with Meta-Harness run had environment and prior-failure context
   injected, but timed out without creating `out.html`.
+- `configure-git-webserver`: selected from the K2.6 clean reward-0 pool. The
+  with Meta-Harness run generated a `.kimi-post-upload.sh` that installed git,
+  nginx, and sshd, created `/git/server`, and installed a post-receive hook.
+  Harbor timed the agent out, but `upload_on_timeout=true` preserved the
+  workspace and ran the verifier. The verifier still failed because the final
+  `curl` returned HTTP `503`.
 
 ## Evaluation
 
@@ -84,7 +96,10 @@ Current auditable snapshot:
 - baseline invalid/missing-rerun bucket: `build-pov-ray`, `crack-7z-hash`,
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
-- baseline failure bucket still requiring Meta-Harness traversal: 47 tasks.
+- baseline failure bucket still requiring Meta-Harness traversal or confirmation:
+  47 tasks, of which 4 now have observed with Meta-Harness failures
+  (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
+  and `headless-terminal`).
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -127,6 +142,11 @@ environment snapshot. The strongest trajectory diffs observed:
   payload. With Meta-Harness, the prompt included the proxy-only environment
   snapshot and prior failure details, but the trajectory regressed to a timeout
   with no `out.html` artifact.
+- `configure-git-webserver`: Meta-Harness feedback correctly pointed at the
+  previous HTTP `503` failure and the generated post-upload script set up the
+  git and nginx pieces. The trajectory improved over the prior K2.6 failure
+  because the verifier's git push/deploy completed, but the final webserver
+  request still returned `503`, so the task remains unsolved.
 
 ## Current Negative Candidate
 
@@ -160,3 +180,6 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   but the verifier failed while creating ChromeDriver (`503 Service
   Unavailable`), so no payload assertion was reached. The with Meta-Harness run
   timed out before creating `out.html`.
+- `configure-git-webserver`: prior K2.6 failed with HTTP `503` and git-repo
+  errors. The with Meta-Harness run fixed the git push/deploy path but still
+  returned HTTP `503` on the webserver check.
