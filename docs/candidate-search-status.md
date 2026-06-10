@@ -35,7 +35,7 @@ agent enters the Claude Code loop.
 | Candidate | Historical Codex + GPT-5.5 failure | Card status | Sanity status | Next action |
 | --- | --- | --- | --- | --- |
 | `make-mips-interpreter` | `test_vm_execution` failed while frame existence and visual similarity passed; stdout only said `saved 1 frame(s)`. | Tracked `oracle_grounded` and `debug_action` cards. | Oracle sanity passed, verifier reward `1.0`. | Run Kimi-k2.6 with both cards when endpoint quota/credentials recover. |
-| `make-doom-for-mips` | `test_vm_execution` failed while frame existence and visual similarity passed; trace evidence shows local smoke runs printed the target line, but the final handoff left stale `/tmp/frame.bmp`. | Tracked `oracle_grounded` and `debug_action` cards. | Oracle sanity was started but manually stopped during the long compile/verifier path; no reward result yet. | Re-run oracle sanity, then run Kimi-k2.6 with both cards when endpoint quota/credentials recover. |
+| `make-doom-for-mips` | `test_vm_execution` failed while frame existence and visual similarity passed; trace evidence shows local smoke runs printed the target line, but the final handoff left stale `/tmp/frame.bmp`. | Tracked `oracle_grounded` and `debug_action` cards. | Oracle sanity passed, verifier reward `1.0`, official verifier `3/3` passed. | Run Kimi-k2.6 with both cards when endpoint quota/credentials recover. |
 
 `make-mips-interpreter` and `make-doom-for-mips` are sibling tasks, but they
 exercise different process failures:
@@ -56,7 +56,15 @@ exercise different process failures:
 
 ## Resume Commands
 
-Oracle sanity for `make-doom-for-mips`:
+Verified oracle sanity for `make-doom-for-mips`:
+
+```text
+runs/harbor_icl_baseline/harbor_runs_sanity/htd-oracle-sanity-make-doom-for-mips-rerun/
+reward = 1.0
+verifier = 3/3 passed
+```
+
+Reproduction command:
 
 ```bash
 export DOCKER_HOST=unix:///Users/hugo/.colima/tb21-harbor/docker.sock
