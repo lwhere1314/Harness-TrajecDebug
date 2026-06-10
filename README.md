@@ -13,7 +13,9 @@ and [docs/framework.md](docs/framework.md) for the reference/state/commitment
 workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
 to-do list, and planned Harbor experiments. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
-comparison with Meta-Harness. See
+comparison with Meta-Harness. See the blog-style case study
+[Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
+for the first interactive repair canary. See
 [experiments/harbor_icl_baseline/README.md](experiments/harbor_icl_baseline/README.md)
 for the first Kimi ICL baseline design and runner scripts, and
 [experiments/harbor_icl_baseline/fairness_protocol.md](experiments/harbor_icl_baseline/fairness_protocol.md)
