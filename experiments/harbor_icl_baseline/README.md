@@ -82,6 +82,27 @@ Current smoke-test status:
   Minimal endpoint and hook smoke tests succeeded, so the current result should
   be reported as `prelude`-verified card utility, with live boundary injection
   left as an engineering follow-up.
+- `sam-cell-seg` is the third **joint-failure lifting** case, and the first
+  one where the compared failed traces expose complementary verifier gates:
+  - historical Claude Code + Kimi-k2.6 reward `0.0`, passing MobileSAM mask
+    quality gates but failing `test_csv_shape_cols` after dropping the leading
+    empty/index column;
+  - historical Codex + GPT-5.5 reward `0.0`, preserving the CSV contract but
+    failing `test_mask_alignment` with one mask at IoU `0.4927`;
+  - Stage A `prelude + oracle_grounded` translates the oracle into a strict
+    artifact contract and mask-refinement process boundary; rerun reward `1.0`,
+    official verifier `9/9` passed;
+  - Stage B `prelude + debug_action` uses only the two failed trajectories'
+    complementary footprints; rerun reward `1.0`, official verifier `9/9`
+    passed.
+- The successful oracle-grounded `sam-cell-seg` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_oracle_grounded/htd-dynamic-icl-prelude-oracle_grounded-sam-cell-seg-kimi-k2-6/sam-cell-seg__B8ff4qe`.
+- The successful oracle-free `sam-cell-seg` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_joint_failure/htd-dynamic-icl-prelude-debug_action-sam-cell-seg-kimi-k2-6/sam-cell-seg__4gAvptg`.
+- This result is a stronger "failed traces can teach" datapoint: neither
+  historical trace passed, but one supplied the schema-contract failure and the
+  other supplied the alignment-margin failure. Harness-TrajecDebug fused those
+  into one bounded Debug-Action card that Claude Code + Kimi-k2.6 could execute.
 
 The stronger claim requires a held-out experiment:
 
