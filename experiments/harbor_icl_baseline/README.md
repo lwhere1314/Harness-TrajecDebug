@@ -19,6 +19,13 @@ final generalization result. They may contain task-specific solution details, so
 they measure whether Kimi-K2.5 can reuse a teacher trajectory when the relevant
 solution pattern is visible.
 
+The current closed-loop case count is **5** under the strict criterion:
+historical Codex + GPT-5.5 reward `0.0`, HTD critical-step / Debug-Action card,
+Claude Code + Kimi-k2.6 rerun, and official verifier reward `1.0`. See
+[`../../docs/closed-loop-case-summary.md`](../../docs/closed-loop-case-summary.md)
+for the compact table and evidence paths. `overfull-hbox` is a newly discovered
+Codex failure but remains WIP and is not counted in this total.
+
 Current smoke-test status:
 
 - `cancel-async-tasks` + `debug_trajectory` context + Claude Code +
