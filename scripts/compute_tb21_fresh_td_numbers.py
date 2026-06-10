@@ -23,6 +23,7 @@ class TaskResult:
     job_dir: str | None
     has_agent_result: bool
     exception_type: str | None
+    failure_hint: str | None
 
 
 def card_records_by_task(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -72,6 +73,36 @@ def exception_type(data: dict[str, Any]) -> str | None:
     return None
 
 
+def verifier_failure_hint(result_path: Path, exception: str | None) -> str | None:
+    if exception:
+        return f"agent exception: {exception}"
+    verifier_dir = result_path.parent / "verifier"
+    texts: list[str] = []
+    for name in ("test-stdout.txt", "test-stderr.txt", "reward.txt"):
+        path = verifier_dir / name
+        if path.exists():
+            try:
+                texts.append(path.read_text(encoding="utf-8", errors="replace"))
+            except OSError:
+                pass
+    joined = "\n".join(texts)
+    if "Service Unavailable" in joined and "webdriver" in joined.lower():
+        return "verifier infra: webdriver Service Unavailable"
+    if "chromedriver" in joined.lower() and "Service Unavailable" in joined:
+        return "verifier infra: chromedriver Service Unavailable"
+    if "AssertionError" in joined:
+        for line in joined.splitlines():
+            if "AssertionError" in line:
+                return line.strip()[:180]
+        return "verifier assertion failure"
+    if "FAILED" in joined:
+        for line in joined.splitlines():
+            if line.startswith("FAILED "):
+                return line.strip()[:180]
+        return "verifier test failure"
+    return None
+
+
 def has_agent_result(data: dict[str, Any]) -> bool:
     agent = data.get("agent_result")
     return isinstance(agent, dict) and any(value is not None for value in agent.values())
@@ -91,13 +122,31 @@ def trial_result_for_task(job_dir: Path, task: str) -> Path | None:
 def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
     row = state.get("tasks", {}).get(task)
     if not isinstance(row, dict):
-        return TaskResult(task, "missing", None, None, None, False, None)
+        return TaskResult(task, "missing", None, None, None, False, None, "missing from state.json")
     job_dir_value = row.get("job_dir")
     if not isinstance(job_dir_value, str):
-        return TaskResult(task, str(row.get("status") or "missing_job_dir"), None, None, None, False, None)
+        return TaskResult(
+            task,
+            str(row.get("status") or "missing_job_dir"),
+            None,
+            None,
+            None,
+            False,
+            None,
+            "missing job_dir in state.json",
+        )
     result_path = trial_result_for_task(Path(job_dir_value), task)
     if result_path is None:
-        return TaskResult(task, "missing_result", None, None, job_dir_value, False, None)
+        return TaskResult(
+            task,
+            "missing_result",
+            None,
+            None,
+            job_dir_value,
+            False,
+            None,
+            "missing result.json",
+        )
     data = read_json(result_path) or {}
     r = reward_from_result(data)
     exc = exception_type(data)
@@ -110,7 +159,8 @@ def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
         status = "fail_no_agent_result"
     else:
         status = "infra_or_unknown"
-    return TaskResult(task, status, r, str(result_path), job_dir_value, agent, exc)
+    hint = verifier_failure_hint(result_path, exc) if r != 1.0 else None
+    return TaskResult(task, status, r, str(result_path), job_dir_value, agent, exc, hint)
 
 
 def summarize(records: dict[str, TaskResult]) -> dict[str, Any]:
@@ -163,6 +213,15 @@ def with_td_nonpass_interpretation(source: str) -> str:
         "card source is not a corrective Debug-Action; treat the failure as "
         "needing trace diagnosis before making a TD claim"
     )
+
+
+def with_td_attribution_note(row: dict[str, Any]) -> str:
+    source = str(row["td_card_source"])
+    hint = row.get("with_failure_hint")
+    base = with_td_nonpass_interpretation(source)
+    if hint:
+        return f"{base}; observed footprint: {hint}"
+    return base
 
 
 def markdown(report: dict[str, Any]) -> str:
@@ -291,7 +350,7 @@ def markdown(report: dict[str, Any]) -> str:
         source = row["td_card_source"]
         lines.append(
             f"| `{row['task']}` | `{source}` | `{row['with_status']}` | `{row['with_reward']}` | "
-            f"{with_td_nonpass_interpretation(source)} |"
+            f"{with_td_attribution_note(row)} |"
         )
     if not nonpass_rows:
         lines.append("| - | - | - | - | - |")
@@ -325,6 +384,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
                 "delta": int(after_pass) - int(before_pass),
                 "without_status": before.status,
                 "with_status": after.status,
+                "without_failure_hint": before.failure_hint,
+                "with_failure_hint": after.failure_hint,
                 "without_result": before.result_path,
                 "with_result": after.result_path,
             }
