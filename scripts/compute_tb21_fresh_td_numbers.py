@@ -25,6 +25,20 @@ class TaskResult:
     exception_type: str | None
 
 
+def card_records_by_task(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    records = manifest.get("records")
+    if not isinstance(records, list):
+        return {}
+    by_task: dict[str, dict[str, Any]] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        task = record.get("task")
+        if isinstance(task, str) and task:
+            by_task[task] = record
+    return by_task
+
+
 def read_json(path: Path) -> dict[str, Any] | None:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -111,11 +125,54 @@ def summarize(records: dict[str, TaskResult]) -> dict[str, Any]:
     }
 
 
+def summarize_by_card_source(
+    records: dict[str, TaskResult],
+    card_index: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, int]]:
+    summary: dict[str, dict[str, int]] = {}
+    for task, record in records.items():
+        card = card_index.get(task, {})
+        source = str(card.get("source") or "unknown")
+        bucket = summary.setdefault(
+            source,
+            {"pass": 0, "fail": 0, "unknown_or_incomplete": 0, "total": 0},
+        )
+        bucket["total"] += 1
+        if record.reward == 1.0:
+            bucket["pass"] += 1
+        elif record.status in {"fail", "fail_no_agent_result"}:
+            bucket["fail"] += 1
+        else:
+            bucket["unknown_or_incomplete"] += 1
+    return summary
+
+
+def with_td_nonpass_interpretation(source: str) -> str:
+    if source == "reference_only_fallback":
+        return (
+            "reference-only card; no mined critical step or corrective hint was "
+            "available, so this is not evidence against the full TD algorithm"
+        )
+    if source == "debug_action":
+        return (
+            "diagnosed Debug-Action card existed, but this batch injects it as a "
+            "prelude only; inspect whether the agent followed it and rerun with "
+            "sdk_live/hooks_live if timing is the suspected issue"
+        )
+    return (
+        "card source is not a corrective Debug-Action; treat the failure as "
+        "needing trace diagnosis before making a TD claim"
+    )
+
+
 def markdown(report: dict[str, Any]) -> str:
     base = report["without_td"]
     td = report["with_td"]
     card_manifest = report.get("td_card_manifest") or {}
     counts_by_source = card_manifest.get("counts_by_source") if isinstance(card_manifest, dict) else {}
+    inject_mode = report.get("with_td_inject_mode")
+    uses_sdk_live = report.get("with_td_uses_sdk_live")
+    online_miner = report.get("with_td_online_critical_step_miner")
     lines = [
         "# Fresh TB2.1 Claude Code + Kimi-k2.6 TD Rerun",
         "",
@@ -124,11 +181,11 @@ def markdown(report: dict[str, Any]) -> str:
         "",
         "## Methodology Note",
         "",
-        "The with-TD condition in this report is **TD-card injection**, not a",
-        "fully automatic online critical-step miner. During the run,",
-        "`DynamicIclClaudeCode` injects precomputed task cards into Claude Code +",
-        "Kimi-k2.6; it does not call a separate external LLM judge to decide the",
-        "critical step.",
+        "The with-TD condition in this report is **TD-card injection**, not the",
+        "strongest live corrective TD loop. During the run, `DynamicIclClaudeCode`",
+        "injects precomputed task cards into Claude Code + Kimi-k2.6; it does not",
+        "call a separate external LLM judge to decide the critical step, and it",
+        "does not mine a failed teacher trajectory online.",
         "",
         "For V1, failed-run `debug_action` cards are human/Codex-in-the-loop",
         "diagnoses produced from trace evidence, verifier footprints, and case",
@@ -136,10 +193,28 @@ def markdown(report: dict[str, Any]) -> str:
         "the with-TD denominator stays at 89/89 without pretending every task has",
         "a mined critical step.",
         "",
+        "This matters for attribution: a with-TD failure on a",
+        "`reference_only_fallback` card only says the broad task checklist was not",
+        "enough. It is **not** evidence that critical-step diagnosis plus a",
+        "corrective hint failed, because that stronger path was never exercised",
+        "for that task.",
+        "",
+        "The stronger TD path should be reported separately when used:",
+        "`teacher trace -> critical-step diagnosis -> Debug-Action hint ->",
+        "sdk_live/hooks_live insertion at a matching runtime boundary -> verifier`.",
+        "",
         "Both conditions inherit the task-level agent/verifier timeouts from",
         "`task.toml` unless a run explicitly documents an override. This keeps the",
         "comparison about TD-card injection rather than about a different time",
         "budget.",
+        "",
+        "Algorithm coverage for this 89-task run:",
+        "",
+        "| Component | Value | Interpretation |",
+        "| --- | --- | --- |",
+        f"| Inject mode | `{inject_mode}` | context is available before the run; no timed mid-run correction unless this is `sdk_live` or `hooks_live` |",
+        f"| sdk_live / hooks_live | `{bool(uses_sdk_live)}` | whether the run inserts hints at tool-use boundaries |",
+        f"| online critical-step miner | `{bool(online_miner)}` | whether a separate LLM/judge mined new critical steps during the run |",
         "",
         "TD card provenance:",
         "",
@@ -161,6 +236,24 @@ def markdown(report: dict[str, Any]) -> str:
         lines.append("| - | - | TD card manifest not found when report was generated |")
     lines.extend([
         "",
+        "With-TD outcomes by card provenance:",
+        "",
+        "| Source | Pass | Fail | Unknown / incomplete | Total |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ])
+    by_source = report.get("with_td_by_card_source") or {}
+    if isinstance(by_source, dict) and by_source:
+        for source, counts in sorted(by_source.items()):
+            if not isinstance(counts, dict):
+                continue
+            lines.append(
+                f"| `{source}` | `{counts.get('pass', 0)}` | `{counts.get('fail', 0)}` | "
+                f"`{counts.get('unknown_or_incomplete', 0)}` | `{counts.get('total', 0)}` |"
+            )
+    else:
+        lines.append("| - | - | - | - | - |")
+    lines.extend([
+        "",
         "## Final Number",
         "",
         f"- without TrajectoryDebug: `{base['pass_count']}/{report['denominator']}`",
@@ -174,17 +267,34 @@ def markdown(report: dict[str, Any]) -> str:
         "",
         "## Lift / Regression Table",
         "",
-        "| Task | without-TD | with-TD | Delta | without result | with result |",
-        "| --- | ---: | ---: | ---: | --- | --- |",
+        "| Task | TD card source | without-TD | with-TD | Delta | without result | with result |",
+        "| --- | --- | ---: | ---: | ---: | --- | --- |",
     ])
     for row in report["task_rows"]:
         if row["delta"] == 0:
             continue
         lines.append(
-            f"| `{row['task']}` | `{row['without_reward']}` | `{row['with_reward']}` | `{row['delta']}` | `{row['without_result']}` | `{row['with_result']}` |"
+            f"| `{row['task']}` | `{row['td_card_source']}` | `{row['without_reward']}` | "
+            f"`{row['with_reward']}` | `{row['delta']}` | `{row['without_result']}` | `{row['with_result']}` |"
         )
     if not any(row["delta"] != 0 for row in report["task_rows"]):
-        lines.append("| - | - | - | - | - | - |")
+        lines.append("| - | - | - | - | - | - | - |")
+    lines.extend([
+        "",
+        "## With-TD Non-Pass Attribution",
+        "",
+        "| Task | TD card source | with-TD status | with-TD reward | Attribution note |",
+        "| --- | --- | --- | ---: | --- |",
+    ])
+    nonpass_rows = [row for row in report["task_rows"] if row["with_reward"] != 1.0]
+    for row in nonpass_rows:
+        source = row["td_card_source"]
+        lines.append(
+            f"| `{row['task']}` | `{source}` | `{row['with_status']}` | `{row['with_reward']}` | "
+            f"{with_td_nonpass_interpretation(source)} |"
+        )
+    if not nonpass_rows:
+        lines.append("| - | - | - | - | - |")
     return "\n".join(lines)
 
 
@@ -192,17 +302,24 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     tasks = sorted(path.name for path in args.task_root.iterdir() if path.is_dir())
     baseline_state = read_json(args.without_td_state) or {}
     td_state = read_json(args.with_td_state) or {}
+    card_manifest = read_json(args.td_card_manifest) or {}
+    card_index = card_records_by_task(card_manifest)
     baseline = {task: result_from_state(baseline_state, task) for task in tasks}
     td = {task: result_from_state(td_state, task) for task in tasks}
     rows = []
     for task in tasks:
         before = baseline[task]
         after = td[task]
+        card = card_index.get(task, {})
+        card_source = str(card.get("source") or "unknown")
         before_pass = before.reward == 1.0
         after_pass = after.reward == 1.0
         rows.append(
             {
                 "task": task,
+                "td_card_source": card_source,
+                "td_card_path": card.get("card_path"),
+                "td_card_source_path": card.get("source_path"),
                 "without_reward": before.reward,
                 "with_reward": after.reward,
                 "delta": int(after_pass) - int(before_pass),
@@ -217,10 +334,14 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "without_td_state": str(args.without_td_state),
         "with_td_state": str(args.with_td_state),
         "td_card_manifest_path": str(args.td_card_manifest),
-        "td_card_manifest": read_json(args.td_card_manifest) or {},
+        "td_card_manifest": card_manifest,
+        "with_td_inject_mode": args.with_td_inject_mode,
+        "with_td_uses_sdk_live": bool(args.with_td_uses_sdk_live),
+        "with_td_online_critical_step_miner": bool(args.with_td_online_critical_step_miner),
         "denominator": len(tasks),
         "without_td": summarize(baseline),
         "with_td": summarize(td),
+        "with_td_by_card_source": summarize_by_card_source(td, card_index),
         "delta": sum(row["delta"] for row in rows),
         "task_rows": rows,
     }
@@ -233,6 +354,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--without-td-state", type=Path, required=True)
     parser.add_argument("--with-td-state", type=Path, required=True)
     parser.add_argument("--td-card-manifest", type=Path, default=DEFAULT_TD_CARD_MANIFEST)
+    parser.add_argument("--with-td-inject-mode", default="prelude")
+    parser.add_argument("--with-td-uses-sdk-live", action="store_true")
+    parser.add_argument("--with-td-online-critical-step-miner", action="store_true")
     parser.add_argument("--json-output", type=Path, default=Path("runs/tb21_fresh_td_numbers.json"))
     parser.add_argument("--markdown-output", type=Path, default=Path("docs/tb21-kimi-k26-fresh-td-rerun.md"))
     return parser.parse_args()

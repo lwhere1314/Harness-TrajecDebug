@@ -21,6 +21,22 @@ curated from TD diagnosis evidence. The value being tested in this PR is whether
 process-aware cards are better ICL interventions than outcome-only or raw-trace
 context.
 
+The core TD claim is not "longer context helps." It is:
+
+```text
+localize the critical path
+  -> generate the smallest corrective process hint
+  -> inject it at the live boundary where the student agent is about to make
+     the same kind of commitment
+  -> verify whether the official reward changes
+```
+
+This distinction matters for attribution. A full 89-task `td_full + prelude`
+run is useful as a broad sanity check, but it does not exercise the strongest
+algorithmic path. The stronger path is `debug_action + sdk_live/hooks_live`,
+where the card is inserted at a tool-use, uncertainty, dependency, artifact, or
+state boundary that corresponds to the diagnosed failure route.
+
 ## Current Hint Generation Algorithm
 
 Input objects:
@@ -219,11 +235,20 @@ The five injection modes answer different experimental questions:
 
 | Mode | Delivery mechanism | Intended use |
 | --- | --- | --- |
-| `prelude` | append the card to the first prompt | maximum-context upper bound |
+| `prelude` | append the card to the first prompt | maximum-context upper bound; does not test timed key-path correction |
 | `tool` | tell the agent to call `htd-context` after reading the task | tests whether the agent can actively retrieve a prior-trace lesson |
 | `continue_after` | let the first turn run without context, then inject if the controller sees a trigger | tests delayed correction |
 | `sdk_live` | run through the Python Claude Agent SDK and inject on `PreToolUse` or `AskUserQuestion` | interactive key-path correction |
 | `hooks_live` | use Claude Code hook settings and `additionalContext` | CLI-native live injection path |
+
+When a with-TD run still fails, interpret it by card source and injection mode:
+
+| Situation | Interpretation | Next action |
+| --- | --- | --- |
+| `reference_only_fallback + prelude` fails | no mined critical step or corrective hint existed | run trace diagnosis first; do not claim the TD algorithm failed |
+| `debug_action + prelude` fails | the card existed, but timing and adherence are unclear | inspect whether the agent used the card; rerun with `sdk_live` or hooks at the suspected boundary |
+| `debug_action + sdk_live/hooks_live` fails after injection | the current diagnosis or repair boundary may be wrong or incomplete | attribute the failure pattern and revise the Debug-Action card |
+| no injection event fires in `sdk_live/hooks_live` | boundary detector missed the live path | add a trigger keyed to the observed tool/state event |
 
 Live triggers currently include:
 

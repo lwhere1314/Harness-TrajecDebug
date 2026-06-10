@@ -17,6 +17,16 @@ Harness-TrajecDebug 的目标就是把这个中间过程变成可复查、可注
 拆成任务约束、执行状态、关键承诺和 verifier footprint，然后生成一个
 Debug-Trajectory / Debug-Action hint，在 agent 还没有完全走偏的时候注入进去。
 
+这里最核心的价值不是“给更多 context”，而是两件事必须同时成立：
+
+1. **定位关键路径**：找出 agent 从理解任务转向承诺某条工程路线的 decisive boundary；
+2. **在这个 boundary 注入 context**：让 corrective hint 出现在 agent 即将做出同类错误承诺、
+   或者刚暴露同类状态的时候。
+
+所以 `prelude` 只能算弱对照或上界实验：它回答“如果一开始就知道这条 TD card，能不能过”。
+真正的 TD claim 要看 `sdk_live` / hooks / delayed injection 能不能在关键路径上把 agent
+从失败分支拉回来。
+
 这里的 source trajectory 可以是成功 run，也可以是失败 run。更有意思的是后者：
 即使 Teacher Run 是错的，它也可能暴露出足够清楚的错误承诺，从而生成一个正确的
 corrective hint。
@@ -436,6 +446,17 @@ Hint 生成之后，还要决定什么时候给 agent。
 Blog 里不用展开所有工程细节，核心写清楚一句话就够了：
 
 > 我们希望 hint 出现在 agent 从“理解任务”转向“承诺一个工程路线”的时刻。
+
+因此实验报告必须区分两种 with-TD：
+
+| Condition | 它验证什么 | 能不能代表核心算法 |
+| --- | --- | --- |
+| `td_full + prelude` | 开局给 TD card 的 broad sanity / upper-bound ablation | 不能单独代表；它没有测试关键路径定位和中途注入 |
+| `debug_action + sdk_live/hooks_live` | 在工具调用、依赖安装、AskUserQuestion 或指定 state boundary 前插入纠偏 hint | 可以代表核心闭环 |
+
+如果 with-TD 在 `reference_only_fallback` card 上失败，这不能说明 TD 算法失败，只能说明这个
+task 还没有完成 critical-step 诊断。如果 `debug_action` 存在但 `prelude` 失败，下一步要看的是
+agent 是否忽略了 card，还是 card 应该换到更合适的 runtime boundary 注入。
 
 例如 `query-optimize` 里，`sdk_live` 在第一次 Bash schema inspection 前注入
 Debug-Action。这个位置很重要，因为 agent 正要开始选择 SQL 优化路线；如果此时只给
