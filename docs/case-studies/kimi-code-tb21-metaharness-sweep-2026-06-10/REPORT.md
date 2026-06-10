@@ -56,6 +56,9 @@ Additional `raman-fitting` queue-run logs are included as
 Additional `feal-differential-cryptanalysis` queue-run logs are included as
 `raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst`.
 
+Additional `largest-eigenval` queue-run logs are included as
+`raw-logs/largest-eigenval-kimicode-20260611.tar.zst`.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -66,9 +69,9 @@ Completed task families so far:
 - `headless-terminal`: without Meta-Harness failed, and with Meta-Harness also
   failed in the full no-stop run. This is the first current
   Meta-Harness-unsolved candidate in this Kimi Code sweep.
-- `largest-eigenval`: selected as the next K2.6 failure candidate, but the
-  Kimi Code exploratory run did not write a candidate file before it was
-  stopped; no reward comparison was recorded.
+- `largest-eigenval`: selected from the K2.6 failure pool. The formal
+  with Meta-Harness queue run timed out without changing `eigen.py`; the
+  timeout-upload verifier path still ran and returned reward `0.0`.
 - `chess-best-move`: selected as a short clean K2.6 failure candidate. The
   without run did not write `move.txt` before being stopped. The with
   Meta-Harness run received a repair brief that named both expected moves, but
@@ -124,17 +127,22 @@ metrics from the same raw `result.json` files. Token fields are direct Harbor
 `agent_result` values when present. The `claude-code + kimi-k2.6` baseline
 currently has token fields for 78/89 rows. Its current mean `input+output`
 usage is `1,677,604.410` tokens, and the cache-adjusted
-`input-cache+output` mean is `47,296.269` tokens. Kimi Code rows currently have
-0/18 rows with token usage because the adapter does not emit provider usage, so
-exact token deltas cannot be claimed from the present raw logs. The metrics
-files therefore also record observable proxies such as prompt size, injected
-Meta-Harness context size, Kimi stream bytes, tool-call event counts, wall time,
-agent time, and verifier time.
+`input-cache+output` mean is `47,296.269` tokens. The corresponding medians are
+`820,898.000` and `29,778.000` tokens. Kimi Code rows currently have 0/19 rows
+with token usage because the adapter does not emit provider usage, so exact
+with-vs-without token deltas cannot be claimed from the present raw logs. The
+metrics files therefore also record observable proxies such as prompt size,
+injected Meta-Harness context size, Kimi stream bytes, tool-call event counts,
+wall time, agent time, and verifier time.
 
 Current latency summary for the paired subset: baseline mean wall time is
-`2,326.427` seconds and with Meta-Harness mean wall time is `614.421` seconds.
-This latency comparison is not a controlled full-suite conclusion yet because
-the with Meta-Harness set is still a targeted recovery subset.
+`2,326.427` seconds and with Meta-Harness mean wall time is `635.582` seconds.
+The corresponding medians are `1,201.115` seconds and `648.379` seconds. Across
+the 19 paired rows with wall-clock data, the mean paired wall-time delta is
+`-3,118.741` seconds and the median paired wall-time delta is `-224.716`
+seconds. This latency comparison is not a controlled full-suite conclusion yet
+because the with Meta-Harness set is still a targeted recovery subset and mixes
+passes, failures, and timeout-upload recoveries.
 
 ## 89-Task Audit
 
@@ -155,10 +163,10 @@ Current auditable snapshot:
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
 - baseline failure bucket still requiring Meta-Harness traversal or confirmation:
-  47 tasks, of which 9 now have observed with Meta-Harness failures
+  47 tasks, of which 10 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
   `dna-insert`, `filter-js-from-html`, `gcode-to-text`, `headless-terminal`,
-  `raman-fitting`, and `write-compressor`).
+  `largest-eigenval`, `raman-fitting`, and `write-compressor`).
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -237,6 +245,11 @@ environment snapshot. The strongest trajectory diffs observed:
   environment snapshot. Kimi Code ran against the provided `graphene.dat` but
   the final `results.json` did not pass the official checks; this is a valid
   reward-0 verifier failure.
+- `largest-eigenval`: Meta-Harness supplied the prior speedup failure, including
+  failing sizes 5, 7, and 9 from the K2.6 run. The formal queue run entered
+  Kimi Code but did not modify `eigen.py` before the 900-second agent timeout.
+  The timeout-upload verifier still executed and failed speedup checks on sizes
+  3 and 10, so this is a valid reward-0 verifier failure.
 
 ## Current Negative Candidate
 
@@ -257,9 +270,10 @@ solve it" bucket:
 After opening the PR, I continued scanning K2.6 reward-0 cases:
 
 - `largest-eigenval`: prior K2.6 failed speedup tests on sizes 5, 7, and 9
-  after leaving the implementation equivalent to `np.linalg.eig`. The
-  exploratory Kimi Code run stayed in agent execution without writing a new
-  `eigen.py`; it was stopped before verifier execution and is not counted.
+  after leaving the implementation equivalent to `np.linalg.eig`. A later
+  formal with Meta-Harness queue run also left `eigen.py` unchanged, timed out,
+  and produced a valid verifier reward of `0.0`; it is now counted in the
+  observed failure bucket.
 - `chess-best-move`: prior K2.6 was a clean verifier failure, writing only
   `e2e4` where the verifier expected both `e2e4` and `g2g4`. A Meta-Harness
   repair brief included that exact feedback. The with Meta-Harness run still
@@ -288,4 +302,6 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `mteb-leaderboard`: diagnostic-only run; `stop_after_path=result.txt` never
   triggered and no verifier reward exists.
 - `raman-fitting`: has a raw with-Meta-Harness verifier result and remains a
+  reward-0 observed failure.
+- `largest-eigenval`: has a raw with-Meta-Harness verifier result and remains a
   reward-0 observed failure.

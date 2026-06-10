@@ -18,7 +18,8 @@
     "gcode-to-text",
     "write-compressor",
     "raman-fitting",
-    "feal-differential-cryptanalysis"
+    "feal-differential-cryptanalysis",
+    "largest-eigenval"
   ],
   "exploratory_task_families": [
     "largest-eigenval",
@@ -44,10 +45,11 @@
       "filter-js-from-html",
       "gcode-to-text",
       "write-compressor",
-      "raman-fitting"
+      "raman-fitting",
+      "largest-eigenval"
     ],
     "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
-    "continued_search": "largest-eigenval, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, and feal-differential-cryptanalysis were probed after the PR opened. The largest-eigenval, chess-best-move, break-filter paired attempt, and mteb-leaderboard are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, and raman-fitting are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
+    "continued_search": "largest-eigenval, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, and feal-differential-cryptanalysis were probed after the PR opened. The chess-best-move, break-filter paired attempt, and mteb-leaderboard are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, and largest-eigenval are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
     "metrics_current": {
       "files": [
         "metrics.csv",
@@ -58,11 +60,18 @@
       ],
       "status": "current paired subset; Kimi Code token usage is null until the adapter emits provider usage, so prompt/injected-context sizes are included as proxies",
       "baseline_token_usage_rows": "78/89",
-      "with_metaharness_token_usage_rows": "0/18",
+      "with_metaharness_token_usage_rows": "0/19",
       "baseline_mean_input_output_tokens": 1677604.41,
       "baseline_mean_uncached_input_output_tokens": 47296.269,
+      "baseline_median_input_output_tokens": 820898.0,
+      "baseline_median_uncached_input_output_tokens": 29778.0,
       "baseline_mean_wall_duration_sec": 2326.427,
-      "with_metaharness_mean_wall_duration_sec": 614.421
+      "baseline_median_wall_duration_sec": 1201.115,
+      "with_metaharness_mean_wall_duration_sec": 635.582,
+      "with_metaharness_median_wall_duration_sec": 648.379,
+      "paired_rows": 19,
+      "paired_mean_delta_wall_duration_sec": -3118.741,
+      "paired_median_delta_wall_duration_sec": -224.716
     },
     "tb21_89_audit_current": {
       "without_metaharness_n": 33,
@@ -84,6 +93,7 @@
     "raw-logs/write-compressor-kimicode-20260610.tar.zst",
     "raw-logs/mteb-leaderboard-kimicode-20260610.tar.zst",
     "raw-logs/raman-fitting-kimicode-20260610.tar.zst",
-    "raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst"
+    "raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst",
+    "raw-logs/largest-eigenval-kimicode-20260611.tar.zst"
   ]
 }

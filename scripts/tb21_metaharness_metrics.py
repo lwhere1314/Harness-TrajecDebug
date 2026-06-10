@@ -223,17 +223,38 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
                 "valid_verifier_results": sum(1 for row in items if row["valid_verifier_result"]),
                 "reward_1_count": sum(1 for row in items if row["reward"] == 1.0),
                 "token_usage_rows": sum(1 for row in items if row["token_usage_available"]),
+                "token_usage_coverage": ratio(
+                    sum(1 for row in items if row["token_usage_available"]),
+                    len(items),
+                ),
                 "mean_wall_duration_sec": mean(row["wall_duration_sec"] for row in items),
+                "median_wall_duration_sec": median(
+                    row["wall_duration_sec"] for row in items
+                ),
                 "mean_agent_execution_sec": mean(row["agent_execution_sec"] for row in items),
+                "median_agent_execution_sec": median(
+                    row["agent_execution_sec"] for row in items
+                ),
                 "mean_verifier_sec": mean(row["verifier_sec"] for row in items),
+                "median_verifier_sec": median(row["verifier_sec"] for row in items),
                 "mean_total_input_output_tokens": mean(
+                    row["total_input_output_tokens"] for row in items
+                ),
+                "median_total_input_output_tokens": median(
                     row["total_input_output_tokens"] for row in items
                 ),
                 "mean_uncached_input_output_tokens": mean(
                     row["uncached_input_output_tokens"] for row in items
                 ),
+                "median_uncached_input_output_tokens": median(
+                    row["uncached_input_output_tokens"] for row in items
+                ),
                 "mean_prompt_chars": mean(row["prompt_chars"] for row in items),
+                "median_prompt_chars": median(row["prompt_chars"] for row in items),
                 "mean_injected_context_chars": mean(
+                    row["injected_context_chars"] for row in items
+                ),
+                "median_injected_context_chars": median(
                     row["injected_context_chars"] for row in items
                 ),
             }
@@ -244,18 +265,39 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
             "valid_with_verifier_results": sum(
                 1 for row in pair_rows if row["with_valid_verifier_result"]
             ),
+            "wall_delta_rows": sum(
+                1 for row in pair_rows if row["delta_wall_duration_sec"] is not None
+            ),
+            "token_delta_rows": sum(
+                1 for row in pair_rows if row["delta_total_input_output_tokens"] is not None
+            ),
             "mean_delta_reward": mean(row["delta_reward"] for row in pair_rows),
             "mean_delta_wall_duration_sec": mean(
+                row["delta_wall_duration_sec"] for row in pair_rows
+            ),
+            "median_delta_wall_duration_sec": median(
                 row["delta_wall_duration_sec"] for row in pair_rows
             ),
             "mean_delta_agent_execution_sec": mean(
                 row["delta_agent_execution_sec"] for row in pair_rows
             ),
+            "median_delta_agent_execution_sec": median(
+                row["delta_agent_execution_sec"] for row in pair_rows
+            ),
             "mean_delta_verifier_sec": mean(row["delta_verifier_sec"] for row in pair_rows),
+            "median_delta_verifier_sec": median(
+                row["delta_verifier_sec"] for row in pair_rows
+            ),
             "mean_delta_total_input_output_tokens": mean(
                 row["delta_total_input_output_tokens"] for row in pair_rows
             ),
+            "median_delta_total_input_output_tokens": median(
+                row["delta_total_input_output_tokens"] for row in pair_rows
+            ),
             "mean_delta_uncached_input_output_tokens": mean(
+                row["delta_uncached_input_output_tokens"] for row in pair_rows
+            ),
+            "median_delta_uncached_input_output_tokens": median(
                 row["delta_uncached_input_output_tokens"] for row in pair_rows
             ),
         },
@@ -381,6 +423,22 @@ def mean(values: Any) -> float | None:
     if not clean:
         return None
     return round(sum(clean) / len(clean), 3)
+
+
+def median(values: Any) -> float | None:
+    clean = sorted(float(value) for value in values if value is not None)
+    if not clean:
+        return None
+    mid = len(clean) // 2
+    if len(clean) % 2:
+        return round(clean[mid], 3)
+    return round((clean[mid - 1] + clean[mid]) / 2, 3)
+
+
+def ratio(numerator: int, denominator: int) -> float | None:
+    if denominator == 0:
+        return None
+    return round(numerator / denominator, 3)
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:

@@ -56,6 +56,14 @@ def main() -> int:
         action="store_true",
         help="Do not pass Harbor --force-build; useful when a valid task image already exists.",
     )
+    parser.add_argument(
+        "--tag-local-hb-prebuilt",
+        action="store_true",
+        help=(
+            "Before no-force-build runs, tag local hb__<task>:latest images to the "
+            "task.toml docker_image name so compose does not pull upstream images."
+        ),
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "--include-invalid-baseline",
@@ -92,6 +100,8 @@ def main() -> int:
         brief = write_repair_brief(row, args)
         job_name = f"tb21-{safe(task)}-kimicode-with-metaharness-{datetime.now():%Y%m%dT%H%M%S}"
         task_path = args.tasks_dir / task
+        if args.no_force_build and args.tag_local_hb_prebuilt:
+            tag_local_hb_image(task_path, task)
         cmd = [
             HARBOR,
             "run",
@@ -245,6 +255,38 @@ def summarize_job(job_dir: Path) -> dict[str, Any]:
         "exception": exception.get("exception_type"),
         "exception_message": exception.get("exception_message"),
     }
+
+
+def tag_local_hb_image(task_path: Path, task: str) -> None:
+    docker_image = read_task_docker_image(task_path / "task.toml")
+    if not docker_image:
+        print(f"[{iso_now()}] no docker_image found for {task}; skipping local tag", flush=True)
+        return
+    source = f"hb__{task}:latest"
+    env = os.environ.copy()
+    env["DOCKER_HOST"] = DOCKER_HOST
+    result = subprocess.run(
+        ["docker", "tag", source, docker_image],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Failed to tag {source} as {docker_image}: "
+            f"{result.stdout}{result.stderr}"
+        )
+    print(f"[{iso_now()}] tagged {source} as {docker_image}", flush=True)
+
+
+def read_task_docker_image(task_toml: Path) -> str | None:
+    try:
+        text = task_toml.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    match = re.search(r'^\s*docker_image\s*=\s*"([^"]+)"\s*$', text, re.MULTILINE)
+    return match.group(1) if match else None
 
 
 def read_tail(path: Path, max_chars: int) -> str:
