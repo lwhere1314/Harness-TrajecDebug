@@ -1,0 +1,16 @@
+run,task,variant,reward,errors,exceptions,valid_for_result,trials,note
+tb21-kvgrpc-kimicode-with-metaharness-20260610T155642,kv-store-grpc,with Meta-Harness,1.0,0,,yes,kv-store-grpc__X93pMKy,
+tb21-kvgrpc-kimicode-without-metaharness-20260610T155413,kv-store-grpc,without Meta-Harness,0.0,0,,yes,kv-store-grpc__K2jqaqs,
+tb21-openssl-kimicode-with-metaharness-20260610T1536,openssl-selfsigned-cert,with Meta-Harness,1.0,0,,yes,openssl-selfsigned-cert__CNeAhwi,
+tb21-openssl-kimicode-without-metaharness-20260610T1531,openssl-selfsigned-cert,without Meta-Harness,0.0,0,,yes,openssl-selfsigned-cert__djvNuQt,
+tb21-queryopt-kimicode-with-metaharness-20260610T165549,query-optimize,with Meta-Harness,0.0,1,AgentTimeoutError:1,no,query-optimize__FHukyJE,agent timeout after producing candidate but before clean upload/verifier
+tb21-queryopt-kimicode-with-metaharness-stop-20260610T172926,query-optimize,with Meta-Harness,0.0,0,,yes,query-optimize__52idQFk,valid verifier failure: agent did not create /app/sol.sql
+tb21-queryopt-kimicode-with-metaharness-stop-r2-20260610T174611,query-optimize,with Meta-Harness,1.0,0,,yes,query-optimize__zDp5pa9,
+tb21-queryopt-kimicode-with-metaharness-stop-r3-20260610T175618,query-optimize,with Meta-Harness,,,,no,query-optimize__FJDRNfB,aborted when preparing PR after user asked to stop and publish
+tb21-queryopt-kimicode-without-metaharness-20260610T163208,query-optimize,without Meta-Harness,0.0,0,,no,query-optimize__EjXWKut,verifier uv download failed before pytest assertions
+tb21-queryopt-kimicode-without-metaharness-stop-20260610T171537,query-optimize,without Meta-Harness,1.0,0,,yes,query-optimize__J3frX2U,
+tb21-sanitize-kimicode-with-metaharness-20260610T154556,sanitize-git-repo,with Meta-Harness,1.0,0,,yes,sanitize-git-repo__27w76Zf,
+tb21-sanitize-kimicode-without-metaharness-20260610T153124,sanitize-git-repo,without Meta-Harness,0.0,0,,yes,sanitize-git-repo__bhtJLtu,early run before workspace ownership normalization; retained as raw diagnostic
+tb21-sanitize-kimicode-without-metaharness-fixed-20260610T153736,sanitize-git-repo,without Meta-Harness,0.0,0,,yes,sanitize-git-repo__eMzBpYn,
+tb21-torchtensor-kimicode-with-metaharness-20260610T161752,torch-tensor-parallelism,with Meta-Harness,1.0,0,,yes,torch-tensor-parallelism__MraQAPJ,
+tb21-torchtensor-kimicode-without-metaharness-20260610T160422,torch-tensor-parallelism,without Meta-Harness,0.0,0,,yes,torch-tensor-parallelism__MXNr9yQ,

@@ -1,3 +1,6 @@
+/artifacts/
+/kimi-code/
+/docs/case-studies/*/raw-logs/harbor-runs-*.tar.zst
 __pycache__/
 *.py[cod]
 *.egg-info/

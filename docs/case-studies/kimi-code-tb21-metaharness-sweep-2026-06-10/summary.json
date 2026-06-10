@@ -1,0 +1,25 @@
+{
+  "date": "2026-06-10",
+  "harness": "Harbor / Terminal-Bench 2.1 proxy tasks via harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
+  "model": "kimi-for-coding",
+  "prior_failure_source": "claude-code + kimi-k2.6 failed cases from tb21-kimi-k26-local-019e737a-colima16g-proxy",
+  "completed_task_families": [
+    "openssl-selfsigned-cert",
+    "sanitize-git-repo",
+    "kv-store-grpc",
+    "torch-tensor-parallelism",
+    "query-optimize"
+  ],
+  "headline_results": {
+    "positive_metaharness_examples": [
+      "openssl-selfsigned-cert",
+      "sanitize-git-repo",
+      "kv-store-grpc",
+      "torch-tensor-parallelism"
+    ],
+    "query_optimize": "mixed/preliminary: without-stop passed once, with-stop had one missing-artifact failure and one pass; repetition was stopped for PR prep"
+  },
+  "raw_log_archive_local_followup": "raw-logs/harbor-runs-kimicode-tb21-sweep-20260610.tar.zst",
+  "raw_log_archive_note": "Prepared locally but not included in this quick PR; add with git add -f for a follow-up Git LFS commit.",
+  "diagnosis_archive": "raw-logs/diagnoses-kimicode-tb21-sweep-20260610.tar.zst"
+}
