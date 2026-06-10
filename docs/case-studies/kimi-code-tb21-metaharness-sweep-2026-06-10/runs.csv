@@ -18,3 +18,6 @@ tb21-sanitize-kimicode-without-metaharness-20260610T153124,sanitize-git-repo,wit
 tb21-sanitize-kimicode-without-metaharness-fixed-20260610T153736,sanitize-git-repo,without Meta-Harness,0.0,0,,yes,sanitize-git-repo__eMzBpYn,
 tb21-torchtensor-kimicode-with-metaharness-20260610T161752,torch-tensor-parallelism,with Meta-Harness,1.0,0,,yes,torch-tensor-parallelism__MraQAPJ,
 tb21-torchtensor-kimicode-without-metaharness-20260610T160422,torch-tensor-parallelism,without Meta-Harness,0.0,0,,yes,torch-tensor-parallelism__MXNr9yQ,
+tb21-largest-eigenval-kimicode-without-metaharness-clean-20260610T193328,largest-eigenval,without Meta-Harness,,,,no,largest-eigenval__ivBHtBu,exploratory attempt aborted after no candidate file was written for about five minutes; no verifier result
+tb21-chess-best-move-kimicode-without-metaharness-20260610T194012,chess-best-move,without Meta-Harness,,,,no,chess-best-move__NPaeb5n,exploratory attempt aborted after no move.txt was written for about ten minutes; no verifier result
+tb21-chess-best-move-kimicode-with-metaharness-20260610T195123,chess-best-move,with Meta-Harness,0.0,1,AgentTimeoutError:1,no,chess-best-move__MBoXvZy,trajectory-only evidence: prior brief named both moves but Kimi explored image-analysis scripts until timeout; verifier failed missing /app/move.txt

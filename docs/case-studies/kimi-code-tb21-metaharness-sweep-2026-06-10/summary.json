@@ -11,6 +11,10 @@
     "query-optimize",
     "headless-terminal"
   ],
+  "exploratory_task_families": [
+    "largest-eigenval",
+    "chess-best-move"
+  ],
   "headline_results": {
     "positive_metaharness_examples": [
       "openssl-selfsigned-cert",
@@ -22,12 +26,14 @@
     "metaharness_unsolved_candidates": [
       "headless-terminal"
     ],
-    "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0"
+    "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
+    "continued_search": "largest-eigenval and chess-best-move were probed after the PR opened. The attempts are trajectory-only/invalid for reward comparison: largest-eigenval did not write a candidate before interruption; chess-best-move with Meta-Harness saw the repair brief but timed out after writing image-analysis helper scripts and no move.txt."
   },
   "raw_log_archive_local_followup": "raw-logs/harbor-runs-kimicode-tb21-sweep-20260610.tar.zst",
   "raw_log_archive_note": "Prepared locally but not included in this quick PR; add with git add -f for a follow-up Git LFS commit.",
   "diagnosis_archive": "raw-logs/diagnoses-kimicode-tb21-sweep-20260610.tar.zst",
   "additional_raw_archives": [
-    "raw-logs/headless-terminal-kimicode-20260610.tar.zst"
+    "raw-logs/headless-terminal-kimicode-20260610.tar.zst",
+    "raw-logs/exploratory-unsolved-search-kimicode-20260610.tar.zst"
   ]
 }

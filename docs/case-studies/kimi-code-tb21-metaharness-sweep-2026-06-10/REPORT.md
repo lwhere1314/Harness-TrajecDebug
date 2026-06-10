@@ -22,6 +22,13 @@ is about 438 MB.
 The additional `headless-terminal` probe logs are included as
 `raw-logs/headless-terminal-kimicode-20260610.tar.zst`.
 
+Additional exploratory search logs for `largest-eigenval` and
+`chess-best-move` are included as
+`raw-logs/exploratory-unsolved-search-kimicode-20260610.tar.zst`. These runs
+are retained for trajectory analysis only and are explicitly excluded from the
+valid reward comparison because they timed out or were interrupted before a
+clean without/with pair was available.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -32,6 +39,16 @@ Completed task families so far:
 - `headless-terminal`: without Meta-Harness failed, and with Meta-Harness also
   failed in the full no-stop run. This is the first current
   Meta-Harness-unsolved candidate in this Kimi Code sweep.
+- `largest-eigenval`: selected as the next K2.6 failure candidate, but the
+  Kimi Code exploratory run did not write a candidate file before it was
+  stopped; no reward comparison was recorded.
+- `chess-best-move`: selected as a short clean K2.6 failure candidate. The
+  without run did not write `move.txt` before being stopped. The with
+  Meta-Harness run received a repair brief that named both expected moves, but
+  the trajectory went into image-analysis scripts and timed out without
+  creating `/app/move.txt`; verifier reward was `0.0` with
+  `AgentTimeoutError`. This is useful trajectory evidence, but not a clean
+  reward comparison.
 
 ## Evaluation
 
@@ -63,6 +80,13 @@ environment snapshot. The strongest trajectory diffs observed:
   while waiting for a shell prompt, and the background HTTP server was not
   reachable directly (`ConnectionRefusedError`). Current evidence: Meta-Harness
   repaired the proxy diagnosis but did not solve the task.
+- `chess-best-move`: Meta-Harness supplied the missing-move feedback directly
+  (`e2e4` and `g2g4`), plus an environment snapshot showing only
+  `chess_board.png` in `/app`. Kimi Code nevertheless wrote a sequence of
+  helper scripts (`analyze_board*.py`, `find_position*.py`) and never created
+  `move.txt` before timeout. The trajectory diff is therefore not a solution
+  improvement; it is evidence that prior-failure feedback was present but not
+  followed.
 
 ## Current Negative Candidate
 
@@ -77,3 +101,17 @@ solve it" bucket:
   for prompt/interactive-process failures.
 - A with-stop run is retained in `runs.csv` as diagnostic only because
   `stop_after_path=headless_terminal.py` cut the run before dependency setup.
+
+## Continuing Search Notes
+
+After opening the PR, I continued scanning K2.6 reward-0 cases:
+
+- `largest-eigenval`: prior K2.6 failed speedup tests on sizes 5, 7, and 9
+  after leaving the implementation equivalent to `np.linalg.eig`. The
+  exploratory Kimi Code run stayed in agent execution without writing a new
+  `eigen.py`; it was stopped before verifier execution and is not counted.
+- `chess-best-move`: prior K2.6 was a clean verifier failure, writing only
+  `e2e4` where the verifier expected both `e2e4` and `g2g4`. A Meta-Harness
+  repair brief included that exact feedback. The with Meta-Harness run still
+  timed out after writing only analysis scripts and no `move.txt`, so it is a
+  trajectory-only negative signal rather than a completed valid pair.
