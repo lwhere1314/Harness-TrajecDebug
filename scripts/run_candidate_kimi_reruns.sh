@@ -12,6 +12,10 @@ DRY_RUN=0
 PREFLIGHT=1
 PREFLIGHT_TIMEOUT="20"
 NO_FORCE_BUILD=1
+SUMMARIZE_AFTER=1
+STOP_ON_ERROR=0
+SUMMARY_MARKDOWN="docs/candidate-kimi-rerun-status.md"
+SUMMARY_JSON="runs/harbor_icl_baseline/candidate_kimi_rerun_status.json"
 TASKS=("make-mips-interpreter" "make-doom-for-mips")
 CONTEXT_VARIANTS=("oracle_grounded" "debug_action")
 
@@ -45,6 +49,12 @@ Options:
   --preflight-timeout SEC     Endpoint preflight timeout. Default: 20
   --skip-preflight            Launch jobs without the upfront endpoint check
   --force-build               Force task image build instead of reusing cached image
+  --summary-markdown PATH     Markdown status report path.
+                              Default: docs/candidate-kimi-rerun-status.md
+  --summary-json PATH         JSON status report path.
+                              Default: runs/harbor_icl_baseline/candidate_kimi_rerun_status.json
+  --no-summary                Do not regenerate the candidate status report after runs
+  --stop-on-error             Stop the queue after the first failed Harbor run
   --dry-run                   Print the generated commands and validate files only
   -h, --help                  Show this help
 
@@ -86,6 +96,10 @@ while [[ $# -gt 0 ]]; do
     --preflight-timeout) PREFLIGHT_TIMEOUT="$2"; shift 2 ;;
     --skip-preflight) PREFLIGHT=0; shift ;;
     --force-build) NO_FORCE_BUILD=0; shift ;;
+    --summary-markdown) SUMMARY_MARKDOWN="$2"; shift 2 ;;
+    --summary-json) SUMMARY_JSON="$2"; shift 2 ;;
+    --no-summary) SUMMARIZE_AFTER=0; shift ;;
+    --stop-on-error) STOP_ON_ERROR=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -156,6 +170,7 @@ echo "Endpoint profile: $ENDPOINT_PROFILE"
 echo "Inject mode: $INJECT_MODE"
 echo "Preflight: $PREFLIGHT"
 echo "Dry run: $DRY_RUN"
+echo "Summarize after runs: $SUMMARIZE_AFTER"
 echo "Tasks:"
 printf '  - %s\n' "${TASKS[@]}"
 echo "Context variants:"
@@ -174,6 +189,7 @@ if [[ "$DRY_RUN" != "1" && "$PREFLIGHT" == "1" ]]; then
   fi
 fi
 
+RUN_FAILURES=0
 for task in "${TASKS[@]}"; do
   for variant in "${CONTEXT_VARIANTS[@]}"; do
     jobs_dir="$(variant_jobs_dir "$variant")"
@@ -202,6 +218,42 @@ for task in "${TASKS[@]}"; do
     if [[ "$DRY_RUN" == "1" ]]; then
       continue
     fi
-    "${cmd[@]}"
+    if "${cmd[@]}"; then
+      echo "Candidate run finished: $task / $variant"
+    else
+      code=$?
+      RUN_FAILURES=1
+      echo "Candidate run failed with exit code $code: $task / $variant" >&2
+      if [[ "$STOP_ON_ERROR" == "1" ]]; then
+        exit "$code"
+      fi
+    fi
   done
 done
+
+if [[ "$DRY_RUN" != "1" && "$SUMMARIZE_AFTER" == "1" ]]; then
+  summary_args=(
+    scripts/summarize_candidate_kimi_reruns.py
+    --pack-dir "$PACK_DIR"
+    --model "$MODEL"
+    --inject-mode "$INJECT_MODE"
+    --markdown-output "$SUMMARY_MARKDOWN"
+    --json-output "$SUMMARY_JSON"
+  )
+  for task in "${TASKS[@]}"; do
+    summary_args+=(--task "$task")
+  done
+  for variant in "${CONTEXT_VARIANTS[@]}"; do
+    summary_args+=(--context-variant "$variant")
+  done
+
+  echo
+  echo "== Regenerating candidate rerun status =="
+  printf '%q ' "${summary_args[@]}"
+  echo
+  "${summary_args[@]}"
+fi
+
+if [[ "$RUN_FAILURES" == "1" ]]; then
+  exit 1
+fi

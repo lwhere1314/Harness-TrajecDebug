@@ -232,6 +232,10 @@ def markdown(rows: list[CandidateRun]) -> str:
             "scripts/run_candidate_kimi_reruns.sh --dry-run",
             "scripts/run_candidate_kimi_reruns.sh",
             "```",
+            "",
+            "`run_candidate_kimi_reruns.sh` regenerates this report after a",
+            "non-dry-run queue completes. You can also rerun this summarizer",
+            "directly when inspecting existing Harbor outputs.",
         ]
     )
     return "\n".join(lines) + "\n"

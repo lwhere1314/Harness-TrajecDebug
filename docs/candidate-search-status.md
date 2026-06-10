@@ -92,7 +92,10 @@ scripts/run_candidate_kimi_reruns.sh --dry-run
 scripts/run_candidate_kimi_reruns.sh
 ```
 
-After the queue runs, regenerate the local status report:
+The queue preflights the model endpoint, runs each task/method pair
+sequentially, continues past individual Harbor failures, and regenerates the
+local status report at the end. To refresh the report without launching Harbor,
+run:
 
 ```bash
 scripts/summarize_candidate_kimi_reruns.py \
