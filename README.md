@@ -5,6 +5,18 @@ framework for terminal-agent in-context learning. It turns raw pass/fail
 benchmark trajectories into process-level records with reference objects, state
 events, decision evidence, failure patterns, a critical step, and a repair hint.
 
+The core mechanism is **not** "add more context." It is:
+
+```text
+localize the critical path boundary
+  -> synthesize the smallest corrective context
+  -> inject it when the next agent run reaches the matching decision/tool/state boundary
+  -> verify whether the official reward changes
+```
+
+This is why `prelude` runs are treated as weak sanity checks, while
+`sdk_live` / hooks-style runtime insertion is the main algorithmic path.
+
 The project is intentionally conservative: it only emits failure patterns when
 there is concrete trace evidence and a final verifier footprint.
 

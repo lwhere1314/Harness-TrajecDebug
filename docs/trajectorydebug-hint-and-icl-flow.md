@@ -37,6 +37,10 @@ algorithmic path. The stronger path is `debug_action + sdk_live/hooks_live`,
 where the card is inserted at a tool-use, uncertainty, dependency, artifact, or
 state boundary that corresponds to the diagnosed failure route.
 
+Put differently: `prelude` tests whether the context contains useful
+information; runtime insertion tests whether TrajectoryDebug found the right
+place to intervene. The latter is the core value of the method.
+
 ## Current Hint Generation Algorithm
 
 Input objects:
