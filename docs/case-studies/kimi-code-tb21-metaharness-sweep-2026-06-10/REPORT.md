@@ -45,6 +45,11 @@ Additional queue-run logs for `count-dataset-tokens`, `dna-insert`,
 Additional `write-compressor` queue-run logs are included as
 `raw-logs/write-compressor-kimicode-20260610.tar.zst`.
 
+Additional `mteb-leaderboard` diagnostic logs are included as
+`raw-logs/mteb-leaderboard-kimicode-20260610.tar.zst`. This run is not counted:
+Kimi Code left the workspace empty, the adapter raised `FileNotFoundError`, and
+the verifier did not run.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -91,6 +96,9 @@ Completed task families so far:
 - `write-compressor`: selected from the K2.6 timeout-failure pool. The runner
   used `stop_after_path=data.comp`, but the artifact never appeared. The
   timeout-upload verifier path ran and returned reward `0.0`.
+- `mteb-leaderboard`: diagnostic only. The prior failure was a verifier setup
+  proxy failure. The with Meta-Harness run left the workspace empty, so no
+  verifier reward was produced and the task is excluded from the current score.
 
 ## Evaluation
 
@@ -186,6 +194,9 @@ environment snapshot. The strongest trajectory diffs observed:
   failure and the runner told the adapter to stop as soon as `data.comp`
   existed. Kimi Code never created that artifact, so the run timed out and the
   verifier again failed on the missing compressed file.
+- `mteb-leaderboard`: Meta-Harness supplied task and proxy context, but Kimi
+  Code produced no files at all. The failure occurred before upload/verifier and
+  is tracked only as diagnostic raw evidence.
 
 ## Current Negative Candidate
 
@@ -230,3 +241,5 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `write-compressor`: has a raw with-Meta-Harness verifier result and remains
   a reward-0 observed failure; it also validates the new queue runner
   `--stop-after-path` option.
+- `mteb-leaderboard`: diagnostic-only run; `stop_after_path=result.txt` never
+  triggered and no verifier reward exists.
