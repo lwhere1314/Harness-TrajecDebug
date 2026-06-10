@@ -1,0 +1,45 @@
+{
+    "task": {
+        "path": "/Users/hugo/.cache/harbor/tasks/5pwPaf92MGZBJjvqnuBn9d/cancel-async-tasks",
+        "git_url": null,
+        "git_commit_id": null,
+        "overwrite": false,
+        "download_dir": null,
+        "source": null
+    },
+    "trial_name": "cancel-async-tasks__PKRUK5x",
+    "trials_dir": "harbor/runs/cancel-async-tasks-without-metaharness-4x",
+    "timeout_multiplier": 1.0,
+    "agent": {
+        "name": null,
+        "import_path": "harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
+        "model_name": "kimi-for-coding",
+        "override_timeout_sec": null,
+        "override_setup_timeout_sec": null,
+        "max_timeout_sec": null,
+        "kwargs": {
+            "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+            "node_bin": "/Users/hugo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "prompt_timeout_sec": 900,
+            "include_env_snapshot": false
+        }
+    },
+    "environment": {
+        "type": "docker",
+        "import_path": null,
+        "force_build": true,
+        "delete": true,
+        "override_cpus": null,
+        "override_memory_mb": null,
+        "override_storage_mb": null,
+        "override_gpus": null,
+        "suppress_override_warnings": false,
+        "kwargs": {}
+    },
+    "verifier": {
+        "override_timeout_sec": null,
+        "max_timeout_sec": null,
+        "disable": false
+    },
+    "job_id": "02c67ea6-dfea-43fa-9fe5-04e74f808411"
+}

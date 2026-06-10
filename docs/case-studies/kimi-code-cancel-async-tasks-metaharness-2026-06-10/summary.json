@@ -1,0 +1,202 @@
+{
+  "summary": {
+    "without-metaharness": {
+      "job_dir": "docs/case-studies/kimi-code-cancel-async-tasks-metaharness-2026-06-10/raw/without-metaharness-4x",
+      "job_id": "02c67ea6-dfea-43fa-9fe5-04e74f808411",
+      "started_at": "2026-06-10T14:16:52.942206",
+      "finished_at": "2026-06-10T14:31:36.920560",
+      "n_total_trials": 4,
+      "n_trials": 4,
+      "n_errors": 0,
+      "mean_reward": 0.0,
+      "reward_stats": {
+        "reward": {
+          "0.0": [
+            "cancel-async-tasks__XtjVRPK",
+            "cancel-async-tasks__e6T4eog",
+            "cancel-async-tasks__c82NMkd",
+            "cancel-async-tasks__PKRUK5x"
+          ]
+        }
+      },
+      "exception_stats": {},
+      "wall_seconds": 883.978
+    },
+    "with-metaharness": {
+      "job_dir": "docs/case-studies/kimi-code-cancel-async-tasks-metaharness-2026-06-10/raw/with-metaharness-4x",
+      "job_id": "973ff689-9ba3-4bf8-a6bc-125958cc2cb3",
+      "started_at": "2026-06-10T14:32:01.035157",
+      "finished_at": "2026-06-10T14:56:13.928799",
+      "n_total_trials": 4,
+      "n_trials": 4,
+      "n_errors": 0,
+      "mean_reward": 1.0,
+      "reward_stats": {
+        "reward": {
+          "1.0": [
+            "cancel-async-tasks__THLazLx",
+            "cancel-async-tasks__UmqeHfc",
+            "cancel-async-tasks__kzDD3Dp",
+            "cancel-async-tasks__jevALeT"
+          ]
+        }
+      },
+      "exception_stats": {},
+      "wall_seconds": 1452.894
+    }
+  },
+  "trials": [
+    {
+      "condition": "without-metaharness",
+      "trial": "cancel-async-tasks__PKRUK5x",
+      "reward": 0.0,
+      "tests": 6,
+      "passed": 5,
+      "failed": 1,
+      "failed_tests": "test_outputs.py::test_tasks_cancel_above_max_concurrent",
+      "agent_seconds": 139.891,
+      "verifier_seconds": 38.171,
+      "has_env_snapshot": "false",
+      "has_previous_failure": "false",
+      "prompt_bytes": 1008,
+      "run_py_bytes": 679,
+      "code_classification": "semaphore, catches KeyboardInterrupt, uses gather, cancels tasks",
+      "run_py_path": "raw/without-metaharness-4x/cancel-async-tasks__PKRUK5x/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/without-metaharness-4x/cancel-async-tasks__PKRUK5x/verifier/test-stdout.txt",
+      "result_path": "raw/without-metaharness-4x/cancel-async-tasks__PKRUK5x/result.json"
+    },
+    {
+      "condition": "without-metaharness",
+      "trial": "cancel-async-tasks__XtjVRPK",
+      "reward": 0.0,
+      "tests": 6,
+      "passed": 5,
+      "failed": 1,
+      "failed_tests": "test_outputs.py::test_tasks_cancel_above_max_concurrent",
+      "agent_seconds": 221.714,
+      "verifier_seconds": 40.238,
+      "has_env_snapshot": "false",
+      "has_previous_failure": "false",
+      "prompt_bytes": 1008,
+      "run_py_bytes": 943,
+      "code_classification": "semaphore, uses gather, cancels tasks",
+      "run_py_path": "raw/without-metaharness-4x/cancel-async-tasks__XtjVRPK/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/without-metaharness-4x/cancel-async-tasks__XtjVRPK/verifier/test-stdout.txt",
+      "result_path": "raw/without-metaharness-4x/cancel-async-tasks__XtjVRPK/result.json"
+    },
+    {
+      "condition": "without-metaharness",
+      "trial": "cancel-async-tasks__c82NMkd",
+      "reward": 0.0,
+      "tests": 6,
+      "passed": 5,
+      "failed": 1,
+      "failed_tests": "test_outputs.py::test_tasks_cancel_above_max_concurrent",
+      "agent_seconds": 273.857,
+      "verifier_seconds": 37.914,
+      "has_env_snapshot": "false",
+      "has_previous_failure": "false",
+      "prompt_bytes": 1008,
+      "run_py_bytes": 822,
+      "code_classification": "semaphore, worker, uses gather, cancels tasks",
+      "run_py_path": "raw/without-metaharness-4x/cancel-async-tasks__c82NMkd/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/without-metaharness-4x/cancel-async-tasks__c82NMkd/verifier/test-stdout.txt",
+      "result_path": "raw/without-metaharness-4x/cancel-async-tasks__c82NMkd/result.json"
+    },
+    {
+      "condition": "without-metaharness",
+      "trial": "cancel-async-tasks__e6T4eog",
+      "reward": 0.0,
+      "tests": 6,
+      "passed": 5,
+      "failed": 1,
+      "failed_tests": "test_outputs.py::test_tasks_cancel_above_max_concurrent",
+      "agent_seconds": 37.486,
+      "verifier_seconds": 49.815,
+      "has_env_snapshot": "false",
+      "has_previous_failure": "false",
+      "prompt_bytes": 1008,
+      "run_py_bytes": 830,
+      "code_classification": "semaphore, catches KeyboardInterrupt, uses gather, cancels tasks",
+      "run_py_path": "raw/without-metaharness-4x/cancel-async-tasks__e6T4eog/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/without-metaharness-4x/cancel-async-tasks__e6T4eog/verifier/test-stdout.txt",
+      "result_path": "raw/without-metaharness-4x/cancel-async-tasks__e6T4eog/result.json"
+    },
+    {
+      "condition": "with-metaharness",
+      "trial": "cancel-async-tasks__THLazLx",
+      "reward": 1.0,
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "failed_tests": "",
+      "agent_seconds": 184.321,
+      "verifier_seconds": 46.124,
+      "has_env_snapshot": "true",
+      "has_previous_failure": "true",
+      "prompt_bytes": 3058,
+      "run_py_bytes": 855,
+      "code_classification": "worker, catches BaseException, uses gather, cancels tasks",
+      "run_py_path": "raw/with-metaharness-4x/cancel-async-tasks__THLazLx/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/with-metaharness-4x/cancel-async-tasks__THLazLx/verifier/test-stdout.txt",
+      "result_path": "raw/with-metaharness-4x/cancel-async-tasks__THLazLx/result.json"
+    },
+    {
+      "condition": "with-metaharness",
+      "trial": "cancel-async-tasks__UmqeHfc",
+      "reward": 1.0,
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "failed_tests": "",
+      "agent_seconds": 207.735,
+      "verifier_seconds": 42.196,
+      "has_env_snapshot": "true",
+      "has_previous_failure": "true",
+      "prompt_bytes": 3058,
+      "run_py_bytes": 1006,
+      "code_classification": "worker, catches BaseException, uses gather, cancels tasks",
+      "run_py_path": "raw/with-metaharness-4x/cancel-async-tasks__UmqeHfc/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/with-metaharness-4x/cancel-async-tasks__UmqeHfc/verifier/test-stdout.txt",
+      "result_path": "raw/with-metaharness-4x/cancel-async-tasks__UmqeHfc/result.json"
+    },
+    {
+      "condition": "with-metaharness",
+      "trial": "cancel-async-tasks__jevALeT",
+      "reward": 1.0,
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "failed_tests": "",
+      "agent_seconds": 669.291,
+      "verifier_seconds": 35.72,
+      "has_env_snapshot": "true",
+      "has_previous_failure": "true",
+      "prompt_bytes": 3058,
+      "run_py_bytes": 967,
+      "code_classification": "worker, catches BaseException, uses gather, cancels tasks",
+      "run_py_path": "raw/with-metaharness-4x/cancel-async-tasks__jevALeT/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/with-metaharness-4x/cancel-async-tasks__jevALeT/verifier/test-stdout.txt",
+      "result_path": "raw/with-metaharness-4x/cancel-async-tasks__jevALeT/result.json"
+    },
+    {
+      "condition": "with-metaharness",
+      "trial": "cancel-async-tasks__kzDD3Dp",
+      "reward": 1.0,
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "failed_tests": "",
+      "agent_seconds": 184.44,
+      "verifier_seconds": 38.021,
+      "has_env_snapshot": "true",
+      "has_previous_failure": "true",
+      "prompt_bytes": 3058,
+      "run_py_bytes": 985,
+      "code_classification": "queue, worker, catches BaseException, uses gather, cancels tasks",
+      "run_py_path": "raw/with-metaharness-4x/cancel-async-tasks__kzDD3Dp/agent/host-workspace/run.py",
+      "verifier_stdout_path": "raw/with-metaharness-4x/cancel-async-tasks__kzDD3Dp/verifier/test-stdout.txt",
+      "result_path": "raw/with-metaharness-4x/cancel-async-tasks__kzDD3Dp/result.json"
+    }
+  ]
+}

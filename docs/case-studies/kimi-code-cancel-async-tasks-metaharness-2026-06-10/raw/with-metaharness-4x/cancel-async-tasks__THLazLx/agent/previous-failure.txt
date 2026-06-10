@@ -1,0 +1,25 @@
+Previous verifier feedback for this task:
+
+- The previous candidate used `asyncio.Semaphore(max_concurrent)` and created one
+  wrapper task for every input task up front.
+- It passed 5 of 6 verifier tests.
+- The failing test was `test_tasks_cancel_above_max_concurrent`.
+- Scenario: `n_tasks=3`, `max_concurrent=2`; the verifier starts the subprocess,
+  sleeps 500 ms, then sends SIGINT / KeyboardInterrupt.
+- Expected stdout:
+  - exactly 2 lines containing `Task started.`
+  - exactly 2 lines containing `Cleaned up.`
+- Actual stdout:
+  - `Task started.`
+  - `Task started.`
+  - no `Cleaned up.` lines
+
+Failure interpretation:
+
+- The third task must not start before one of the first two finishes.
+- When SIGINT / KeyboardInterrupt happens, the active task coroutines must be
+  cancelled and awaited so their `finally` cleanup blocks run before re-raising.
+- Avoid relying on `asyncio.gather` over one wrapper task per input task while
+  some wrappers are blocked on a semaphore. A safer structure is to start only
+  up to `max_concurrent` worker tasks and have those workers consume the task
+  factories, then cancel and await those workers on BaseException.

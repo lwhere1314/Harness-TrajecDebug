@@ -1,0 +1,49 @@
+--- raw/without-metaharness-4x/cancel-async-tasks__XtjVRPK/agent/host-workspace/run.py
++++ raw/with-metaharness-4x/cancel-async-tasks__THLazLx/agent/host-workspace/run.py
+@@ -3,26 +3,30 @@
+ 
+ 
+ async def run_tasks(tasks: list[Callable[[], Awaitable[None]]], max_concurrent: int) -> None:
+-    """Run async tasks with a limit on concurrent execution.
++    if not tasks or max_concurrent <= 0:
++        return
+ 
+-    If the caller is cancelled (e.g. via Ctrl+C), all running tasks are
+-    cancelled and given a chance to run their cleanup code before the
+-    cancellation is re-raised.
+-    """
+-    semaphore = asyncio.Semaphore(max_concurrent)
++    idx = 0
++    lock = asyncio.Lock()
+ 
+-    async def _run(task: Callable[[], Awaitable[None]]) -> None:
+-        async with semaphore:
++    async def worker() -> None:
++        nonlocal idx
++        while True:
++            async with lock:
++                if idx >= len(tasks):
++                    break
++                task = tasks[idx]
++                idx += 1
+             await task()
+ 
+-    runners = [asyncio.create_task(_run(task)) for task in tasks]
++    num_workers = min(max_concurrent, len(tasks))
++    workers = [asyncio.create_task(worker()) for _ in range(num_workers)]
+ 
+     try:
+-        await asyncio.gather(*runners)
+-    except asyncio.CancelledError:
+-        for r in runners:
+-            if not r.done():
+-                r.cancel()
+-        # Allow tasks to finish their cleanup (finally blocks, etc.)
+-        await asyncio.gather(*runners, return_exceptions=True)
++        await asyncio.gather(*workers)
++    except BaseException:
++        for w in workers:
++            if not w.done():
++                w.cancel()
++        await asyncio.gather(*workers, return_exceptions=True)
+         raise
