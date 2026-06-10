@@ -14,6 +14,11 @@ historical Codex + GPT-5.5 reward = 0.0
 
 Under that definition, the project currently has **6 closed-loop cases**.
 
+For a focused handoff of the first five core Debug-Action cards, see
+[`card-level-five-case-summary.md`](card-level-five-case-summary.md). That note
+keeps `overfull-hbox` as an extension so the current card-level story stays on
+the five cases that have the cleanest process-evaluation narrative.
+
 | Case | Historical Codex + GPT-5.5 failure | HTD critical step | Kimi-k2.6 rerun evidence |
 | --- | --- | --- | --- |
 | `sanitize-git-repo` | Over-solved by mutating git history and broke the reference-commit check. | Bound the task to working-tree secret removal while preserving git history. | `oracle_grounded` reward `1.0`; `debug_action` reward `1.0`; official verifier `3/3` passed. |
