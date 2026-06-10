@@ -20,6 +20,18 @@ Terminal-agent benchmark 里的 `pass/fail` 很适合做排行榜，但它对改
 critical commitment，再生成一个 Debug-Trajectory / Debug-Action hint，在下一次
 agent run 的关键路径上注入进去。
 
+所以这个方法的核心算法单元不是“多给一段上下文”，而是：
+
+```text
+repair boundary + corrective context
+```
+
+`repair boundary` 指的是下一次运行中 agent 可能再次进入失败分支的位置：选择实现路线、
+promote artifact、信任 proxy metric、重复一个已经失败的工具链、或者准备 final closure。
+`corrective context` 则是在这个位置注入的最小过程约束。没有 boundary，context 只是提示词；
+没有 context，boundary 只是事后诊断。两者合在一起，才是 TrajectoryDebug 相比
+outcome-only、raw trace 和 prompt-filtered baseline 的核心价值。
+
 这里最重要的一点是：
 
 > source trajectory 不一定要是成功 run。失败 run 也可以成为数据。

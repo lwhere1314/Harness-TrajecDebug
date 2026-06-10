@@ -41,6 +41,21 @@ Put differently: `prelude` tests whether the context contains useful
 information; runtime insertion tests whether TrajectoryDebug found the right
 place to intervene. The latter is the core value of the method.
 
+So the algorithmic unit is not "a longer prompt" or even "a better card" by
+itself. It is the pair:
+
+```text
+repair boundary + corrective context
+```
+
+The repair boundary says where the next run is likely to enter the same bad
+branch: choosing an implementation route, promoting an artifact, trusting a
+proxy metric, retrying a broken tool path, or closing the final answer. The
+corrective context says what minimal process constraint should be injected
+there. A `prelude` run only checks whether the card contains useful information;
+`sdk_live` / hooks-style insertion checks whether the diagnosis localized the
+right decision boundary.
+
 ## Current Hint Generation Algorithm
 
 Input objects:
