@@ -103,11 +103,11 @@
       "counts_for_m": false,
       "counts_for_without_n": false,
       "task": "adaptive-rejection-sampler",
-      "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
+      "with_metaharness_exception": "AgentTimeoutError",
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-adaptive-rejection-sampler-kimicode-with-metaharness-20260611T012505/adaptive-rejection-sampler__Q4oCfYc/result.json",
       "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_status": "invalid_or_missing",
+      "with_metaharness_trial": "adaptive-rejection-sampler__Q4oCfYc"
     },
     {
       "baseline_exception": null,

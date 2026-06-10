@@ -19,6 +19,12 @@ including `raw-logs/harbor-runs-kimicode-tb21-sweep-20260610.tar.zst`.
 The additional `headless-terminal` probe logs are included as
 `raw-logs/headless-terminal-kimicode-20260610.tar.zst`.
 
+The `cancel-async-tasks` 4x with/without reproduction raw records are retained
+in the sibling case-study folder
+`docs/case-studies/kimi-code-cancel-async-tasks-metaharness-2026-06-10/raw/`;
+the current sweep audit and metrics reference those raw result files rather
+than duplicating them into this folder.
+
 Additional exploratory search logs for `largest-eigenval` and
 `chess-best-move` are included as
 `raw-logs/exploratory-unsolved-search-kimicode-20260610.tar.zst`. These runs
@@ -69,13 +75,23 @@ Additional partial `video-processing` logs are included as
 `raw-logs/video-processing-partial-kimicode-20260611.tar.zst`. These runs are
 not counted: both ended before `jump_analyzer.py` or `result.json` was produced.
 
+Additional `adaptive-rejection-sampler` diagnostic logs are included as
+`raw-logs/adaptive-rejection-sampler-invalid-kimicode-20260611.tar.zst`. This
+run is not counted: Kimi Code wrote `ars.R`, but Harbor's outer agent timeout
+fired before the adapter could upload the workspace and run the verifier, so the
+result has no verifier reward.
+
 Additional Kimi Code session usage records are included as
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`. This archive contains the
-20 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
+21 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
 from `usage.record` events.
 
 Completed task families so far:
 
+- `cancel-async-tasks`: separate 4x reproduction. Without Meta-Harness failed
+  4/4 on `test_tasks_cancel_above_max_concurrent`; with Meta-Harness passed
+  4/4 after the injected previous failure steered the implementation toward
+  broad cancellation handling.
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
 - `sanitize-git-repo`: without Meta-Harness failed, with Meta-Harness passed.
 - `kv-store-grpc`: without Meta-Harness failed, with Meta-Harness passed.
@@ -135,6 +151,9 @@ Completed task families so far:
 - `video-processing`: partial diagnostic only. Two with Meta-Harness attempts
   started video analysis and wrote exploratory scripts/images, but neither
   produced final `jump_analyzer.py` or a Harbor `result.json`.
+- `adaptive-rejection-sampler`: diagnostic only. The run wrote `ars.R`, but the
+  adapter timeout was set too close to the task-level Harbor timeout, so Harbor
+  produced `AgentTimeoutError` before workspace upload/verifier execution.
 
 ## Evaluation
 
@@ -151,19 +170,19 @@ those fields null, so the metrics script falls back to the local Kimi session
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`.
 
 Token coverage is now 78/89 rows for the `claude-code + kimi-k2.6` baseline and
-20/20 rows for the current with Meta-Harness Kimi Code subset. On the 20 paired
-rows, mean total `input+output` tokens moved from `929,983.850` to
-`812,271.350` (`-117,712.500`), while mean cache-adjusted
-`input-cache+output` tokens moved from `33,395.200` to `53,346.550`
-(`+19,951.350`). The median paired deltas are `+10,980.000` total tokens and
-`+18,824.000` cache-adjusted tokens. The interpretation is therefore mixed:
+21/21 rows for the current with Meta-Harness Kimi Code subset. On the 21 paired
+rows, mean total `input+output` tokens moved from `899,279.095` to
+`810,483.667` (`-88,795.429`), while mean cache-adjusted
+`input-cache+output` tokens moved from `33,282.571` to `54,247.476`
+(`+20,964.905`). The median paired deltas are `+13,829.000` total tokens and
+`+20,774.000` cache-adjusted tokens. The interpretation is therefore mixed:
 with Meta-Harness is lower on mean total tokens in this paired subset, but
 higher on uncached/cache-adjusted tokens.
 
 Current latency summary for the same paired subset: baseline mean wall time is
-`3,750.261` seconds and with Meta-Harness mean wall time is `624.323` seconds
-(`-3,125.938`). The corresponding medians are `1,090.430` seconds and
-`638.580` seconds, with median paired wall-time delta `-351.751` seconds. This
+`3,615.313` seconds and with Meta-Harness mean wall time is `637.480` seconds
+(`-2,977.832`). The corresponding medians are `1,028.553` seconds and
+`648.379` seconds, with median paired wall-time delta `-224.716` seconds. This
 latency comparison is not a controlled full-suite conclusion yet because the
 with Meta-Harness set is still a targeted recovery subset and mixes passes,
 failures, timeout-upload recoveries, and verifier-invalid diagnostics.
