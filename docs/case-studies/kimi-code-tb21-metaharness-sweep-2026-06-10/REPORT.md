@@ -59,6 +59,12 @@ Additional `feal-differential-cryptanalysis` queue-run logs are included as
 Additional `largest-eigenval` queue-run logs are included as
 `raw-logs/largest-eigenval-kimicode-20260611.tar.zst`.
 
+Additional `git-leak-recovery` diagnostic logs are included as
+`raw-logs/git-leak-recovery-kimicode-20260611.tar.zst`. This run is not
+counted: Kimi Code recovered the secret and cleaned the git unreachable objects,
+but the official verifier exited before writing `reward.txt`, so Harbor raised
+`RewardFileNotFoundError`.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -114,6 +120,9 @@ Completed task families so far:
   verifier reward was produced and the task is excluded from the current score.
 - `raman-fitting`: selected from the K2.6 clean reward-0 pool. The with
   Meta-Harness run produced a valid verifier result with reward `0.0`.
+- `git-leak-recovery`: diagnostic only. The with Meta-Harness run recovered
+  `secret[lost_and_found_in_git]` and cleaned reflog/unreachable git objects,
+  but the verifier failed before writing a reward file.
 
 ## Evaluation
 
@@ -128,7 +137,7 @@ metrics from the same raw `result.json` files. Token fields are direct Harbor
 currently has token fields for 78/89 rows. Its current mean `input+output`
 usage is `1,677,604.410` tokens, and the cache-adjusted
 `input-cache+output` mean is `47,296.269` tokens. The corresponding medians are
-`820,898.000` and `29,778.000` tokens. Kimi Code rows currently have 0/19 rows
+`820,898.000` and `29,778.000` tokens. Kimi Code rows currently have 0/20 rows
 with token usage because the adapter does not emit provider usage, so exact
 with-vs-without token deltas cannot be claimed from the present raw logs. The
 metrics files therefore also record observable proxies such as prompt size,
@@ -136,13 +145,13 @@ injected Meta-Harness context size, Kimi stream bytes, tool-call event counts,
 wall time, agent time, and verifier time.
 
 Current latency summary for the paired subset: baseline mean wall time is
-`2,326.427` seconds and with Meta-Harness mean wall time is `635.582` seconds.
-The corresponding medians are `1,201.115` seconds and `648.379` seconds. Across
-the 19 paired rows with wall-clock data, the mean paired wall-time delta is
-`-3,118.741` seconds and the median paired wall-time delta is `-224.716`
+`2,326.427` seconds and with Meta-Harness mean wall time is `624.323` seconds.
+The corresponding medians are `1,201.115` seconds and `638.580` seconds. Across
+the 20 paired rows with wall-clock data, the mean paired wall-time delta is
+`-3,125.938` seconds and the median paired wall-time delta is `-351.751`
 seconds. This latency comparison is not a controlled full-suite conclusion yet
 because the with Meta-Harness set is still a targeted recovery subset and mixes
-passes, failures, and timeout-upload recoveries.
+passes, failures, timeout-upload recoveries, and verifier-invalid diagnostics.
 
 ## 89-Task Audit
 
@@ -250,6 +259,13 @@ environment snapshot. The strongest trajectory diffs observed:
   Kimi Code but did not modify `eigen.py` before the 900-second agent timeout.
   The timeout-upload verifier still executed and failed speedup checks on sizes
   3 and 10, so this is a valid reward-0 verifier failure.
+- `git-leak-recovery`: Meta-Harness supplied the prior verifier network/setup
+  failure plus an environment snapshot showing a minimal image with no Python,
+  pip, or uv. Kimi Code recovered the secret from the unreachable commit,
+  wrote `/app/secret.txt`, expired reflogs, removed `ORIG_HEAD`, and ran
+  aggressive GC so `git fsck --unreachable --no-reflogs` returned cleanly.
+  The official verifier then failed before creating a reward file, so this
+  remains diagnostic rather than a counted pass.
 
 ## Current Negative Candidate
 
@@ -305,3 +321,6 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   reward-0 observed failure.
 - `largest-eigenval`: has a raw with-Meta-Harness verifier result and remains a
   reward-0 observed failure.
+- `git-leak-recovery`: has raw with-Meta-Harness logs and a strong trajectory
+  improvement, but Harbor raised `RewardFileNotFoundError`; it is retained as
+  diagnostic evidence only.

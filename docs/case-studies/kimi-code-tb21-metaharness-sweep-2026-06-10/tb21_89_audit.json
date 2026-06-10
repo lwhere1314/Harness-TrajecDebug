@@ -583,11 +583,11 @@
       "counts_for_m": false,
       "counts_for_without_n": false,
       "task": "git-leak-recovery",
-      "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
+      "with_metaharness_exception": "RewardFileNotFoundError",
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-git-leak-recovery-kimicode-with-metaharness-20260611T004727/git-leak-recovery__DgoaY7Z/result.json",
       "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_status": "invalid_or_missing",
+      "with_metaharness_trial": "git-leak-recovery__DgoaY7Z"
     },
     {
       "baseline_exception": null,
