@@ -1,0 +1,47 @@
+{
+  "notes": [
+    "Token fields are direct Harbor agent_result values when present.",
+    "KimiCode rows currently have null token fields because the adapter does not emit provider usage.",
+    "uncached_input_output_tokens is computed as input_tokens - cache_tokens + output_tokens.",
+    "prompt_chars and injected_context_chars are recorded as observable context-size proxies."
+  ],
+  "paired_diffs": {
+    "mean_delta_agent_execution_sec": -1589.419,
+    "mean_delta_reward": 0.471,
+    "mean_delta_total_input_output_tokens": null,
+    "mean_delta_uncached_input_output_tokens": null,
+    "mean_delta_verifier_sec": -1463.688,
+    "mean_delta_wall_duration_sec": -3265.406,
+    "rows": 18,
+    "valid_with_verifier_results": 17
+  },
+  "row_count": 107,
+  "variants": {
+    "with Meta-Harness": {
+      "mean_agent_execution_sec": 514.968,
+      "mean_injected_context_chars": 5227.389,
+      "mean_prompt_chars": 7797.667,
+      "mean_total_input_output_tokens": null,
+      "mean_uncached_input_output_tokens": null,
+      "mean_verifier_sec": 72.163,
+      "mean_wall_duration_sec": 614.421,
+      "reward_1_count": 8,
+      "rows": 18,
+      "token_usage_rows": 0,
+      "valid_verifier_results": 17
+    },
+    "without Meta-Harness": {
+      "mean_agent_execution_sec": 1392.058,
+      "mean_injected_context_chars": null,
+      "mean_prompt_chars": null,
+      "mean_total_input_output_tokens": 1677604.41,
+      "mean_uncached_input_output_tokens": 47296.269,
+      "mean_verifier_sec": 679.903,
+      "mean_wall_duration_sec": 2326.427,
+      "reward_1_count": 33,
+      "rows": 89,
+      "token_usage_rows": 78,
+      "valid_verifier_results": 80
+    }
+  }
+}

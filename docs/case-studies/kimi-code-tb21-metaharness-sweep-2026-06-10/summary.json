@@ -16,7 +16,9 @@
     "dna-insert",
     "filter-js-from-html",
     "gcode-to-text",
-    "write-compressor"
+    "write-compressor",
+    "raman-fitting",
+    "feal-differential-cryptanalysis"
   ],
   "exploratory_task_families": [
     "largest-eigenval",
@@ -31,7 +33,8 @@
       "sanitize-git-repo",
       "kv-store-grpc",
       "torch-tensor-parallelism",
-      "count-dataset-tokens"
+      "count-dataset-tokens",
+      "feal-differential-cryptanalysis"
     ],
     "query_optimize": "mixed/preliminary: without-stop passed once, with-stop had one missing-artifact failure and one pass; repetition was stopped for PR prep",
     "metaharness_unsolved_candidates": [
@@ -40,14 +43,31 @@
       "dna-insert",
       "filter-js-from-html",
       "gcode-to-text",
-      "write-compressor"
+      "write-compressor",
+      "raman-fitting"
     ],
     "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
-    "continued_search": "largest-eigenval, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, and mteb-leaderboard were probed after the PR opened. The largest-eigenval, chess-best-move, break-filter paired attempt, and mteb-leaderboard are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, and write-compressor are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and adds one task to the current m count.",
+    "continued_search": "largest-eigenval, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, and feal-differential-cryptanalysis were probed after the PR opened. The largest-eigenval, chess-best-move, break-filter paired attempt, and mteb-leaderboard are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, and raman-fitting are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
+    "metrics_current": {
+      "files": [
+        "metrics.csv",
+        "metrics.json",
+        "metrics_task_pairs.csv",
+        "metrics_task_pairs.json",
+        "metrics_summary.json"
+      ],
+      "status": "current paired subset; Kimi Code token usage is null until the adapter emits provider usage, so prompt/injected-context sizes are included as proxies",
+      "baseline_token_usage_rows": "78/89",
+      "with_metaharness_token_usage_rows": "0/18",
+      "baseline_mean_input_output_tokens": 1677604.41,
+      "baseline_mean_uncached_input_output_tokens": 47296.269,
+      "baseline_mean_wall_duration_sec": 2326.427,
+      "with_metaharness_mean_wall_duration_sec": 614.421
+    },
     "tb21_89_audit_current": {
       "without_metaharness_n": 33,
-      "with_metaharness_m_current": 7,
-      "with_metaharness_total_current": 40,
+      "with_metaharness_m_current": 8,
+      "with_metaharness_total_current": 41,
       "denominator": 89,
       "status": "not final; baseline invalid bucket and remaining failed tasks still require traversal"
     }
@@ -62,6 +82,8 @@
     "raw-logs/configure-git-webserver-kimicode-20260610.tar.zst",
     "raw-logs/metaharness-queue-batch1-kimicode-20260610.tar.zst",
     "raw-logs/write-compressor-kimicode-20260610.tar.zst",
-    "raw-logs/mteb-leaderboard-kimicode-20260610.tar.zst"
+    "raw-logs/mteb-leaderboard-kimicode-20260610.tar.zst",
+    "raw-logs/raman-fitting-kimicode-20260610.tar.zst",
+    "raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst"
   ]
 }

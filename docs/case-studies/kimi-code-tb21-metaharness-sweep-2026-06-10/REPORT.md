@@ -50,6 +50,12 @@ Additional `mteb-leaderboard` diagnostic logs are included as
 Kimi Code left the workspace empty, the adapter raised `FileNotFoundError`, and
 the verifier did not run.
 
+Additional `raman-fitting` queue-run logs are included as
+`raw-logs/raman-fitting-kimicode-20260610.tar.zst`.
+
+Additional `feal-differential-cryptanalysis` queue-run logs are included as
+`raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst`.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -85,6 +91,10 @@ Completed task families so far:
   prior verifier tail exposed the expected output `79586`. Kimi Code wrote a
   recomputation script and timed out, but `upload_on_timeout=true` preserved the
   workspace; the official verifier then passed with reward `1.0`.
+- `feal-differential-cryptanalysis`: selected from the K2.6 clean reward-0
+  pool. Kimi Code used the injected prior failure and environment context,
+  wrote `attack.py`, the adapter stopped on `stop_after_path=attack.py`, and
+  the official verifier passed with reward `1.0`.
 - `dna-insert`: selected from the K2.6 clean reward-0 pool. Kimi Code wrote
   `primers.fasta`, but the official verifier still failed with reward `0.0`.
 - `filter-js-from-html`: selected from the K2.6 clean reward-0 pool. The run
@@ -99,12 +109,32 @@ Completed task families so far:
 - `mteb-leaderboard`: diagnostic only. The prior failure was a verifier setup
   proxy failure. The with Meta-Harness run left the workspace empty, so no
   verifier reward was produced and the task is excluded from the current score.
+- `raman-fitting`: selected from the K2.6 clean reward-0 pool. The with
+  Meta-Harness run produced a valid verifier result with reward `0.0`.
 
 ## Evaluation
 
 Each run used Harbor reward files and verifier stdout from the official task
 tests. See `runs.csv` for the run-level reward/error table and `summary.json`
 for the structured summary.
+
+`metrics.csv`, `metrics.json`, `metrics_task_pairs.csv`,
+`metrics_task_pairs.json`, and `metrics_summary.json` extract token and latency
+metrics from the same raw `result.json` files. Token fields are direct Harbor
+`agent_result` values when present. The `claude-code + kimi-k2.6` baseline
+currently has token fields for 78/89 rows. Its current mean `input+output`
+usage is `1,677,604.410` tokens, and the cache-adjusted
+`input-cache+output` mean is `47,296.269` tokens. Kimi Code rows currently have
+0/18 rows with token usage because the adapter does not emit provider usage, so
+exact token deltas cannot be claimed from the present raw logs. The metrics
+files therefore also record observable proxies such as prompt size, injected
+Meta-Harness context size, Kimi stream bytes, tool-call event counts, wall time,
+agent time, and verifier time.
+
+Current latency summary for the paired subset: baseline mean wall time is
+`2,326.427` seconds and with Meta-Harness mean wall time is `614.421` seconds.
+This latency comparison is not a controlled full-suite conclusion yet because
+the with Meta-Harness set is still a targeted recovery subset.
 
 ## 89-Task Audit
 
@@ -115,19 +145,20 @@ Current auditable snapshot:
 
 - without Meta-Harness baseline: `33/89` tasks have reward `1.0` in the
   `claude-code + kimi-k2.6` run root.
-- with Meta-Harness-style Kimi Code context: `40/89` currently proven, i.e.
-  `33 + 7`.
+- with Meta-Harness-style Kimi Code context: `41/89` currently proven, i.e.
+  `33 + 8`.
 - current additional solved tasks: `cancel-async-tasks`, `kv-store-grpc`,
   `openssl-selfsigned-cert`, `query-optimize`, `sanitize-git-repo`,
-  `torch-tensor-parallelism`, and `count-dataset-tokens`.
+  `torch-tensor-parallelism`, `count-dataset-tokens`, and
+  `feal-differential-cryptanalysis`.
 - baseline invalid/missing-rerun bucket: `build-pov-ray`, `crack-7z-hash`,
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
 - baseline failure bucket still requiring Meta-Harness traversal or confirmation:
-  47 tasks, of which 8 now have observed with Meta-Harness failures
+  47 tasks, of which 9 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
-  `dna-insert`, `filter-js-from-html`, `gcode-to-text`, and
-  `headless-terminal`, and `write-compressor`).
+  `dna-insert`, `filter-js-from-html`, `gcode-to-text`, `headless-terminal`,
+  `raman-fitting`, and `write-compressor`).
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -182,6 +213,11 @@ environment snapshot. The strongest trajectory diffs observed:
   resulting workspace, and the official verifier passed. This is counted as a
   Meta-Harness win, with the important caveat that the successful upload
   happened after agent timeout.
+- `feal-differential-cryptanalysis`: Meta-Harness supplied the previous setup
+  failure plus an environment snapshot. Kimi Code read `feal.py`, derived a
+  deterministic differential characteristic, tested the 16-bit-derived
+  `key[5]` candidates, and wrote `attack.py`. The adapter stopped after the
+  target artifact stabilized, uploaded the workspace, and the verifier passed.
 - `dna-insert`: Meta-Harness supplied prior failure context and the run wrote a
   new `primers.fasta`, but the final verifier reward stayed `0.0`.
 - `filter-js-from-html`: Meta-Harness supplied prior failure and proxy
@@ -197,6 +233,10 @@ environment snapshot. The strongest trajectory diffs observed:
 - `mteb-leaderboard`: Meta-Harness supplied task and proxy context, but Kimi
   Code produced no files at all. The failure occurred before upload/verifier and
   is tracked only as diagnostic raw evidence.
+- `raman-fitting`: Meta-Harness supplied the prior verifier setup failure and
+  environment snapshot. Kimi Code ran against the provided `graphene.dat` but
+  the final `results.json` did not pass the official checks; this is a valid
+  reward-0 verifier failure.
 
 ## Current Negative Candidate
 
@@ -236,6 +276,10 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `count-dataset-tokens`: prior K2.6 failed by 20 tokens (`79566` vs expected
   `79586`). The with Meta-Harness run passed after timeout-upload, adding one
   new task to the current `m` count.
+- `feal-differential-cryptanalysis`: prior K2.6 failed during verifier setup.
+  The with Meta-Harness run wrote a differential attack and passed after the
+  `attack.py` stop artifact upload, adding one new task to the current `m`
+  count.
 - `dna-insert`, `filter-js-from-html`, and `gcode-to-text`: all have raw
   with-Meta-Harness verifier results and remain reward-0 observed failures.
 - `write-compressor`: has a raw with-Meta-Harness verifier result and remains
@@ -243,3 +287,5 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   `--stop-after-path` option.
 - `mteb-leaderboard`: diagnostic-only run; `stop_after_path=result.txt` never
   triggered and no verifier reward exists.
+- `raman-fitting`: has a raw with-Meta-Harness verifier result and remains a
+  reward-0 observed failure.
