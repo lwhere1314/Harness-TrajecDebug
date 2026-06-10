@@ -292,6 +292,17 @@ artifact.
                 "set -euo pipefail",
                 "mkdir -p /opt/harness-trajecdebug /logs/agent",
                 _PYTHON_BOOTSTRAP_SHELL,
+                r"""HTD_CLAUDE_CLI="${HTD_CLAUDE_CLI:-}"
+if [ -z "$HTD_CLAUDE_CLI" ]; then
+  if [ -x /root/.local/bin/claude ]; then
+    HTD_CLAUDE_CLI=/root/.local/bin/claude
+  elif command -v claude >/dev/null 2>&1; then
+    HTD_CLAUDE_CLI="$(command -v claude)"
+  else
+    echo "[Harness-TrajecDebug] sdk_live could not find Claude Code CLI." >&2
+    exit 127
+  fi
+fi""",
                 '"$HTD_PYTHON_BIN" - <<\'PY\'',
                 "from pathlib import Path",
                 f"Path('/opt/harness-trajecdebug/instruction.md').write_text({instruction_literal}, encoding='utf-8')",
@@ -303,7 +314,7 @@ artifact.
                     "--output-log /logs/agent/claude-code.txt "
                     "--event-log /logs/agent/sdk-live-events.jsonl "
                     "--cwd /app "
-                    "--cli-path /root/.local/bin/claude "
+                    '--cli-path "$HTD_CLAUDE_CLI" '
                     "${ANTHROPIC_MODEL:+--model \"$ANTHROPIC_MODEL\"} "
                     f"{intercept_args}"
                 ),

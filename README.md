@@ -19,6 +19,10 @@ for the first interactive repair canary, and
 [Lifting a Joint Failure on `sanitize-git-repo`](docs/blog/sanitize-git-repo-joint-failure-lifting.md)
 for the first case where both historical compared runs failed but an
 HTD-derived runtime hint repaired the rerun. See
+[Clean-Preservation Critical Step on `filter-js-from-html`](docs/blog/filter-js-from-html-clean-preservation.md)
+for a second joint-failure case where both agents blocked XSS but modified clean
+HTML, and the HTD card reframed the task around the clean-preservation verifier
+gate. See
 [experiments/harbor_icl_baseline/README.md](experiments/harbor_icl_baseline/README.md)
 for the first Kimi ICL baseline design and runner scripts, and
 [experiments/harbor_icl_baseline/fairness_protocol.md](experiments/harbor_icl_baseline/fairness_protocol.md)
@@ -78,10 +82,16 @@ Both runtime-injected reruns passed:
 | --- | --- | ---: | ---: | ---: |
 | `sanitize-git-repo` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
 | `sanitize-git-repo` | oracle-free joint-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
+| `filter-js-from-html` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
+| `filter-js-from-html` | oracle-free shared-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
 
 This is a joint-failure lifting result: a pair of failed traces can still be
 useful ICL data if their process evidence identifies the critical decision
-boundary.
+boundary. For `filter-js-from-html`, the current passing reruns used `prelude`
+injection and manual stop after the artifact was written (`agent_return_code =
+143`); `sdk_live` / `hooks_live` initialized on Ark/Kimi but did not produce a
+first tool event on this task prompt, so live delivery remains an engineering
+follow-up for this case.
 
 ## Why This Exists
 
