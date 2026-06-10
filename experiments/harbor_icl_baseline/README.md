@@ -19,12 +19,15 @@ final generalization result. They may contain task-specific solution details, so
 they measure whether Kimi-K2.5 can reuse a teacher trajectory when the relevant
 solution pattern is visible.
 
-The current closed-loop case count is **5** under the strict criterion:
+The current closed-loop case count is **6** under the strict criterion:
 historical Codex + GPT-5.5 reward `0.0`, HTD critical-step / Debug-Action card,
-Claude Code + Kimi-k2.6 rerun, and official verifier reward `1.0`. See
+Claude Code + Kimi-k2.6 rerun, and task verifier reward `1.0`. See
 [`../../docs/closed-loop-case-summary.md`](../../docs/closed-loop-case-summary.md)
-for the compact table and evidence paths. `overfull-hbox` is a newly discovered
-Codex failure but remains WIP and is not counted in this total.
+for the compact table and evidence paths. For `overfull-hbox`, the copied local
+verifier was changed to a no-network implementation of the same
+`test_outputs.py` gates to remove apt/proxy noise without relaxing task
+semantics; the tracked copy is
+`experiments/harbor_icl_baseline/verifier_patches/overfull-hbox-test.sh`.
 
 Current smoke-test status:
 
@@ -154,6 +157,20 @@ Current smoke-test status:
 - A runner-side prompt-safety fix was added while running this case: Harbor task
   prompts that begin with `-` are now wrapped before being passed to Claude
   Code, so the CLI does not parse the task text as command-line options.
+- `overfull-hbox` is the sixth Codex-failed critical-step lifting case:
+  - historical Codex + GPT-5.5 reward `0.0`; it removed all `Overfull \hbox`
+    warnings and kept protected files intact, but failed the token-level
+    synonym-family gate after using `unknown -> new`;
+  - the critical step was to frame the task as constrained token substitution,
+    not free paraphrase or pure LaTeX layout cleanup;
+  - Stage A `prelude + oracle_grounded` rerun reward `1.0`, with verifier
+    stdout ending in `PASS: all verifier gates passed`;
+  - Stage B `prelude + debug_action` rerun reward `1.0`, using only the failed
+    trajectory footprint and the repair boundary.
+- The successful oracle-grounded `overfull-hbox` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_oracle_grounded/htd-dynamic-icl-prelude-oracle_grounded-overfull-hbox-kimi-k2-6/overfull-hbox__fUTFKBc`.
+- The successful oracle-free `overfull-hbox` trial is under
+  `runs/harbor_icl_baseline/harbor_runs_joint_failure/htd-dynamic-icl-prelude-debug_action-overfull-hbox-kimi-k2-6/overfull-hbox__pF92gR3`.
 
 The stronger claim requires a held-out experiment:
 
