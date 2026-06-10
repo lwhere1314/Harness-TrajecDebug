@@ -15,8 +15,8 @@ to-do list, and planned Harbor experiments. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
 comparison with Meta-Harness. See
 [docs/closed-loop-case-summary.md](docs/closed-loop-case-summary.md) for the
-current 5-case closed-loop summary where Codex + GPT-5.5 failed and
-HTD-assisted Claude Code + Kimi-k2.6 passed the official verifier. See the
+current 6-case closed-loop summary where Codex + GPT-5.5 failed and
+HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See the
 blog-style case study
 [Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
 for the first interactive repair canary, and
