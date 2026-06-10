@@ -62,9 +62,9 @@
         "metrics_task_pairs.json",
         "metrics_summary.json"
       ],
-      "status": "current paired subset; Kimi Code token usage is null until the adapter emits provider usage, so prompt/injected-context sizes are included as proxies",
+      "status": "current paired subset; Kimi Code token usage is backfilled from archived session wire usage.record events when Harbor agent_result token fields are null",
       "baseline_token_usage_rows": "78/89",
-      "with_metaharness_token_usage_rows": "0/20",
+      "with_metaharness_token_usage_rows": "20/20",
       "baseline_mean_input_output_tokens": 1677604.41,
       "baseline_mean_uncached_input_output_tokens": 47296.269,
       "baseline_median_input_output_tokens": 820898.0,
@@ -75,7 +75,24 @@
       "with_metaharness_median_wall_duration_sec": 638.58,
       "paired_rows": 20,
       "paired_mean_delta_wall_duration_sec": -3125.938,
-      "paired_median_delta_wall_duration_sec": -351.751
+      "paired_median_delta_wall_duration_sec": -351.751,
+      "with_metaharness_mean_input_output_tokens": 812271.35,
+      "with_metaharness_mean_uncached_input_output_tokens": 53346.55,
+      "with_metaharness_median_input_output_tokens": 423150.0,
+      "with_metaharness_median_uncached_input_output_tokens": 43317.5,
+      "paired_mean_baseline_input_output_tokens": 929983.85,
+      "paired_mean_with_input_output_tokens": 812271.35,
+      "paired_mean_delta_input_output_tokens": -117712.5,
+      "paired_median_delta_input_output_tokens": 10980.0,
+      "paired_mean_baseline_uncached_input_output_tokens": 33395.2,
+      "paired_mean_with_uncached_input_output_tokens": 53346.55,
+      "paired_mean_delta_uncached_input_output_tokens": 19951.35,
+      "paired_median_delta_uncached_input_output_tokens": 18824.0,
+      "paired_mean_baseline_wall_duration_sec": 3750.261,
+      "paired_mean_with_wall_duration_sec": 624.323,
+      "paired_median_baseline_wall_duration_sec": 1090.43,
+      "paired_median_with_wall_duration_sec": 638.58,
+      "kimi_session_usage_archive": "raw-logs/kimi-session-wire-usage-20260611.tar.zst"
     },
     "tb21_89_audit_current": {
       "without_metaharness_n": 33,
@@ -100,6 +117,7 @@
     "raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst",
     "raw-logs/largest-eigenval-kimicode-20260611.tar.zst",
     "raw-logs/git-leak-recovery-kimicode-20260611.tar.zst",
-    "raw-logs/video-processing-partial-kimicode-20260611.tar.zst"
+    "raw-logs/video-processing-partial-kimicode-20260611.tar.zst",
+    "raw-logs/kimi-session-wire-usage-20260611.tar.zst"
   ]
 }

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -109,6 +110,35 @@ def build_metric_row(
     input_tokens = agent_result.get("n_input_tokens")
     cache_tokens = agent_result.get("n_cache_tokens")
     output_tokens = agent_result.get("n_output_tokens")
+    token_usage_source = "harbor_agent_result" if input_tokens is not None else None
+    agent_started_at = (
+        data.get("agent_execution", {}).get("started_at")
+        if isinstance(data.get("agent_execution"), dict)
+        else None
+    )
+    agent_finished_at = (
+        data.get("agent_execution", {}).get("finished_at")
+        if isinstance(data.get("agent_execution"), dict)
+        else None
+    )
+    kimi_usage = (
+        extract_kimi_usage(
+            trial_dir,
+            kimi_stdout_path,
+            prompt_path=prompt_path,
+            started_at=agent_started_at or data.get("started_at"),
+            finished_at=agent_finished_at or data.get("finished_at"),
+        )
+        if "kimi-code" in source
+        else None
+    )
+
+    if input_tokens is None and kimi_usage:
+        input_tokens = kimi_usage["total_input_tokens"]
+        cache_tokens = kimi_usage["input_cache_read_tokens"]
+        output_tokens = kimi_usage["output_tokens"]
+        token_usage_source = "kimi_session_wire"
+
     total_tokens = sum_ints(input_tokens, output_tokens)
     uncached_input_tokens = token_minus(input_tokens, cache_tokens)
     uncached_input_output_tokens = sum_ints(uncached_input_tokens, output_tokens)
@@ -134,10 +164,38 @@ def build_metric_row(
         "cache_tokens": cache_tokens,
         "output_tokens": output_tokens,
         "token_usage_available": total_tokens is not None,
+        "token_usage_source": token_usage_source,
         "total_input_output_tokens": total_tokens,
         "uncached_input_tokens": uncached_input_tokens,
         "uncached_input_output_tokens": uncached_input_output_tokens,
         "cost_usd": agent_result.get("cost_usd"),
+        "kimi_session_id": kimi_usage.get("session_id") if kimi_usage else None,
+        "kimi_wire_path": kimi_usage.get("wire_path") if kimi_usage else None,
+        "kimi_usage_turns": kimi_usage.get("usage_turns") if kimi_usage else None,
+        "kimi_input_other_tokens": (
+            kimi_usage.get("input_other_tokens") if kimi_usage else None
+        ),
+        "kimi_input_cache_read_tokens": (
+            kimi_usage.get("input_cache_read_tokens") if kimi_usage else None
+        ),
+        "kimi_input_cache_creation_tokens": (
+            kimi_usage.get("input_cache_creation_tokens") if kimi_usage else None
+        ),
+        "kimi_llm_first_token_latency_ms_mean": (
+            kimi_usage.get("mean_llm_first_token_latency_ms") if kimi_usage else None
+        ),
+        "kimi_llm_first_token_latency_ms_median": (
+            kimi_usage.get("median_llm_first_token_latency_ms") if kimi_usage else None
+        ),
+        "kimi_llm_stream_duration_ms_mean": (
+            kimi_usage.get("mean_llm_stream_duration_ms") if kimi_usage else None
+        ),
+        "kimi_llm_stream_duration_ms_median": (
+            kimi_usage.get("median_llm_stream_duration_ms") if kimi_usage else None
+        ),
+        "kimi_llm_stream_duration_ms_sum": (
+            kimi_usage.get("sum_llm_stream_duration_ms") if kimi_usage else None
+        ),
         "prompt_chars": file_len(prompt_path),
         "previous_failure_chars": file_len(previous_failure_path),
         "env_snapshot_chars": file_len(env_snapshot_path),
@@ -205,6 +263,10 @@ def build_pair_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "with_prompt_chars": with_mh["prompt_chars"],
                 "with_injected_context_chars": with_mh["injected_context_chars"],
                 "with_kimi_tool_call_events": with_mh["kimi_tool_call_events"],
+                "with_kimi_usage_turns": with_mh["kimi_usage_turns"],
+                "with_kimi_llm_stream_duration_ms_sum": with_mh[
+                    "kimi_llm_stream_duration_ms_sum"
+                ],
                 "with_comparison_status": with_mh["comparison_status"],
             }
         )
@@ -257,6 +319,16 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
                 "median_injected_context_chars": median(
                     row["injected_context_chars"] for row in items
                 ),
+                "mean_kimi_usage_turns": mean(row["kimi_usage_turns"] for row in items),
+                "median_kimi_usage_turns": median(
+                    row["kimi_usage_turns"] for row in items
+                ),
+                "mean_kimi_llm_stream_duration_ms_sum": mean(
+                    row["kimi_llm_stream_duration_ms_sum"] for row in items
+                ),
+                "median_kimi_llm_stream_duration_ms_sum": median(
+                    row["kimi_llm_stream_duration_ms_sum"] for row in items
+                ),
             }
             for variant, items in sorted(by_variant.items())
         },
@@ -272,8 +344,20 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
                 1 for row in pair_rows if row["delta_total_input_output_tokens"] is not None
             ),
             "mean_delta_reward": mean(row["delta_reward"] for row in pair_rows),
+            "mean_baseline_wall_duration_sec": mean(
+                row["baseline_wall_duration_sec"] for row in pair_rows
+            ),
+            "mean_with_wall_duration_sec": mean(
+                row["with_wall_duration_sec"] for row in pair_rows
+            ),
             "mean_delta_wall_duration_sec": mean(
                 row["delta_wall_duration_sec"] for row in pair_rows
+            ),
+            "median_baseline_wall_duration_sec": median(
+                row["baseline_wall_duration_sec"] for row in pair_rows
+            ),
+            "median_with_wall_duration_sec": median(
+                row["with_wall_duration_sec"] for row in pair_rows
             ),
             "median_delta_wall_duration_sec": median(
                 row["delta_wall_duration_sec"] for row in pair_rows
@@ -291,20 +375,45 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
             "mean_delta_total_input_output_tokens": mean(
                 row["delta_total_input_output_tokens"] for row in pair_rows
             ),
+            "mean_baseline_total_input_output_tokens": mean(
+                row["baseline_total_input_output_tokens"] for row in pair_rows
+            ),
+            "mean_with_total_input_output_tokens": mean(
+                row["with_total_input_output_tokens"] for row in pair_rows
+            ),
             "median_delta_total_input_output_tokens": median(
                 row["delta_total_input_output_tokens"] for row in pair_rows
+            ),
+            "median_baseline_total_input_output_tokens": median(
+                row["baseline_total_input_output_tokens"] for row in pair_rows
+            ),
+            "median_with_total_input_output_tokens": median(
+                row["with_total_input_output_tokens"] for row in pair_rows
             ),
             "mean_delta_uncached_input_output_tokens": mean(
                 row["delta_uncached_input_output_tokens"] for row in pair_rows
             ),
+            "mean_baseline_uncached_input_output_tokens": mean(
+                row["baseline_uncached_input_output_tokens"] for row in pair_rows
+            ),
+            "mean_with_uncached_input_output_tokens": mean(
+                row["with_uncached_input_output_tokens"] for row in pair_rows
+            ),
             "median_delta_uncached_input_output_tokens": median(
                 row["delta_uncached_input_output_tokens"] for row in pair_rows
+            ),
+            "median_baseline_uncached_input_output_tokens": median(
+                row["baseline_uncached_input_output_tokens"] for row in pair_rows
+            ),
+            "median_with_uncached_input_output_tokens": median(
+                row["with_uncached_input_output_tokens"] for row in pair_rows
             ),
         },
         "notes": [
             "Token fields are direct Harbor agent_result values when present.",
-            "KimiCode rows currently have null token fields because the adapter does not emit provider usage.",
+            "KimiCode rows fall back to local Kimi session wire usage.record events when Harbor agent_result token fields are null.",
             "uncached_input_output_tokens is computed as input_tokens - cache_tokens + output_tokens.",
+            "For Kimi session wire rows, input_tokens is inputOther + inputCacheRead + inputCacheCreation, and cache_tokens is inputCacheRead.",
             "prompt_chars and injected_context_chars are recorded as observable context-size proxies.",
         ],
     }
@@ -315,6 +424,265 @@ def read_json(path: Path) -> dict[str, Any]:
         return json.loads(path.read_text())
     except Exception:
         return {}
+
+
+def extract_kimi_usage(
+    trial_dir: Path,
+    stdout_path: Path,
+    *,
+    prompt_path: Path,
+    started_at: str | None,
+    finished_at: str | None,
+) -> dict[str, Any] | None:
+    session_id = parse_kimi_session_id(stdout_path)
+    wire_path, resolved_session_id = find_kimi_wire_path(
+        trial_dir,
+        session_id,
+        prompt_path=prompt_path,
+        started_at=started_at,
+        finished_at=finished_at,
+    )
+    session_id = resolved_session_id or session_id
+    if wire_path is None:
+        return {"session_id": session_id, "wire_path": None} if session_id else None
+
+    usage_totals = {
+        "inputOther": 0,
+        "output": 0,
+        "inputCacheRead": 0,
+        "inputCacheCreation": 0,
+    }
+    usage_turns = 0
+    step_end_usage_totals = usage_totals.copy()
+    step_end_usage_turns = 0
+    first_token_latencies: list[int] = []
+    stream_durations: list[int] = []
+
+    try:
+        with wire_path.open(encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+
+                if event.get("type") == "usage.record":
+                    usage = event.get("usage")
+                    if not isinstance(usage, dict):
+                        continue
+                    if event.get("usageScope") not in {None, "turn"}:
+                        continue
+                    add_kimi_usage(usage_totals, usage)
+                    usage_turns += 1
+                    continue
+
+                if event.get("type") != "context.append_loop_event":
+                    continue
+                loop_event = event.get("event")
+                if not isinstance(loop_event, dict) or loop_event.get("type") != "step.end":
+                    continue
+                usage = loop_event.get("usage")
+                if isinstance(usage, dict):
+                    add_kimi_usage(step_end_usage_totals, usage)
+                    step_end_usage_turns += 1
+                first_latency = loop_event.get("llmFirstTokenLatencyMs")
+                if isinstance(first_latency, int):
+                    first_token_latencies.append(first_latency)
+                stream_duration = loop_event.get("llmStreamDurationMs")
+                if isinstance(stream_duration, int):
+                    stream_durations.append(stream_duration)
+    except OSError:
+        return {"session_id": session_id, "wire_path": str(wire_path)}
+
+    if usage_turns == 0 and step_end_usage_turns > 0:
+        usage_totals = step_end_usage_totals
+        usage_turns = step_end_usage_turns
+
+    total_input_tokens = (
+        usage_totals["inputOther"]
+        + usage_totals["inputCacheRead"]
+        + usage_totals["inputCacheCreation"]
+    )
+
+    return {
+        "session_id": session_id,
+        "wire_path": str(wire_path),
+        "usage_turns": usage_turns,
+        "input_other_tokens": usage_totals["inputOther"],
+        "input_cache_read_tokens": usage_totals["inputCacheRead"],
+        "input_cache_creation_tokens": usage_totals["inputCacheCreation"],
+        "output_tokens": usage_totals["output"],
+        "total_input_tokens": total_input_tokens,
+        "mean_llm_first_token_latency_ms": mean(first_token_latencies),
+        "median_llm_first_token_latency_ms": median(first_token_latencies),
+        "mean_llm_stream_duration_ms": mean(stream_durations),
+        "median_llm_stream_duration_ms": median(stream_durations),
+        "sum_llm_stream_duration_ms": sum(stream_durations) if stream_durations else None,
+    }
+
+
+def parse_kimi_session_id(stdout_path: Path) -> str | None:
+    try:
+        lines = stdout_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+    for line in reversed(lines):
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if (
+            event.get("role") == "meta"
+            and event.get("type") == "session.resume_hint"
+            and isinstance(event.get("session_id"), str)
+        ):
+            return event["session_id"]
+    return None
+
+
+def find_kimi_wire_path(
+    trial_dir: Path,
+    session_id: str | None,
+    *,
+    prompt_path: Path,
+    started_at: str | None,
+    finished_at: str | None,
+) -> tuple[Path | None, str | None]:
+    for candidate in (
+        trial_dir / "agent" / "kimi-session-wire.jsonl",
+        trial_dir / "agent" / "kimi-wire.jsonl",
+    ):
+        if candidate.exists():
+            return candidate, session_id
+
+    kimi_home = Path(os.environ.get("KIMI_CODE_HOME", "~/.kimi-code")).expanduser()
+    if session_id:
+        candidate = find_kimi_wire_by_session_id(kimi_home, session_id)
+        if candidate is not None:
+            return candidate, session_id
+
+    timed_candidate = find_kimi_wire_by_time_window(
+        kimi_home,
+        prompt_path=prompt_path,
+        started_at=started_at,
+        finished_at=finished_at,
+    )
+    if timed_candidate is not None:
+        return timed_candidate
+
+    return None, session_id
+
+
+def find_kimi_wire_by_session_id(kimi_home: Path, session_id: str) -> Path | None:
+    index_path = kimi_home / "session_index.jsonl"
+    try:
+        with index_path.open(encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if entry.get("sessionId") != session_id:
+                    continue
+                session_dir = entry.get("sessionDir")
+                if not isinstance(session_dir, str):
+                    continue
+                candidate = Path(session_dir) / "agents" / "main" / "wire.jsonl"
+                if candidate.exists():
+                    return candidate
+    except OSError:
+        pass
+
+    for candidate in kimi_home.glob(f"sessions/**/{session_id}/agents/main/wire.jsonl"):
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def find_kimi_wire_by_time_window(
+    kimi_home: Path,
+    *,
+    prompt_path: Path,
+    started_at: str | None,
+    finished_at: str | None,
+) -> tuple[Path, str] | None:
+    start = parse_time(started_at)
+    finish = parse_time(finished_at)
+    if start is None:
+        return None
+    if finish is None:
+        finish = start
+    prompt_fingerprint = prompt_task_fingerprint(prompt_path)
+
+    # Kimi creates the session a few seconds after Harbor agent_execution starts.
+    # For timeout/target-stop runs, stdout may be killed before the resume hint,
+    # so creation time is the most reliable local join key.
+    lower = start.timestamp() - 60
+    upper = finish.timestamp() + 5
+    candidates: list[tuple[bool, float, str, Path]] = []
+    for state_path in kimi_home.glob("sessions/**/state.json"):
+        state = read_json(state_path)
+        created = parse_time(state.get("createdAt"))
+        if created is None:
+            continue
+        created_ts = created.timestamp()
+        if not (lower <= created_ts <= upper):
+            continue
+        session_id = state_path.parent.name
+        wire_path = state_path.parent / "agents" / "main" / "wire.jsonl"
+        if wire_path.exists():
+            state_prompt = state.get("lastPrompt")
+            prompt_matches = (
+                prompt_fingerprint is not None
+                and isinstance(state_prompt, str)
+                and prompt_fingerprint in normalize_space(state_prompt)
+            )
+            candidates.append(
+                (prompt_matches, abs(created_ts - start.timestamp()), session_id, wire_path)
+            )
+
+    if not candidates:
+        return None
+    matching = [candidate for candidate in candidates if candidate[0]]
+    candidates = matching or candidates
+    candidates.sort(key=lambda item: item[1])
+    _, _, session_id, wire_path = candidates[0]
+    return wire_path, session_id
+
+
+def prompt_task_fingerprint(prompt_path: Path) -> str | None:
+    try:
+        prompt = prompt_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    marker = "Original task instruction:\n"
+    if marker not in prompt:
+        return None
+    task_text = prompt.split(marker, 1)[1]
+    for next_marker in (
+        "\n\nMeta-Harness environment bootstrap:",
+        "\n\nMeta-Harness prior candidate feedback:",
+    ):
+        task_text = task_text.split(next_marker, 1)[0]
+    normalized = normalize_space(task_text)
+    if len(normalized) < 40:
+        return None
+    return normalized[:160]
+
+
+def normalize_space(value: str) -> str:
+    return " ".join(value.split())
+
+
+def add_kimi_usage(total: dict[str, int], usage: dict[str, Any]) -> None:
+    for key in ("inputOther", "output", "inputCacheRead", "inputCacheCreation"):
+        value = usage.get(key)
+        if isinstance(value, bool) or value is None:
+            continue
+        try:
+            total[key] += int(value)
+        except (TypeError, ValueError):
+            continue
 
 
 def parse_time(value: str | None) -> datetime | None:

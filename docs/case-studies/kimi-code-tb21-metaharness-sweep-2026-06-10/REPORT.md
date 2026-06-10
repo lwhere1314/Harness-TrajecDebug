@@ -69,6 +69,11 @@ Additional partial `video-processing` logs are included as
 `raw-logs/video-processing-partial-kimicode-20260611.tar.zst`. These runs are
 not counted: both ended before `jump_analyzer.py` or `result.json` was produced.
 
+Additional Kimi Code session usage records are included as
+`raw-logs/kimi-session-wire-usage-20260611.tar.zst`. This archive contains the
+20 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
+from `usage.record` events.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -140,25 +145,28 @@ for the structured summary.
 `metrics.csv`, `metrics.json`, `metrics_task_pairs.csv`,
 `metrics_task_pairs.json`, and `metrics_summary.json` extract token and latency
 metrics from the same raw `result.json` files. Token fields are direct Harbor
-`agent_result` values when present. The `claude-code + kimi-k2.6` baseline
-currently has token fields for 78/89 rows. Its current mean `input+output`
-usage is `1,677,604.410` tokens, and the cache-adjusted
-`input-cache+output` mean is `47,296.269` tokens. The corresponding medians are
-`820,898.000` and `29,778.000` tokens. Kimi Code rows currently have 0/20 rows
-with token usage because the adapter does not emit provider usage, so exact
-with-vs-without token deltas cannot be claimed from the present raw logs. The
-metrics files therefore also record observable proxies such as prompt size,
-injected Meta-Harness context size, Kimi stream bytes, tool-call event counts,
-wall time, agent time, and verifier time.
+`agent_result` values when present. For Kimi Code rows, Harbor currently leaves
+those fields null, so the metrics script falls back to the local Kimi session
+`wire.jsonl` `usage.record` events archived in
+`raw-logs/kimi-session-wire-usage-20260611.tar.zst`.
 
-Current latency summary for the paired subset: baseline mean wall time is
-`2,326.427` seconds and with Meta-Harness mean wall time is `624.323` seconds.
-The corresponding medians are `1,201.115` seconds and `638.580` seconds. Across
-the 20 paired rows with wall-clock data, the mean paired wall-time delta is
-`-3,125.938` seconds and the median paired wall-time delta is `-351.751`
-seconds. This latency comparison is not a controlled full-suite conclusion yet
-because the with Meta-Harness set is still a targeted recovery subset and mixes
-passes, failures, timeout-upload recoveries, and verifier-invalid diagnostics.
+Token coverage is now 78/89 rows for the `claude-code + kimi-k2.6` baseline and
+20/20 rows for the current with Meta-Harness Kimi Code subset. On the 20 paired
+rows, mean total `input+output` tokens moved from `929,983.850` to
+`812,271.350` (`-117,712.500`), while mean cache-adjusted
+`input-cache+output` tokens moved from `33,395.200` to `53,346.550`
+(`+19,951.350`). The median paired deltas are `+10,980.000` total tokens and
+`+18,824.000` cache-adjusted tokens. The interpretation is therefore mixed:
+with Meta-Harness is lower on mean total tokens in this paired subset, but
+higher on uncached/cache-adjusted tokens.
+
+Current latency summary for the same paired subset: baseline mean wall time is
+`3,750.261` seconds and with Meta-Harness mean wall time is `624.323` seconds
+(`-3,125.938`). The corresponding medians are `1,090.430` seconds and
+`638.580` seconds, with median paired wall-time delta `-351.751` seconds. This
+latency comparison is not a controlled full-suite conclusion yet because the
+with Meta-Harness set is still a targeted recovery subset and mixes passes,
+failures, timeout-upload recoveries, and verifier-invalid diagnostics.
 
 ## 89-Task Audit
 
