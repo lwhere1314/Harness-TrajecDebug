@@ -24,6 +24,9 @@ class TaskResult:
     has_agent_result: bool
     exception_type: str | None
     failure_hint: str | None
+    trace_artifact_count: int
+    trace_export_count: int
+    container_count: int
 
 
 def card_records_by_task(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -122,7 +125,7 @@ def trial_result_for_task(job_dir: Path, task: str) -> Path | None:
 def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
     row = state.get("tasks", {}).get(task)
     if not isinstance(row, dict):
-        return TaskResult(task, "missing", None, None, None, False, None, "missing from state.json")
+        return TaskResult(task, "missing", None, None, None, False, None, "missing from state.json", 0, 0, 0)
     job_dir_value = row.get("job_dir")
     if not isinstance(job_dir_value, str):
         return TaskResult(
@@ -134,7 +137,15 @@ def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
             False,
             None,
             "missing job_dir in state.json",
+            0,
+            0,
+            0,
         )
+    row_summary = row.get("result_summary") if isinstance(row.get("result_summary"), dict) else {}
+    trace_artifact_count = int(row_summary.get("trace_artifact_count") or 0)
+    trace_exports = row.get("trace_exports") if isinstance(row.get("trace_exports"), list) else []
+    container_artifacts = row.get("container_artifacts") if isinstance(row.get("container_artifacts"), dict) else {}
+    container_count = int(container_artifacts.get("container_count") or 0)
     result_path = trial_result_for_task(Path(job_dir_value), task)
     if result_path is None:
         return TaskResult(
@@ -146,6 +157,9 @@ def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
             False,
             None,
             "missing result.json",
+            trace_artifact_count,
+            len(trace_exports),
+            container_count,
         )
     data = read_json(result_path) or {}
     r = reward_from_result(data)
@@ -160,7 +174,19 @@ def result_from_state(state: dict[str, Any], task: str) -> TaskResult:
     else:
         status = "infra_or_unknown"
     hint = verifier_failure_hint(result_path, exc) if r != 1.0 else None
-    return TaskResult(task, status, r, str(result_path), job_dir_value, agent, exc, hint)
+    return TaskResult(
+        task,
+        status,
+        r,
+        str(result_path),
+        job_dir_value,
+        agent,
+        exc,
+        hint,
+        trace_artifact_count,
+        len(trace_exports),
+        container_count,
+    )
 
 
 def summarize(records: dict[str, TaskResult]) -> dict[str, Any]:
@@ -172,6 +198,18 @@ def summarize(records: dict[str, TaskResult]) -> dict[str, Any]:
         "valid_count": sum(1 for record in records.values() if record.status in {"pass", "fail", "fail_no_agent_result"}),
         "counts_by_status": counts,
         "records": {task: asdict(record) for task, record in sorted(records.items())},
+    }
+
+
+def coverage_summary(records: dict[str, TaskResult]) -> dict[str, Any]:
+    return {
+        "tasks_with_result": sum(1 for record in records.values() if record.result_path),
+        "tasks_with_trace_artifacts": sum(1 for record in records.values() if record.trace_artifact_count > 0),
+        "tasks_with_trace_exports": sum(1 for record in records.values() if record.trace_export_count > 0),
+        "tasks_with_container_artifacts": sum(1 for record in records.values() if record.container_count > 0),
+        "total_trace_artifacts": sum(record.trace_artifact_count for record in records.values()),
+        "total_trace_exports": sum(record.trace_export_count for record in records.values()),
+        "total_container_artifacts": sum(record.container_count for record in records.values()),
     }
 
 
@@ -324,6 +362,23 @@ def markdown(report: dict[str, Any]) -> str:
         f"- without-TD valid tasks: `{base['valid_count']}/{report['denominator']}`",
         f"- with-TD valid tasks: `{td['valid_count']}/{report['denominator']}`",
         "",
+        "Raw log / artifact coverage from `state.json`:",
+        "",
+        "| Condition | Results | Trace artifacts | Trace exports | Container artifact sets |",
+        "| --- | ---: | ---: | ---: | ---: |",
+        (
+            f"| without-TD | `{report['without_td_coverage']['tasks_with_result']}/{report['denominator']}` | "
+            f"`{report['without_td_coverage']['tasks_with_trace_artifacts']}/{report['denominator']}` | "
+            f"`{report['without_td_coverage']['tasks_with_trace_exports']}/{report['denominator']}` | "
+            f"`{report['without_td_coverage']['tasks_with_container_artifacts']}/{report['denominator']}` |"
+        ),
+        (
+            f"| with-TD | `{report['with_td_coverage']['tasks_with_result']}/{report['denominator']}` | "
+            f"`{report['with_td_coverage']['tasks_with_trace_artifacts']}/{report['denominator']}` | "
+            f"`{report['with_td_coverage']['tasks_with_trace_exports']}/{report['denominator']}` | "
+            f"`{report['with_td_coverage']['tasks_with_container_artifacts']}/{report['denominator']}` |"
+        ),
+        "",
         "## Lift / Regression Table",
         "",
         "| Task | TD card source | without-TD | with-TD | Delta | without result | with result |",
@@ -386,6 +441,12 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
                 "with_status": after.status,
                 "without_failure_hint": before.failure_hint,
                 "with_failure_hint": after.failure_hint,
+                "without_trace_artifact_count": before.trace_artifact_count,
+                "with_trace_artifact_count": after.trace_artifact_count,
+                "without_trace_export_count": before.trace_export_count,
+                "with_trace_export_count": after.trace_export_count,
+                "without_container_count": before.container_count,
+                "with_container_count": after.container_count,
                 "without_result": before.result_path,
                 "with_result": after.result_path,
             }
@@ -402,6 +463,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "denominator": len(tasks),
         "without_td": summarize(baseline),
         "with_td": summarize(td),
+        "without_td_coverage": coverage_summary(baseline),
+        "with_td_coverage": coverage_summary(td),
         "with_td_by_card_source": summarize_by_card_source(td, card_index),
         "delta": sum(row["delta"] for row in rows),
         "task_rows": rows,
