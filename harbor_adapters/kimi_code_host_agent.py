@@ -30,6 +30,10 @@ class KimiCodeHostAgent(BaseAgent):
         prompt_timeout_sec: int = 840,
         previous_failure_path: str | None = None,
         include_env_snapshot: bool = True,
+        upload_mode: str = "single_file",
+        clear_app_before_upload: bool = True,
+        post_upload_timeout_sec: int = 180,
+        stop_after_path: str | None = None,
         *args,
         **kwargs,
     ):
@@ -43,6 +47,12 @@ class KimiCodeHostAgent(BaseAgent):
             else None
         )
         self.include_env_snapshot = bool(include_env_snapshot)
+        if upload_mode not in {"single_file", "workspace"}:
+            raise ValueError("upload_mode must be 'single_file' or 'workspace'")
+        self.upload_mode = upload_mode
+        self.clear_app_before_upload = bool(clear_app_before_upload)
+        self.post_upload_timeout_sec = int(post_upload_timeout_sec)
+        self.stop_after_path = stop_after_path
         self._version = self._read_version()
 
     @staticmethod
@@ -66,6 +76,10 @@ class KimiCodeHostAgent(BaseAgent):
                 str(self.previous_failure_path) if self.previous_failure_path else None
             ),
             "include_env_snapshot": self.include_env_snapshot,
+            "upload_mode": self.upload_mode,
+            "clear_app_before_upload": self.clear_app_before_upload,
+            "post_upload_timeout_sec": self.post_upload_timeout_sec,
+            "stop_after_path": self.stop_after_path,
         }
         (setup_dir / "checks.json").write_text(json.dumps(checks, indent=2))
 
@@ -93,7 +107,6 @@ class KimiCodeHostAgent(BaseAgent):
 
         await environment.download_dir("/app", workspace)
 
-        target_run_py = workspace / "run.py"
         snapshot = (
             await self._gather_env_snapshot(environment)
             if self.include_env_snapshot
@@ -102,7 +115,7 @@ class KimiCodeHostAgent(BaseAgent):
         failure_context = self._read_previous_failure()
         prompt = self._build_prompt(
             instruction,
-            target_run_py,
+            workspace,
             env_snapshot=snapshot,
             failure_context=failure_context,
         )
@@ -113,31 +126,22 @@ class KimiCodeHostAgent(BaseAgent):
             (self.logs_dir / "previous-failure.txt").write_text(failure_context)
 
         started_at = _iso_now()
-        result = await self._run_kimi(prompt, target_run_py)
+        target_path = (
+            workspace / "run.py"
+            if self.upload_mode == "single_file"
+            else (workspace / self.stop_after_path if self.stop_after_path else None)
+        )
+        result = await self._run_kimi(prompt, target_path)
         finished_at = _iso_now()
 
         (self.logs_dir / "kimi-stdout.txt").write_text(result["stdout"])
         (self.logs_dir / "kimi-stderr.txt").write_text(result["stderr"])
         (self.logs_dir / "kimi-return-code.txt").write_text(str(result["return_code"]))
 
-        run_py = self._find_run_py(workspace)
-        if result["return_code"] != 0 and run_py is None:
-            raise RuntimeError(
-                f"Kimi Code exited with {result['return_code']}; "
-                f"see {self.logs_dir / 'kimi-stderr.txt'}"
-            )
-        if run_py is None:
-            raise FileNotFoundError(f"Kimi Code did not create run.py under {workspace}")
-
-        await environment.exec("mkdir -p /app")
-        await environment.upload_file(run_py, "/app/run.py")
-
-        sanity = await environment.exec("python -m py_compile /app/run.py", cwd="/app")
-        (self.logs_dir / "py-compile-return-code.txt").write_text(str(sanity.return_code))
-        if sanity.stdout:
-            (self.logs_dir / "py-compile-stdout.txt").write_text(sanity.stdout)
-        if sanity.stderr:
-            (self.logs_dir / "py-compile-stderr.txt").write_text(sanity.stderr)
+        if self.upload_mode == "single_file":
+            uploaded_path, sanity_return_code = await self._upload_single_file(environment, workspace)
+        else:
+            uploaded_path, sanity_return_code = await self._upload_workspace(environment, workspace)
 
         self._write_trajectory(
             instruction=instruction,
@@ -150,9 +154,10 @@ class KimiCodeHostAgent(BaseAgent):
         )
         context.metadata = {
             "host_workspace": str(workspace),
-            "uploaded_file": "/app/run.py",
+            "upload_mode": self.upload_mode,
+            "uploaded_path": uploaded_path,
             "kimi_return_code": result["return_code"],
-            "py_compile_return_code": sanity.return_code,
+            "sanity_return_code": sanity_return_code,
         }
 
     @property
@@ -170,19 +175,45 @@ class KimiCodeHostAgent(BaseAgent):
     def _build_prompt(
         self,
         instruction: str,
-        target_run_py: Path,
+        workspace: Path,
         env_snapshot: str = "",
         failure_context: str = "",
     ) -> str:
-        parts = [
-            "You are solving a Harbor benchmark task. Create exactly one file at "
-            f"`{target_run_py}`. This file will be uploaded to `/app/run.py` "
-            "inside the task container before verification. Do not create `run.py` "
-            "in the current repository directory. Do not run tests. After writing "
-            "the file, respond with DONE and stop.\n\n"
-            "Original task instruction:\n"
-            f"{instruction}"
-        ]
+        if self.upload_mode == "single_file":
+            target_run_py = workspace / "run.py"
+            header = (
+                "You are solving a Harbor benchmark task. Create exactly one file at "
+                f"`{target_run_py}`. This file will be uploaded to `/app/run.py` "
+                "inside the task container before verification. Do not create `run.py` "
+                "in the current repository directory. Do not run tests. After writing "
+                "the file, respond with DONE and stop.\n\n"
+            )
+        else:
+            header = (
+                "You are solving a Harbor benchmark task using a host-side copy of "
+                f"the container `/app` directory at `{workspace}`. Modify files only "
+                "inside that workspace so that, after the entire workspace is uploaded "
+                "back to `/app`, the official verifier will pass. Do not modify this "
+                f"repository outside that workspace. If the task instruction says to "
+                f"create `/app/foo`, create `{workspace}/foo` in the host workspace. "
+                "Do not rely on undeclared host-only "
+                "packages or state; the verifier runs in the task container. If the task "
+                "requires commands to run inside the task container after files are "
+                f"uploaded, create `{workspace}/.kimi-post-upload.sh`; it will be run "
+                "from `/app` in the container before verification. Use that script for "
+                "container-side installs, code generation, or launching background "
+                "services, and make sure it exits promptly after starting any background "
+                "processes. Do not run the official verifier. When all needed files are "
+                "in place, respond with DONE and stop.\n\n"
+            )
+            if self.stop_after_path:
+                header += (
+                    f"The adapter may stop once `{workspace / self.stop_after_path}` "
+                    "exists and is stable, so write the final answer there only when it "
+                    "is ready to upload.\n\n"
+                )
+
+        parts = [header + "Original task instruction:\n" + f"{instruction}"]
         if env_snapshot:
             parts.append(
                 "\n\nMeta-Harness environment bootstrap:\n"
@@ -213,6 +244,8 @@ class KimiCodeHostAgent(BaseAgent):
             "(pip3 --version 2>&1 || echo 'pip3: not found') && "
             "(pip --version 2>&1 || echo 'pip: not found') && "
             "(uv --version 2>&1 || echo 'uv: not found') && "
+            "echo '@@ENV@@' && "
+            "(env | sort | grep -Ei '^(http|https|all|no)_proxy=|^GRPC_' || true) && "
             "echo '@@MEM@@' && free -h 2>/dev/null | head -2 || true"
         )
         try:
@@ -268,6 +301,14 @@ class KimiCodeHostAgent(BaseAgent):
                 if line.strip()
             ]
             parts.append("Package managers: " + "; ".join(pkg_lines))
+        if "ENV" in sections:
+            env_lines = [
+                line.strip()
+                for line in sections["ENV"].strip().splitlines()
+                if line.strip()
+            ]
+            if env_lines:
+                parts.append("Proxy/gRPC environment: " + "; ".join(env_lines))
         if "MEM" in sections and sections["MEM"].strip():
             parts.append(f"Memory: {sections['MEM'].strip()}")
 
@@ -279,7 +320,104 @@ class KimiCodeHostAgent(BaseAgent):
         text = self.previous_failure_path.read_text(errors="replace").strip()
         return text[-20000:]
 
-    async def _run_kimi(self, prompt: str, target_run_py: Path) -> dict[str, object]:
+    async def _upload_single_file(
+        self,
+        environment: BaseEnvironment,
+        workspace: Path,
+    ) -> tuple[str, int | None]:
+        run_py = self._find_run_py(workspace)
+        if run_py is None:
+            raise FileNotFoundError(f"Kimi Code did not create run.py under {workspace}")
+
+        await environment.exec("mkdir -p /app")
+        await environment.upload_file(run_py, "/app/run.py")
+
+        sanity = await environment.exec("python -m py_compile /app/run.py", cwd="/app")
+        (self.logs_dir / "py-compile-return-code.txt").write_text(str(sanity.return_code))
+        if sanity.stdout:
+            (self.logs_dir / "py-compile-stdout.txt").write_text(sanity.stdout)
+        if sanity.stderr:
+            (self.logs_dir / "py-compile-stderr.txt").write_text(sanity.stderr)
+        return "/app/run.py", sanity.return_code
+
+    async def _upload_workspace(
+        self,
+        environment: BaseEnvironment,
+        workspace: Path,
+    ) -> tuple[str, int | None]:
+        if not any(workspace.iterdir()):
+            raise FileNotFoundError(f"Kimi Code left workspace empty: {workspace}")
+
+        await environment.exec("mkdir -p /app")
+        if self.clear_app_before_upload:
+            await environment.exec("find /app -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +")
+        await environment.upload_dir(workspace, "/app")
+        normalize = await environment.exec(
+            """
+if command -v chown >/dev/null 2>&1; then
+  chown -R "$(id -u):$(id -g)" /app || true
+fi
+if command -v git >/dev/null 2>&1; then
+  git config --global --add safe.directory /app || true
+  find /app -name .git -type d -prune -print 2>/dev/null | while IFS= read -r gitdir; do
+    repo_dir="${gitdir%/.git}"
+    git config --global --add safe.directory "$repo_dir" || true
+  done
+fi
+""",
+            cwd="/app",
+            timeout_sec=120,
+        )
+        (self.logs_dir / "workspace-normalize-return-code.txt").write_text(
+            str(normalize.return_code)
+        )
+        if normalize.stdout:
+            (self.logs_dir / "workspace-normalize-stdout.txt").write_text(normalize.stdout)
+        if normalize.stderr:
+            (self.logs_dir / "workspace-normalize-stderr.txt").write_text(normalize.stderr)
+
+        post_upload_return_code = await self._run_post_upload_script(environment)
+
+        sanity = await environment.exec(
+            "find /app -maxdepth 2 -mindepth 1 -printf '%M %p\\n' | sort | head -80",
+            cwd="/app",
+            timeout_sec=15,
+        )
+        (self.logs_dir / "workspace-upload-list-return-code.txt").write_text(
+            str(sanity.return_code)
+        )
+        if sanity.stdout:
+            (self.logs_dir / "workspace-upload-list.txt").write_text(sanity.stdout)
+        if sanity.stderr:
+            (self.logs_dir / "workspace-upload-list-stderr.txt").write_text(sanity.stderr)
+        return "/app", post_upload_return_code if post_upload_return_code is not None else sanity.return_code
+
+    async def _run_post_upload_script(self, environment: BaseEnvironment) -> int | None:
+        exists = await environment.exec("test -f /app/.kimi-post-upload.sh", timeout_sec=10)
+        (self.logs_dir / "post-upload-present-return-code.txt").write_text(
+            str(exists.return_code)
+        )
+        if exists.return_code != 0:
+            return None
+
+        result = await environment.exec(
+            "chmod +x /app/.kimi-post-upload.sh && /bin/sh /app/.kimi-post-upload.sh",
+            cwd="/app",
+            timeout_sec=self.post_upload_timeout_sec,
+        )
+        (self.logs_dir / "post-upload-return-code.txt").write_text(str(result.return_code))
+        if result.stdout:
+            (self.logs_dir / "post-upload-stdout.txt").write_text(result.stdout)
+        if result.stderr:
+            (self.logs_dir / "post-upload-stderr.txt").write_text(result.stderr)
+        if result.return_code != 0:
+            raise RuntimeError(
+                f"Post-upload script failed with {result.return_code}; "
+                f"see {self.logs_dir / 'post-upload-stderr.txt'}"
+            )
+        return result.return_code
+
+    async def _run_kimi(self, prompt: str, target_path: Path | None) -> dict[str, object]:
         env = os.environ.copy()
         node_dir = str(self.node_bin.parent) if "/" in str(self.node_bin) else ""
         if node_dir:
@@ -306,10 +444,17 @@ class KimiCodeHostAgent(BaseAgent):
             start_new_session=True,
         )
         try:
-            stdout, stderr, stopped_after_target = await asyncio.wait_for(
-                self._communicate_until_target(process, target_run_py),
-                timeout=self.prompt_timeout_sec,
-            )
+            if target_path is None:
+                stdout, stderr = await asyncio.wait_for(
+                    process.communicate(),
+                    timeout=self.prompt_timeout_sec,
+                )
+                stopped_after_target = False
+            else:
+                stdout, stderr, stopped_after_target = await asyncio.wait_for(
+                    self._communicate_until_target(process, target_path),
+                    timeout=self.prompt_timeout_sec,
+                )
         except asyncio.TimeoutError:
             self._terminate_process_group(process)
             await process.wait()
@@ -325,7 +470,7 @@ class KimiCodeHostAgent(BaseAgent):
     async def _communicate_until_target(
         self,
         process: asyncio.subprocess.Process,
-        target_run_py: Path,
+        target_path: Path,
     ) -> tuple[bytes, bytes, bool]:
         communicate_task = asyncio.create_task(process.communicate())
         target_seen = False
@@ -333,8 +478,8 @@ class KimiCodeHostAgent(BaseAgent):
         stable_count = 0
 
         while not communicate_task.done():
-            if target_run_py.exists():
-                size = target_run_py.stat().st_size
+            if target_path.exists():
+                size = target_path.stat().st_size
                 if size > 0 and size == stable_size:
                     stable_count += 1
                 else:
@@ -416,7 +561,7 @@ class KimiCodeHostAgent(BaseAgent):
                 },
             ],
             "extra": {
-                "execution_mode": "host-kimi-upload-run.py",
+                "execution_mode": f"host-kimi-upload-{self.upload_mode}",
             },
         }
         (self.logs_dir / "trajectory.json").write_text(format_trajectory_json(trajectory))
