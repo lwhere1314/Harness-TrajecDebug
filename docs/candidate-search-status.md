@@ -81,6 +81,24 @@ export DOCKER_HOST=unix:///Users/hugo/.colima/tb21-harbor/docker.sock
 Kimi reruns for `make-mips-interpreter` once preflight is green:
 
 ```bash
+scripts/run_candidate_kimi_reruns.sh --dry-run
+scripts/run_candidate_kimi_reruns.sh
+```
+
+The script above runs the full accepted queue:
+
+```text
+make-mips-interpreter x oracle_grounded
+make-mips-interpreter x debug_action
+make-doom-for-mips x oracle_grounded
+make-doom-for-mips x debug_action
+```
+
+It preflights the endpoint first and exits before launching Harbor if the model
+API is quota-limited or missing credentials. The expanded single-run commands
+are:
+
+```bash
 scripts/run_harbor_dynamic_icl.sh \
   --pack-dir runs/harbor_icl_baseline \
   --jobs-dir runs/harbor_icl_baseline/harbor_runs_oracle_grounded \
@@ -106,4 +124,5 @@ scripts/run_harbor_dynamic_icl.sh \
   --no-force-build
 ```
 
-Use the same command shape for `make-doom-for-mips` after oracle sanity passes.
+Use the same command shape for `make-doom-for-mips`; its oracle sanity has now
+passed.
