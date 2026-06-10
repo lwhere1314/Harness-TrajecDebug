@@ -15,7 +15,8 @@
     "count-dataset-tokens",
     "dna-insert",
     "filter-js-from-html",
-    "gcode-to-text"
+    "gcode-to-text",
+    "write-compressor"
   ],
   "exploratory_task_families": [
     "largest-eigenval",
@@ -37,10 +38,11 @@
       "configure-git-webserver",
       "dna-insert",
       "filter-js-from-html",
-      "gcode-to-text"
+      "gcode-to-text",
+      "write-compressor"
     ],
     "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
-    "continued_search": "largest-eigenval, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, and gcode-to-text were probed after the PR opened. The largest-eigenval, chess-best-move, and break-filter paired attempts are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, and gcode-to-text are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and adds one task to the current m count.",
+    "continued_search": "largest-eigenval, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, and write-compressor were probed after the PR opened. The largest-eigenval, chess-best-move, and break-filter paired attempts are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, and write-compressor are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and adds one task to the current m count.",
     "tb21_89_audit_current": {
       "without_metaharness_n": 33,
       "with_metaharness_m_current": 7,
@@ -57,6 +59,7 @@
     "raw-logs/exploratory-unsolved-search-kimicode-20260610.tar.zst",
     "raw-logs/break-filter-js-from-html-kimicode-20260610.tar.zst",
     "raw-logs/configure-git-webserver-kimicode-20260610.tar.zst",
-    "raw-logs/metaharness-queue-batch1-kimicode-20260610.tar.zst"
+    "raw-logs/metaharness-queue-batch1-kimicode-20260610.tar.zst",
+    "raw-logs/write-compressor-kimicode-20260610.tar.zst"
   ]
 }

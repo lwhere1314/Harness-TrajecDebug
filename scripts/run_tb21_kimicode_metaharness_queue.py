@@ -44,6 +44,10 @@ def main() -> int:
     parser.add_argument("--model", default="kimi-for-coding")
     parser.add_argument("--prompt-timeout-sec", type=int, default=1200)
     parser.add_argument("--post-upload-timeout-sec", type=int, default=180)
+    parser.add_argument(
+        "--stop-after-path",
+        help="Optional workspace-relative path; stop Kimi Code once it exists.",
+    )
     parser.add_argument("--task", action="append", help="Restrict to task; repeatable.")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--force", action="store_true")
@@ -120,6 +124,8 @@ def main() -> int:
             "--path",
             str(task_path),
         ]
+        if args.stop_after_path:
+            cmd.extend(["--ak", f"stop_after_path={args.stop_after_path}"])
         env = os.environ.copy()
         env["PYTHONPATH"] = str(REPO_ROOT)
         env["DOCKER_HOST"] = DOCKER_HOST

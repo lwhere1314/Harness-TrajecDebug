@@ -42,6 +42,9 @@ Additional queue-run logs for `count-dataset-tokens`, `dna-insert`,
 `filter-js-from-html`, and `gcode-to-text` are included as
 `raw-logs/metaharness-queue-batch1-kimicode-20260610.tar.zst`.
 
+Additional `write-compressor` queue-run logs are included as
+`raw-logs/write-compressor-kimicode-20260610.tar.zst`.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -85,6 +88,9 @@ Completed task families so far:
 - `gcode-to-text`: selected from the K2.6 clean reward-0 pool. Kimi Code timed
   out without a passing `out.txt`; the timeout-upload verifier path ran and
   returned reward `0.0`.
+- `write-compressor`: selected from the K2.6 timeout-failure pool. The runner
+  used `stop_after_path=data.comp`, but the artifact never appeared. The
+  timeout-upload verifier path ran and returned reward `0.0`.
 
 ## Evaluation
 
@@ -110,10 +116,10 @@ Current auditable snapshot:
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
 - baseline failure bucket still requiring Meta-Harness traversal or confirmation:
-  47 tasks, of which 7 now have observed with Meta-Harness failures
+  47 tasks, of which 8 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
   `dna-insert`, `filter-js-from-html`, `gcode-to-text`, and
-  `headless-terminal`).
+  `headless-terminal`, and `write-compressor`).
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -176,6 +182,10 @@ environment snapshot. The strongest trajectory diffs observed:
   earlier dependency/proxy failure, but Kimi Code did not reach a passing
   `out.txt` before timeout; the verifier ran after upload and returned reward
   `0.0`.
+- `write-compressor`: Meta-Harness supplied the prior missing-`data.comp`
+  failure and the runner told the adapter to stop as soon as `data.comp`
+  existed. Kimi Code never created that artifact, so the run timed out and the
+  verifier again failed on the missing compressed file.
 
 ## Current Negative Candidate
 
@@ -217,3 +227,6 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   new task to the current `m` count.
 - `dna-insert`, `filter-js-from-html`, and `gcode-to-text`: all have raw
   with-Meta-Harness verifier results and remain reward-0 observed failures.
+- `write-compressor`: has a raw with-Meta-Harness verifier result and remains
+  a reward-0 observed failure; it also validates the new queue runner
+  `--stop-after-path` option.

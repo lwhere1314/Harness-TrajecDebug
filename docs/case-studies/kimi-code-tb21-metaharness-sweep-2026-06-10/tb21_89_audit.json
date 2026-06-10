@@ -85,7 +85,8 @@
       "dna-insert",
       "filter-js-from-html",
       "gcode-to-text",
-      "headless-terminal"
+      "headless-terminal",
+      "write-compressor"
     ],
     "without_metaharness_n": 33
   },
@@ -1419,11 +1420,11 @@
       "counts_for_m": false,
       "counts_for_without_n": false,
       "task": "write-compressor",
-      "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_exception": "AgentTimeoutError",
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-write-compressor-kimicode-with-metaharness-20260610T224421/write-compressor__eSjPkhV/result.json",
+      "with_metaharness_reward": 0.0,
+      "with_metaharness_status": "timeout_failure",
+      "with_metaharness_trial": "write-compressor__eSjPkhV"
     }
   ]
 }
