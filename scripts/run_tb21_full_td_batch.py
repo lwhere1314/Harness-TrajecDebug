@@ -65,7 +65,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", default="kimi-k2.6")
     parser.add_argument("--harbor-bin", default=None)
     parser.add_argument("--setup-timeout", type=float, default=None)
-    parser.add_argument("--agent-timeout", type=float, default=1200.0)
+    parser.add_argument("--agent-timeout", type=float, default=None)
     parser.add_argument("--timeout-multiplier", type=float, default=None)
     parser.add_argument("--harbor-retries", type=int, default=None)
     parser.add_argument("--min-concurrency", type=int, default=None)
