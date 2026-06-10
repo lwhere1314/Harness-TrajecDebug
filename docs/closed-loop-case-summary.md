@@ -1,0 +1,59 @@
+# Closed-Loop Case Summary
+
+This note is the handoff summary for the currently verified Harness-TrajecDebug
+case set.
+
+Definition used here:
+
+```text
+historical Codex + GPT-5.5 reward = 0.0
++ HTD critical-step card / Debug-Action card
++ Claude Code + Kimi-k2.6 rerun
++ official Harbor / Terminal-Bench verifier reward = 1.0
+```
+
+Under that definition, the project currently has **5 closed-loop cases**.
+
+| Case | Historical Codex + GPT-5.5 failure | HTD critical step | Kimi-k2.6 rerun evidence |
+| --- | --- | --- | --- |
+| `sanitize-git-repo` | Over-solved by mutating git history and broke the reference-commit check. | Bound the task to working-tree secret removal while preserving git history. | `oracle_grounded` reward `1.0`; `debug_action` reward `1.0`; official verifier `3/3` passed. |
+| `filter-js-from-html` | Removed JavaScript but rewrote clean HTML, failing the clean-preservation gate. | Treat clean preservation as binding: remove only executable constructs and event handlers. | `oracle_grounded` reward `1.0`; `debug_action` reward `1.0`; official verifier `2/2` passed. |
+| `sam-cell-seg` | Preserved the CSV schema but had one weak mask-alignment margin. | Satisfy schema preservation and MobileSAM mask quality together, not one at the expense of the other. | `oracle_grounded` reward `1.0`; `debug_action` reward `1.0`; official verifier `9/9` passed. |
+| `raman-fitting` | Wrote schema-valid JSON on the wrong x-axis scale after fitting raw instrument coordinates. | Convert `raw_x` using `x = 1e7 / raw_x`, then fit only the converted G and 2D Raman windows. | `oracle_grounded` reward `1.0`; `debug_action` reward `1.0`; official verifier `3/3` passed. |
+| `pytorch-model-recovery` | Built a TorchScript artifact with a one-input `forward(self, src)` while the verifier calls `model(src, tgt)`. | Reconstruct the verifier-compatible two-input Transformer API and tune only `output_layer`. | `oracle_grounded` reward `1.0`; `debug_action` reward `1.0`; official verifier `5/5` passed. |
+
+## Evidence Paths
+
+The successful rerun results are under:
+
+```text
+runs/harbor_icl_baseline/harbor_runs_oracle_grounded/
+runs/harbor_icl_baseline/harbor_runs_joint_failure/
+```
+
+The hand-authored cards are under:
+
+```text
+experiments/harbor_icl_baseline/oracle_grounded_cards/
+experiments/harbor_icl_baseline/joint_failure_cards/
+```
+
+Related case-study notes:
+
+- `docs/blog/sanitize-git-repo-joint-failure-lifting.md`
+- `docs/blog/filter-js-from-html-clean-preservation.md`
+- `docs/blog/sam-cell-seg-complementary-failure-lifting.md`
+- `docs/blog/raman-fitting-axis-critical-step.md`
+- `docs/blog/pytorch-model-recovery-forward-api-critical-step.md`
+
+## Current Search Status
+
+The Codex + GPT-5.5 search pool currently covers 51 unique Terminal-Bench 2.1
+tasks. Codex passed 40 and failed 11. Some failures are not counted as primary
+closed-loop cases because they are QEMU-heavy, verifier-infra contaminated, or
+not yet lifted by Kimi reruns.
+
+`overfull-hbox` is a newly discovered Codex + GPT-5.5 failure, but it is **not**
+included in the 5-case count yet. The first Kimi rerun with an
+`oracle_grounded` card did not produce an official reward `1.0`; the run was
+also affected by verifier setup/network issues, so it remains WIP.
