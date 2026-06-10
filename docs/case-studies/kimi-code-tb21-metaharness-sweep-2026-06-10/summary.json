@@ -20,7 +20,8 @@
     "raman-fitting",
     "feal-differential-cryptanalysis",
     "largest-eigenval",
-    "git-leak-recovery"
+    "git-leak-recovery",
+    "video-processing"
   ],
   "exploratory_task_families": [
     "largest-eigenval",
@@ -28,7 +29,8 @@
     "break-filter-js-from-html",
     "configure-git-webserver",
     "mteb-leaderboard",
-    "git-leak-recovery"
+    "git-leak-recovery",
+    "video-processing"
   ],
   "headline_results": {
     "positive_metaharness_examples": [
@@ -51,7 +53,7 @@
       "largest-eigenval"
     ],
     "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
-    "continued_search": "largest-eigenval, git-leak-recovery, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, and feal-differential-cryptanalysis were probed after the PR opened. The chess-best-move, break-filter paired attempt, mteb-leaderboard, and git-leak-recovery are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, and largest-eigenval are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
+    "continued_search": "largest-eigenval, git-leak-recovery, video-processing, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, and feal-differential-cryptanalysis were probed after the PR opened. The chess-best-move, break-filter paired attempt, mteb-leaderboard, git-leak-recovery, and video-processing partial runs are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, and largest-eigenval are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
     "metrics_current": {
       "files": [
         "metrics.csv",
@@ -97,6 +99,7 @@
     "raw-logs/raman-fitting-kimicode-20260610.tar.zst",
     "raw-logs/feal-differential-cryptanalysis-kimicode-20260610.tar.zst",
     "raw-logs/largest-eigenval-kimicode-20260611.tar.zst",
-    "raw-logs/git-leak-recovery-kimicode-20260611.tar.zst"
+    "raw-logs/git-leak-recovery-kimicode-20260611.tar.zst",
+    "raw-logs/video-processing-partial-kimicode-20260611.tar.zst"
   ]
 }

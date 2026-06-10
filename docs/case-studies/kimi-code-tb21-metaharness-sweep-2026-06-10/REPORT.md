@@ -65,6 +65,10 @@ counted: Kimi Code recovered the secret and cleaned the git unreachable objects,
 but the official verifier exited before writing `reward.txt`, so Harbor raised
 `RewardFileNotFoundError`.
 
+Additional partial `video-processing` logs are included as
+`raw-logs/video-processing-partial-kimicode-20260611.tar.zst`. These runs are
+not counted: both ended before `jump_analyzer.py` or `result.json` was produced.
+
 Completed task families so far:
 
 - `openssl-selfsigned-cert`: without Meta-Harness failed, with Meta-Harness passed.
@@ -123,6 +127,9 @@ Completed task families so far:
 - `git-leak-recovery`: diagnostic only. The with Meta-Harness run recovered
   `secret[lost_and_found_in_git]` and cleaned reflog/unreachable git objects,
   but the verifier failed before writing a reward file.
+- `video-processing`: partial diagnostic only. Two with Meta-Harness attempts
+  started video analysis and wrote exploratory scripts/images, but neither
+  produced final `jump_analyzer.py` or a Harbor `result.json`.
 
 ## Evaluation
 
@@ -324,3 +331,8 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `git-leak-recovery`: has raw with-Meta-Harness logs and a strong trajectory
   improvement, but Harbor raised `RewardFileNotFoundError`; it is retained as
   diagnostic evidence only.
+- `video-processing`: the prior failure showed an off-by-few-frame takeoff
+  estimate (`55` vs `[50,54]`, and `225` vs `[219,223]`). Meta-Harness injected
+  this exact signal, and Kimi Code began frame-difference exploration, but both
+  attempts ended before producing final `jump_analyzer.py`; these logs are
+  retained only as partial infrastructure diagnostics.
