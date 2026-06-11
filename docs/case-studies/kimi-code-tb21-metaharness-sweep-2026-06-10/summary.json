@@ -24,7 +24,10 @@
     "git-leak-recovery",
     "video-processing",
     "adaptive-rejection-sampler",
-    "pypi-server"
+    "pypi-server",
+    "mteb-retrieve",
+    "nginx-request-logging",
+    "polyglot-rust-c"
   ],
   "exploratory_task_families": [
     "largest-eigenval",
@@ -35,7 +38,10 @@
     "git-leak-recovery",
     "video-processing",
     "adaptive-rejection-sampler",
-    "pypi-server"
+    "pypi-server",
+    "mteb-retrieve",
+    "nginx-request-logging",
+    "polyglot-rust-c"
   ],
   "headline_results": {
     "positive_metaharness_examples": [
@@ -61,7 +67,7 @@
       "pypi-server"
     ],
     "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
-    "continued_search": "adaptive-rejection-sampler, largest-eigenval, git-leak-recovery, video-processing, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, feal-differential-cryptanalysis, and pypi-server were probed after the PR opened. The adaptive-rejection-sampler, break-filter paired attempt, mteb-leaderboard, git-leak-recovery, video-processing partial/SIGTERM, and pypi-server repair probes are trajectory-only/invalid for clean reward comparison. configure-git-webserver, chess-best-move, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, largest-eigenval, and pypi-server are observed with-Meta-Harness failures; pypi-server's counted run is a valid reward-0 verifier failure. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
+    "continued_search": "adaptive-rejection-sampler, largest-eigenval, git-leak-recovery, video-processing, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, feal-differential-cryptanalysis, pypi-server, mteb-retrieve, nginx-request-logging, and polyglot-rust-c were probed after the PR opened. The adaptive-rejection-sampler, break-filter paired attempt, mteb-leaderboard, git-leak-recovery, video-processing partial/SIGTERM, pypi-server repair probes, mteb-retrieve verifier-download partials, nginx-request-logging orphan partial, and polyglot-rust-c startup partial are trajectory-only/invalid for clean reward comparison. configure-git-webserver, chess-best-move, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, largest-eigenval, and pypi-server are observed with-Meta-Harness failures; pypi-server's counted run is a valid reward-0 verifier failure. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
     "metrics_current": {
       "files": [
         "metrics.csv",
@@ -131,6 +137,7 @@
     "raw-logs/video-processing-sigterm-kimicode-20260611.tar.zst",
     "raw-logs/kimi-session-wire-usage-20260611.tar.zst",
     "raw-logs/adaptive-rejection-sampler-invalid-kimicode-20260611.tar.zst",
-    "raw-logs/pypi-server-kimicode-20260611.tar.zst"
+    "raw-logs/pypi-server-kimicode-20260611.tar.zst",
+    "raw-logs/metaharness-partials-kimicode-20260611.tar.zst"
   ]
 }

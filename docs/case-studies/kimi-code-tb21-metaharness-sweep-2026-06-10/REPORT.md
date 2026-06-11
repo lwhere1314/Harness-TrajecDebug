@@ -95,6 +95,15 @@ official `pip install vectorops==0.1.0` check still found no available version.
 Two later repair probes are retained only as diagnostics because they failed
 before a clean verifier result.
 
+Additional partial diagnostics for `mteb-retrieve`, `nginx-request-logging`,
+and `polyglot-rust-c` are included as
+`raw-logs/metaharness-partials-kimicode-20260611.tar.zst`. These runs are not
+counted. `mteb-retrieve` r1 produced a `RuntimeError` before verifier because
+the MTEB wrapper `encode()` call needed `task_name`; r2/r3 wrote the expected
+`result.txt` but the verifier process stopped during large dependency
+downloads before `result.json`. `nginx-request-logging` and `polyglot-rust-c`
+ended before a verifier result was produced.
+
 Additional Kimi Code session usage records are included as
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`. This archive contains the
 22 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
@@ -177,6 +186,16 @@ Completed task families so far:
   built uploadable artifacts and launched the server, but the official verifier
   still failed to discover `vectorops==0.1.0`, so it is a valid reward-0
   observed failure. Two follow-up repair probes are archived as diagnostics.
+- `mteb-retrieve`: diagnostic only. The r1 Meta-Harness run wrote a model-based
+  `solve.py`, but its post-upload script failed before verifier because the
+  MTEB wrapper API required `task_name`. Two repair runs wrote the expected
+  `result.txt`, but both stopped during verifier dependency downloads before
+  `result.json`, so there is no counted reward.
+- `nginx-request-logging`: partial diagnostic only. The run injected the prior
+  proxy/localhost failure but the Harbor parent exited before Kimi produced a
+  workspace artifact or verifier result; the orphan Kimi process was stopped.
+- `polyglot-rust-c`: startup partial only. Harbor created the job/trial shell
+  but exited before agent workspace files or verifier output existed.
 
 ## Evaluation
 
@@ -400,3 +419,14 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   verifier failure. It built `vectorops` wheel/sdist artifacts and launched a
   server, but the official pip check still saw no `vectorops==0.1.0` versions.
   Two later repair probes are archived as diagnostics only.
+- `mteb-retrieve`: the first run repeated the model-computation trajectory and
+  failed before verifier because `SentenceTransformerWrapper.encode()` required
+  a `task_name` keyword. The r2/r3 repair brief used the prior verifier signal
+  and Kimi wrote the expected line, but both attempts stopped while the verifier
+  downloaded large torch/MTEB dependencies, so these are retained as diagnostic
+  raw logs only.
+- `nginx-request-logging`: selected because the baseline failure was a local
+  8080/proxy service failure. The run did not reach a workspace artifact or
+  verifier result before Harbor exited, so it is not counted.
+- `polyglot-rust-c`: selected as a lightweight missing-file failure. The job
+  exited before agent output, so it is not counted.
