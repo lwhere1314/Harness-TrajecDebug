@@ -168,6 +168,21 @@ WEB_REPLAY_ARGS=()
 for tool in "${SDK_LIVE_INTERCEPT_TOOLS[@]}"; do
   WEB_REPLAY_ARGS+=(--intercept-tool "$tool")
 done
+PRIMARY_REPLAY_TOOL="${SDK_LIVE_INTERCEPT_TOOLS[0]:-WebSearch}"
+case "$PRIMARY_REPLAY_TOOL" in
+  Bash|Shell)
+    PRIMARY_REPLAY_INPUT='{"command":"echo daily canary trigger"}'
+    ;;
+  WebSearch)
+    PRIMARY_REPLAY_INPUT='{"query":"daily canary trigger"}'
+    ;;
+  WebFetch)
+    PRIMARY_REPLAY_INPUT='{"url":"https://example.com"}'
+    ;;
+  *)
+    PRIMARY_REPLAY_INPUT='{}'
+    ;;
+esac
 if [[ "$INJECT_MODE" == "hooks_live" ]]; then
   scripts/replay_live_icl_hook.py \
     --context-path "$CONTEXT_PATH" \
@@ -175,11 +190,11 @@ if [[ "$INJECT_MODE" == "hooks_live" ]]; then
     > "$CANARY_DIR/replay-session-start.json"
   scripts/replay_live_icl_hook.py \
     --context-path "$CONTEXT_PATH" \
-    --tool-name WebSearch \
-    --tool-input-json '{"query":"daily canary trigger"}' \
-    --state-path "$CANARY_DIR/replay-websearch-state.json" \
-    --event-log "$CANARY_DIR/replay-websearch-events.jsonl" \
-    "${WEB_REPLAY_ARGS[@]}" > "$CANARY_DIR/replay-websearch.json"
+    --tool-name "$PRIMARY_REPLAY_TOOL" \
+    --tool-input-json "$PRIMARY_REPLAY_INPUT" \
+    --state-path "$CANARY_DIR/replay-primary-tool-state.json" \
+    --event-log "$CANARY_DIR/replay-primary-tool-events.jsonl" \
+    "${WEB_REPLAY_ARGS[@]}" > "$CANARY_DIR/replay-primary-tool.json"
   scripts/replay_live_icl_hook.py \
     --context-path "$CONTEXT_PATH" \
     --tool-name AskUserQuestion \
@@ -191,9 +206,9 @@ else
   scripts/replay_live_icl_controller.py \
     --context-path "$CONTEXT_PATH" \
     --mode pre_tool_use \
-    --tool-name WebSearch \
-    --tool-input-json '{"query":"daily canary trigger"}' \
-    "${WEB_REPLAY_ARGS[@]}" > "$CANARY_DIR/replay-websearch.json"
+    --tool-name "$PRIMARY_REPLAY_TOOL" \
+    --tool-input-json "$PRIMARY_REPLAY_INPUT" \
+    "${WEB_REPLAY_ARGS[@]}" > "$CANARY_DIR/replay-primary-tool.json"
   scripts/replay_live_icl_controller.py \
     --context-path "$CONTEXT_PATH" \
     --mode can_use_tool \
@@ -201,7 +216,7 @@ else
     --tool-input-json '{"questions":[{"question":"Which artifact should I close?","options":[{"label":"/app/answer.txt"}]}]}' \
     > "$CANARY_DIR/replay-ask-user-question.json"
 fi
-python3 - "$CANARY_DIR/replay-websearch.json" "$CANARY_DIR/replay-ask-user-question.json" <<'PY'
+python3 - "$CANARY_DIR/replay-primary-tool.json" "$CANARY_DIR/replay-ask-user-question.json" <<'PY'
 import json
 import sys
 from pathlib import Path

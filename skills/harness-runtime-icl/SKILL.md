@@ -125,6 +125,16 @@ For Harbor case studies, prefer the existing Harbor runner and
 `harness_trajecdebug.experiments.dynamic_icl_agent:DynamicIclClaudeCode`.
 Inspect the current repository scripts before inventing a new runner.
 
+For the canonical `query-optimize` reproduction, use the narrow wrapper first:
+
+```bash
+scripts/reproduce_query_optimize_skill.sh --endpoint-profile ark --model kimi-k2.6
+scripts/reproduce_query_optimize_skill.sh --endpoint-profile ark --model kimi-k2.6 --run
+```
+
+It runs the controlled `debug_action` versus `outcome_only` `sdk_live`
+conditions and writes raw logs plus `sdk-live-summary.json` files.
+
 ## Slow-Run Triage
 
 Before blaming the model, check infrastructure:

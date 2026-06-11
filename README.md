@@ -37,6 +37,9 @@ HTD-derived runtime hint repaired the rerun. See
 for a second joint-failure case where both agents blocked XSS but modified clean
 HTML, and the HTD card reframed the task around the clean-preservation verifier
 gate. See
+[One-Click Query-Optimize Reproduction](docs/one-click-query-optimize-repro.md)
+for the fastest way to install the local `harness-runtime-icl` skill and rerun
+the `debug_action` versus `outcome_only` canary. See
 [experiments/harbor_icl_baseline/README.md](experiments/harbor_icl_baseline/README.md)
 for the first Kimi ICL baseline design and runner scripts, and
 [experiments/harbor_icl_baseline/fairness_protocol.md](experiments/harbor_icl_baseline/fairness_protocol.md)
