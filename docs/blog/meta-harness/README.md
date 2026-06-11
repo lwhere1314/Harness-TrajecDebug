@@ -22,6 +22,12 @@ failure evidence," not as a claim that the base model solved the same prompt
 from scratch. If the brief is manually curated, that curation is part of the
 harness condition and must be reported.
 
+This is also not a faithful implementation of the upstream
+`meta-harness-terminal-bench-2` skill. The upstream skill evolves a
+general-purpose `AgentHarness` Python scaffold and explicitly forbids
+task-specific hints in the candidate agent. This reproduction instead evaluates
+a Meta-Harness-inspired per-task repair loop for Kimi Code.
+
 Harness and model:
 
 - Harness: Harbor / Terminal-Bench 2.1 proxy tasks.

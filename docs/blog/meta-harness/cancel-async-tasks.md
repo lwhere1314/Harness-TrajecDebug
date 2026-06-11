@@ -1,10 +1,11 @@
 # Case Study: Meta-Harness on `cancel-async-tasks`
 
-This is the cleanest short example for Meta-Harness. The prior failure exposed a
-specific behavioral edge: cancellation after only the first `max_concurrent`
-tasks have started. The Meta-Harness prompt carried that failure into the Kimi
-Code run, and the trajectory shifted from a generic semaphore solution to a
-cancellation-aware worker design.
+This is the cleanest short example for a failure-informed repair prompt, but it
+is not a faithful reproduction of the upstream Meta-Harness Terminal-Bench
+skill. The prior failure exposed a specific behavioral edge: cancellation after
+only the first `max_concurrent` tasks have started. Our prompt carried that
+failure into the Kimi Code run, and the trajectory shifted from a generic
+semaphore solution to a cancellation-aware worker design.
 
 Raw logs for this case are under
 [`../raw_logs/meta-harness/harbor_runs/`](../raw_logs/meta-harness/harbor_runs/).
@@ -49,9 +50,10 @@ failed:
 
 ## What Meta-Harness Added
 
-Meta-Harness injected a prior-failure brief into the Kimi Code prompt. The brief
-named the failing test, the exact `n_tasks=3, max_concurrent=2` scenario, the
-expected stdout, and the failure interpretation:
+Our Meta-Harness-inspired adapter injected a prior-failure brief into the Kimi
+Code prompt. The brief named the failing test, the exact
+`n_tasks=3, max_concurrent=2` scenario, the expected stdout, and the failure
+interpretation:
 [`prompt.txt` L20-L46](../raw_logs/meta-harness/harbor_runs/tb21-cancel-async-tasks-kimicode-4x/with-metaharness-4x/cancel-async-tasks__UmqeHfc/agent/prompt.txt#L20-L46).
 
 The important change was not merely "more context." It was process context: the
@@ -59,6 +61,18 @@ agent was told that creating one wrapper task per input and relying on
 `asyncio.gather` can leave semaphore-blocked wrappers in the wrong cancellation
 state. The repair direction was to start only up to `max_concurrent` workers,
 cancel those workers, and await them during cleanup.
+
+That is materially different from the upstream
+`meta-harness-terminal-bench-2` skill. The upstream skill asks the proposer to
+read many failed and successful trajectories, implement a new general-purpose
+`AgentHarness` Python scaffold, and write `pending_eval.json` for the outer
+benchmark loop. It also forbids task-specific hints and task names in the
+candidate agent. In this `cancel-async-tasks` run, by contrast, the next agent
+was directly told the task-specific failed test and failure interpretation. So
+the causal claim here is only: structured prior-failure feedback can repair this
+task for Kimi Code. It is not evidence that the original Meta-Harness skill
+would discover a general harness change that improves this task without
+task-specific information.
 
 ## Trajectory Shift
 
@@ -81,7 +95,9 @@ The stdout summary shows the same result:
 
 ## Takeaway
 
-This is a strong interview example: Meta-Harness turned a previous verifier
-failure into a concrete repair target, and the target changed the agent's search
-trajectory. The result was not just a pass; it was a reproducible `0/4 -> 4/4`
-shift under Kimi Code on the same task.
+This is a strong interview example for recovery from structured verifier
+feedback: a previous failure became a concrete repair target, and the target
+changed the agent's search trajectory. It should not be described as a faithful
+upstream Meta-Harness reproduction. The measured effect is a reproducible
+`0/4 -> 4/4` shift under Kimi Code on this task when the agent is given
+task-specific failure feedback.
