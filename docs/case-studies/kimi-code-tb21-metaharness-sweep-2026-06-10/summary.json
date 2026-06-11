@@ -23,7 +23,8 @@
     "largest-eigenval",
     "git-leak-recovery",
     "video-processing",
-    "adaptive-rejection-sampler"
+    "adaptive-rejection-sampler",
+    "pypi-server"
   ],
   "exploratory_task_families": [
     "largest-eigenval",
@@ -33,7 +34,8 @@
     "mteb-leaderboard",
     "git-leak-recovery",
     "video-processing",
-    "adaptive-rejection-sampler"
+    "adaptive-rejection-sampler",
+    "pypi-server"
   ],
   "headline_results": {
     "positive_metaharness_examples": [
@@ -55,10 +57,11 @@
       "gcode-to-text",
       "write-compressor",
       "raman-fitting",
-      "largest-eigenval"
+      "largest-eigenval",
+      "pypi-server"
     ],
     "headless_terminal": "valid negative candidate: without Meta-Harness reproduced the prior proxy/localhost 503 failure; with Meta-Harness set NO_PROXY and installed pexpect but still failed interactive/background tests with reward 0.0",
-    "continued_search": "adaptive-rejection-sampler, largest-eigenval, git-leak-recovery, video-processing, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, and feal-differential-cryptanalysis were probed after the PR opened. The adaptive-rejection-sampler, chess-best-move, break-filter paired attempt, mteb-leaderboard, git-leak-recovery, and video-processing partial/SIGTERM runs are trajectory-only/invalid for clean reward comparison. configure-git-webserver, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, and largest-eigenval are valid with-Meta-Harness verifier failures. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
+    "continued_search": "adaptive-rejection-sampler, largest-eigenval, git-leak-recovery, video-processing, chess-best-move, break-filter-js-from-html, configure-git-webserver, count-dataset-tokens, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, mteb-leaderboard, raman-fitting, feal-differential-cryptanalysis, and pypi-server were probed after the PR opened. The adaptive-rejection-sampler, break-filter paired attempt, mteb-leaderboard, git-leak-recovery, video-processing partial/SIGTERM, and pypi-server repair probes are trajectory-only/invalid for clean reward comparison. configure-git-webserver, chess-best-move, dna-insert, filter-js-from-html, gcode-to-text, write-compressor, raman-fitting, largest-eigenval, and pypi-server are observed with-Meta-Harness failures; pypi-server's counted run is a valid reward-0 verifier failure. count-dataset-tokens is a valid timeout-upload pass and feal-differential-cryptanalysis is a valid stop-artifact pass; together they add two tasks to the current m count.",
     "metrics_current": {
       "files": [
         "metrics.csv",
@@ -69,37 +72,37 @@
       ],
       "status": "current paired subset; Kimi Code token usage is backfilled from archived session wire usage.record events when Harbor agent_result token fields are null",
       "baseline_token_usage_rows": "78/89",
-      "with_metaharness_token_usage_rows": "21/21",
+      "with_metaharness_token_usage_rows": "22/22",
       "baseline_mean_input_output_tokens": 1677604.41,
       "baseline_mean_uncached_input_output_tokens": 47296.269,
       "baseline_median_input_output_tokens": 820898.0,
       "baseline_median_uncached_input_output_tokens": 29778.0,
       "baseline_mean_wall_duration_sec": 2326.427,
       "baseline_median_wall_duration_sec": 1201.115,
-      "with_metaharness_mean_wall_duration_sec": 637.48,
-      "with_metaharness_median_wall_duration_sec": 648.379,
-      "paired_rows": 21,
-      "paired_mean_delta_wall_duration_sec": -2977.832,
-      "paired_median_delta_wall_duration_sec": -224.716,
-      "with_metaharness_mean_input_output_tokens": 810483.667,
-      "with_metaharness_mean_uncached_input_output_tokens": 54247.476,
-      "with_metaharness_median_input_output_tokens": 461886.0,
-      "with_metaharness_median_uncached_input_output_tokens": 43386.0,
-      "paired_mean_baseline_input_output_tokens": 899279.095,
-      "paired_mean_with_input_output_tokens": 810483.667,
-      "paired_mean_delta_input_output_tokens": -88795.429,
-      "paired_median_delta_input_output_tokens": 13829.0,
-      "paired_mean_baseline_uncached_input_output_tokens": 33282.571,
-      "paired_mean_with_uncached_input_output_tokens": 54247.476,
-      "paired_mean_delta_uncached_input_output_tokens": 20964.905,
-      "paired_median_delta_uncached_input_output_tokens": 20774.0,
-      "paired_mean_baseline_wall_duration_sec": 3615.313,
-      "paired_mean_with_wall_duration_sec": 637.48,
-      "paired_median_baseline_wall_duration_sec": 1028.553,
-      "paired_median_with_wall_duration_sec": 648.379,
+      "with_metaharness_mean_wall_duration_sec": 615.379,
+      "with_metaharness_median_wall_duration_sec": 638.58,
+      "paired_rows": 22,
+      "paired_mean_delta_wall_duration_sec": -2858.997,
+      "paired_median_delta_wall_duration_sec": -294.089,
+      "with_metaharness_mean_input_output_tokens": 778325.818,
+      "with_metaharness_mean_uncached_input_output_tokens": 52426.182,
+      "with_metaharness_median_input_output_tokens": 423150.0,
+      "with_metaharness_median_uncached_input_output_tokens": 43317.5,
+      "paired_mean_baseline_input_output_tokens": 893998.909,
+      "paired_mean_with_input_output_tokens": 778325.818,
+      "paired_mean_delta_input_output_tokens": -115673.091,
+      "paired_median_delta_input_output_tokens": 10980.0,
+      "paired_mean_baseline_uncached_input_output_tokens": 32005.273,
+      "paired_mean_with_uncached_input_output_tokens": 52426.182,
+      "paired_mean_delta_uncached_input_output_tokens": 20420.909,
+      "paired_median_delta_uncached_input_output_tokens": 18824.0,
+      "paired_mean_baseline_wall_duration_sec": 3474.376,
+      "paired_mean_with_wall_duration_sec": 615.379,
+      "paired_median_baseline_wall_duration_sec": 972.452,
+      "paired_median_with_wall_duration_sec": 638.58,
       "kimi_session_usage_archive": "raw-logs/kimi-session-wire-usage-20260611.tar.zst",
-      "with_metaharness_valid_verifier_results": "18/21",
-      "paired_valid_with_verifier_results": 18
+      "with_metaharness_valid_verifier_results": "19/22",
+      "paired_valid_with_verifier_results": 19
     },
     "tb21_89_audit_current": {
       "without_metaharness_n": 33,
@@ -127,6 +130,7 @@
     "raw-logs/video-processing-partial-kimicode-20260611.tar.zst",
     "raw-logs/video-processing-sigterm-kimicode-20260611.tar.zst",
     "raw-logs/kimi-session-wire-usage-20260611.tar.zst",
-    "raw-logs/adaptive-rejection-sampler-invalid-kimicode-20260611.tar.zst"
+    "raw-logs/adaptive-rejection-sampler-invalid-kimicode-20260611.tar.zst",
+    "raw-logs/pypi-server-kimicode-20260611.tar.zst"
   ]
 }

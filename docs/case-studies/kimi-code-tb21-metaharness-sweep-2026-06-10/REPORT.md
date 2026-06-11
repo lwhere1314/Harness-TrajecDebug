@@ -87,9 +87,17 @@ run is not counted: Kimi Code wrote `ars.R`, but Harbor's outer agent timeout
 fired before the adapter could upload the workspace and run the verifier, so the
 result has no verifier reward.
 
+Additional `pypi-server` queue-run and diagnostic logs are included as
+`raw-logs/pypi-server-kimicode-20260611.tar.zst`. The counted with
+Meta-Harness result is a valid verifier failure with reward `0.0`: Kimi Code
+built `vectorops` wheel/sdist artifacts and started a package server, but the
+official `pip install vectorops==0.1.0` check still found no available version.
+Two later repair probes are retained only as diagnostics because they failed
+before a clean verifier result.
+
 Additional Kimi Code session usage records are included as
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`. This archive contains the
-21 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
+22 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
 from `usage.record` events.
 
 Completed task families so far:
@@ -164,6 +172,11 @@ Completed task families so far:
 - `adaptive-rejection-sampler`: diagnostic only. The run wrote `ars.R`, but the
   adapter timeout was set too close to the task-level Harbor timeout, so Harbor
   produced `AgentTimeoutError` before workspace upload/verifier execution.
+- `pypi-server`: selected from the K2.6 clean reward-0 pool. The first queue
+  attempt wrote package files but ended before a result. The counted queue run
+  built uploadable artifacts and launched the server, but the official verifier
+  still failed to discover `vectorops==0.1.0`, so it is a valid reward-0
+  observed failure. Two follow-up repair probes are archived as diagnostics.
 
 ## Evaluation
 
@@ -180,19 +193,19 @@ those fields null, so the metrics script falls back to the local Kimi session
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`.
 
 Token coverage is now 78/89 rows for the `claude-code + kimi-k2.6` baseline and
-21/21 rows for the current with Meta-Harness Kimi Code subset. On the 21 paired
-rows, mean total `input+output` tokens moved from `899,279.095` to
-`810,483.667` (`-88,795.429`), while mean cache-adjusted
-`input-cache+output` tokens moved from `33,282.571` to `54,247.476`
-(`+20,964.905`). The median paired deltas are `+13,829.000` total tokens and
-`+20,774.000` cache-adjusted tokens. The interpretation is therefore mixed:
+22/22 rows for the current with Meta-Harness Kimi Code subset. On the 22 paired
+rows, mean total `input+output` tokens moved from `893,998.909` to
+`778,325.818` (`-115,673.091`), while mean cache-adjusted
+`input-cache+output` tokens moved from `32,005.273` to `52,426.182`
+(`+20,420.909`). The median paired deltas are `+10,980.000` total tokens and
+`+18,824.000` cache-adjusted tokens. The interpretation is therefore mixed:
 with Meta-Harness is lower on mean total tokens in this paired subset, but
 higher on uncached/cache-adjusted tokens.
 
 Current latency summary for the same paired subset: baseline mean wall time is
-`3,615.313` seconds and with Meta-Harness mean wall time is `637.480` seconds
-(`-2,977.832`). The corresponding medians are `1,028.553` seconds and
-`648.379` seconds, with median paired wall-time delta `-224.716` seconds. This
+`3,474.376` seconds and with Meta-Harness mean wall time is `615.379` seconds
+(`-2,858.997`). The corresponding medians are `972.452` seconds and
+`638.580` seconds, with median paired wall-time delta `-294.089` seconds. This
 latency comparison is not a controlled full-suite conclusion yet because the
 with Meta-Harness set is still a targeted recovery subset and mixes passes,
 failures, timeout-upload recoveries, and verifier-invalid diagnostics.
@@ -216,10 +229,11 @@ Current auditable snapshot:
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
 - baseline failure bucket still requiring Meta-Harness traversal or confirmation:
-  47 tasks, of which 10 now have observed with Meta-Harness failures
+  47 tasks, of which 11 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
   `dna-insert`, `filter-js-from-html`, `gcode-to-text`, `headless-terminal`,
-  `largest-eigenval`, `raman-fitting`, and `write-compressor`).
+  `largest-eigenval`, `pypi-server`, `raman-fitting`, and
+  `write-compressor`).
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -310,6 +324,14 @@ environment snapshot. The strongest trajectory diffs observed:
   aggressive GC so `git fsck --unreachable --no-reflogs` returned cleanly.
   The official verifier then failed before creating a reward file, so this
   remains diagnostic rather than a counted pass.
+- `pypi-server`: Meta-Harness supplied the prior package-index failure and
+  environment context. The counted run improved the trajectory from "nothing
+  installable" to concrete `vectorops` package artifacts plus a running server,
+  but it did not expose the package through an index shape that the official
+  pip verifier accepted. Follow-up repair briefs tried a static PEP 503-style
+  index and explicit setuptools package discovery; those probes are useful
+  trajectory evidence but not counted because they failed before a clean
+  verifier result.
 
 ## Current Negative Candidate
 
@@ -374,3 +396,7 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   original attempts plus the SIGTERM retry ended before producing final
   `jump_analyzer.py`; these logs are retained only as partial infrastructure
   diagnostics.
+- `pypi-server`: the counted with Meta-Harness queue run is a valid reward-0
+  verifier failure. It built `vectorops` wheel/sdist artifacts and launched a
+  server, but the official pip check still saw no `vectorops==0.1.0` versions.
+  Two later repair probes are archived as diagnostics only.
