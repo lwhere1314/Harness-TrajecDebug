@@ -19,26 +19,51 @@ than the official golden query and fails the runtime gate.
 
 Use one terminal window with large font. Keep secrets out of view.
 
-Fast rehearsal:
+Fast rehearsal with checked-in evidence:
 
 ```bash
 cd Harness-TrajecDebug
 HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --recorded
 ```
 
-Live rerun:
+Live second run with the pass-teacher Debug-Action card:
 
 ```bash
 cd Harness-TrajecDebug
 HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live
 ```
 
-For the live rerun, the script defaults to the current repository root. If your
+Live second run with a failure-derived teacher card:
+
+```bash
+cd Harness-TrajecDebug
+HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-fail-teacher
+```
+
+Full live fail-teacher run, including a fresh first failure:
+
+```bash
+cd Harness-TrajecDebug
+HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-full-fail-teacher
+```
+
+The four modes are:
+
+| Mode | First failure | Teacher/card source | Second run |
+| --- | --- | --- | --- |
+| `--recorded` | Checked-in failed run | Checked-in pass-teacher card | Checked-in passing run |
+| `--live` | Checked-in failed run | Checked-in pass-teacher card | Real `sdk_live` rerun |
+| `--live-fail-teacher` | Checked-in failed run | Reward-0 failure-derived card | Real `sdk_live` rerun |
+| `--live-full-fail-teacher` | Fresh no-ICL Harbor run | Freshly generated reward-0 card after diagnosis | Real `sdk_live` rerun |
+
+For live modes, the script defaults to the current repository root. If your
 machine needs long Harbor processes to run from a separate mirror, set
-`HTD_DEMO_LIVE_ROOT=/path/to/repo-mirror` before running `--live`. At the live
-injection scene, the wrapper hands off to a helper under `HTD_DEMO_LIVE_ROOT`.
-The script sources `~/.bashrc` internally for endpoint-profile checks and the
-live runner.
+`HTD_DEMO_LIVE_ROOT=/path/to/repo-mirror`. The mirror must contain the current
+demo script, helper scripts, task variants, and teacher cards. For
+`--live-full-fail-teacher`, set
+`HARBOR_RUNNER=/path/to/run_terminal_bench_harbor.sh` unless your local default
+runner path already exists. The script sources `~/.bashrc` internally for
+endpoint-profile checks and live runners.
 
 ## Scenes
 
@@ -74,19 +99,29 @@ critical_step: pattern=budget debt loop
 
 3. Show the Debug-Action card.
 
-Card path:
+Pass-teacher card path:
 
 ```text
 docs/blog/raw_logs/blog_raw_logs/teacher_cards/query-optimize/debug_action.md
 ```
 
-Key thing to point at: the card contains a concrete next action that writes
-`/app/sol.sql`, plus guardrails saying to stop after the artifact exists and let
-the official verifier grade it.
+Checked-in fail-teacher card path:
+
+```text
+docs/blog/raw_logs/blog_raw_logs/teacher_cards/query-optimize/fail_debug_action.md
+```
+
+In `--live-full-fail-teacher`, the script generates a fresh temporary card
+under `runs/.../runtime_pack/teacher_cards/query-optimize/fail_debug_action_live.md`
+from that run's failed trial and diagnosis.
+
+For the fail-teacher demo, point at `Teacher outcome: reward=0.0`. This card is
+failure-derived guidance; it intentionally does not copy a passing `/app/sol.sql`
+artifact.
 
 4. Check that the card is executable.
 
-Expected on screen:
+Expected on screen for the pass-teacher card:
 
 ```text
 closure: closure_passed
@@ -95,12 +130,30 @@ check: query_optimize_single_statement=ok
 check: query_optimize_select_only=ok
 ```
 
+Expected on screen for the fail-teacher card:
+
+```text
+closure: closure_unavailable
+check: card_has_artifact_heredoc=fail
+```
+
+That failure is expected because the teacher is reward-0 data, not a copied
+passing artifact. The second run still receives the card as repair guidance.
+
 5. Run with runtime injection.
 
 The live command underneath is:
 
 ```bash
-scripts/run_query_optimize_sdk_live_repro.sh runs/demo-query-optimize-live-YYYYMMDDTHHMMSS
+scripts/run_harbor_dynamic_icl.sh \
+  --pack-dir docs/blog/raw_logs/blog_raw_logs \
+  --task query-optimize \
+  --model kimi-k2.6 \
+  --jobs-dir runs/demo-query-optimize-live-YYYYMMDDTHHMMSS \
+  --context-variant debug_action \
+  --inject-mode sdk_live \
+  --endpoint-profile seed-coding-plan \
+  --sdk-live-intercept-tool Bash
 ```
 
 Expected evidence:
@@ -137,6 +190,14 @@ Card:
 ```text
 The critical-step evidence becomes a Debug-Action card: concrete next action,
 artifact path, closure check, and stop rule.
+```
+
+Fail-teacher card:
+
+```text
+Here the teacher is deliberately a failed trajectory. We are not giving the
+agent a copied passing solution; we are giving it the critical-step diagnosis
+and the repair route extracted from reward-0 evidence.
 ```
 
 Injection:

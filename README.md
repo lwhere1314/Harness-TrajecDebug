@@ -42,12 +42,23 @@ For a real rerun of the second attempt:
 HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live
 ```
 
+For a fail-teacher demo where the injected card is derived from reward-0 data,
+use one of:
+
+```bash
+# Uses checked-in failed teacher evidence, then runs the second attempt live.
+HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-fail-teacher
+
+# Runs a fresh first failure, generates a fail-teacher card, then reruns live.
+HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-full-fail-teacher
+```
+
 The demo material lives in [`demo/`](demo/):
 
 | File | Purpose |
 | --- | --- |
 | [`demo/README.md`](demo/README.md) | Recording SOP, scene-by-scene narration, expected terminal output. |
-| [`demo/query-optimize-trace-to-card.sh`](demo/query-optimize-trace-to-card.sh) | One-command recorded/live demo runner. |
+| [`demo/query-optimize-trace-to-card.sh`](demo/query-optimize-trace-to-card.sh) | One-command recorded, live, fail-teacher, and full-live demo runner. |
 
 Expected evidence from the demo:
 
@@ -55,7 +66,8 @@ Expected evidence from the demo:
 | --- | --- |
 | First run | `reward=0`, `5 passed, 1 failed`, runtime gate fails |
 | Diagnosis | `critical_step: pattern=budget debt loop` |
-| Card check | `closure: closure_passed`, artifact `/app/sol.sql` |
+| Pass-teacher card check | `closure: closure_passed`, artifact `/app/sol.sql` |
+| Fail-teacher card check | `Teacher outcome: reward=0.0`, no copied passing artifact; `closure_unavailable` is expected |
 | Runtime injection | `injection_count: 1`, `injection_reasons: ['Bash']` |
 | Second run | `reward=1.0`, `6 passed` |
 
