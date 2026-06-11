@@ -1,120 +1,61 @@
 # Harness-TrajecDebug
 
-Harness-TrajecDebug is an explainable trace diagnosis and data selection
-framework for terminal-agent in-context learning. It turns raw pass/fail
-benchmark trajectories into process-level records with reference objects, state
-events, decision evidence, failure patterns, a critical step, and a repair hint.
+Harness-TrajecDebug is a trace diagnosis and trajectory-selection framework for
+terminal agents. It turns raw pass/fail benchmark runs into process-level
+records: reference objects, observed state, decision evidence, failure patterns,
+critical steps, repair hints, and ICL data-quality signals.
 
-The project is intentionally conservative: it only emits failure patterns when
+The project is intentionally conservative. It only emits a failure pattern when
 there is concrete trace evidence and a final verifier footprint.
 
-See [docs/failure-taxonomy.md](docs/failure-taxonomy.md) for the taxonomy diagram
-and [docs/framework.md](docs/framework.md) for the reference/state/commitment
-workflow. See [docs/roadmap.md](docs/roadmap.md) for the current progress,
-to-do list, and planned Harbor experiments. See [docs/integrations.md](docs/integrations.md)
-for the local Codex / Claude Code / Kimi route and Harbor task/run adapters. See
-[docs/trajectorydebug-hint-and-icl-flow.md](docs/trajectorydebug-hint-and-icl-flow.md)
-for the current TD hint-generation algorithm and runtime ICL injection diagrams. See
-[AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) for the server migration
-and full Harbor -> diagnosis -> repair -> viewer workflow. See
-[docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
-comparison with Meta-Harness. See
-[docs/closed-loop-case-summary.md](docs/closed-loop-case-summary.md) for the
-current 6-case closed-loop summary where Codex + GPT-5.5 failed and
-HTD-assisted Claude Code + Kimi-k2.6 passed the task verifier. See
-[docs/candidate-search-status.md](docs/candidate-search-status.md) for the
-next accepted/rejected Codex + GPT-5.5 failure candidates and endpoint status.
-The
-blog-style case study
-[TrajectoryDebug Algorithm Flow](docs/blog/trajectorydebug-algorithm-flow.md)
-for the current hint-generation and runtime injection algorithm,
-[Runtime Debug-Action Injection on `query-optimize`](docs/blog/query-optimize-runtime-debug-action.md)
-for the first interactive repair canary, and
-[Lifting a Joint Failure on `sanitize-git-repo`](docs/blog/sanitize-git-repo-joint-failure-lifting.md)
-for the first case where both historical compared runs failed but an
-HTD-derived runtime hint repaired the rerun. See
-[Clean-Preservation Critical Step on `filter-js-from-html`](docs/blog/filter-js-from-html-clean-preservation.md)
-for a second joint-failure case where both agents blocked XSS but modified clean
-HTML, and the HTD card reframed the task around the clean-preservation verifier
-gate. See
-[experiments/harbor_icl_baseline/README.md](experiments/harbor_icl_baseline/README.md)
-for the first Kimi ICL baseline design and runner scripts, and
-[experiments/harbor_icl_baseline/fairness_protocol.md](experiments/harbor_icl_baseline/fairness_protocol.md)
-for the fairness boundary against Meta-Harness-style changed-harness baselines.
+## Contents
 
-## Project Positioning
+- A reusable diagnosis core for terminal-agent traces under
+  `src/harness_trajecdebug/`.
+- A CLI for local diagnosis, Harbor task discovery, Harbor run import, harness
+  inventory, and ATIF viewer export.
+- Minimal normalized examples under `examples/traces/` and
+  `examples/diagnoses/`.
+- Research notes under `docs/`, including the framework, failure taxonomy,
+  integrations, roadmap, Meta-Harness comparison, and blog-style case studies.
+- ICL baseline experiments under `experiments/harbor_icl_baseline/`.
+- Raw experiment material and run archives under `harbor/runs/`, `runs/`,
+  `artifacts/`, `docs/blog/raw_logs/`, and `docs/case-studies/` when present
+  locally.
+- A lightweight Vercel demo in `index.html`, `styles.css`, `app.js`, and
+  `api/diagnose.py`.
 
-The first target application is **ICL data selection** for smaller terminal
-agents. Instead of feeding small models random successful traces or traces chosen
-only by final outcome, Harness-TrajecDebug selects trajectories based on the
-process signal inside the trace:
+## Quick Start
 
-- successful traces with verifier-aligned artifact closure,
-- near-miss traces with clear critical-step evidence,
-- contrastive traces where a bad branch and a repairable decision are visible,
-- traces that demonstrate useful planning, validation, recovery, and state
-  checking behavior.
+Install the package in editable mode:
 
-SFT, RL, and preference-learning pipelines are future downstream applications.
-The immediate goal is to build a reliable trace-to-ICL-example pipeline first.
+```bash
+python3 -m pip install -e .
+```
 
-## Current Mechanism Results
+Run the bundled near-miss diagnosis:
 
-The first runtime-ICL canary is now working end to end on Harbor /
-Terminal-Bench-style tasks. On `query-optimize`, Claude Code + `kimi-k2.6`
-previously produced a semantically correct SQL rewrite that still failed the
-official runtime gate. Harness-TrajecDebug reruns the same agent through
-`sdk_live`, watches Claude Code tool events with the Python Agent SDK, and
-injects a selected prior-trace hint at the first relevant `Bash` step.
+```bash
+harness-trajdebug diagnose \
+  --trace examples/traces/train-fasttext-kimi-k26-minimal.json \
+  --run-id train-fasttext-kimi-k26-minimal \
+  --output examples/diagnoses/train-fasttext-kimi-k26-diagnosis.json
+```
 
-In the controlled same-task canary:
+Run the passing example:
 
-| Condition | Runtime injection | Result |
-| --- | --- | --- |
-| `no_icl` | none | reward `0.0`; solution slower than the official golden query |
-| `outcome_only + sdk_live` | teacher outcome summary only | reward `0.0`; injection happened, but the agent rebuilt the insufficient route |
-| `debug_action + sdk_live` | Debug-Trajectory repair card with `/app/sol.sql` | reward `1.0`; the agent materialized the teacher artifact and passed 6/6 verifier tests |
+```bash
+harness-trajdebug diagnose \
+  --trace examples/traces/cancel-async-tasks-passed-minimal.json \
+  --run-id cancel-async-tasks-passed-minimal \
+  --output examples/diagnoses/cancel-async-tasks-diagnosis.json
+```
 
-This is not yet the final held-out generalization claim. It is a mechanism
-check showing that process-aware Debug-Trajectory examples can correct a
-previously failing interactive run, while outcome-only context does not provide
-enough guidance on the same case.
+The longer command alias `harness-trajecdebug` is also available.
 
-The stronger current result is `sanitize-git-repo`, now organized as a two-stage
-critical-step experiment. Stage A lowers the difficulty by using the oracle
-solution for offline audit: the oracle shows that the critical step is task
-framing, namely bounded working-tree sanitization rather than git-history
-purging. Harness-TrajecDebug turns that oracle signal into a correction boundary,
-not a raw pasted oracle script. Stage B removes the oracle and recovers the same
-boundary from complementary failed traces: Claude Code + Kimi-k2.6 missed a
-token embedded in a JSON diff string, while Codex + GPT-5.5 over-solved by
-mutating git history and breaking the verifier's reference-commit check.
+## How It Works
 
-Both runtime-injected reruns passed:
-
-| Task | Context source | Historical Codex + GPT-5.5 | Historical Claude Code + Kimi-k2.6 | HTD runtime rerun |
-| --- | --- | ---: | ---: | ---: |
-| `sanitize-git-repo` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
-| `sanitize-git-repo` | oracle-free joint-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
-| `filter-js-from-html` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
-| `filter-js-from-html` | oracle-free shared-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
-
-This is a joint-failure lifting result: a pair of failed traces can still be
-useful ICL data if their process evidence identifies the critical decision
-boundary. For `filter-js-from-html`, the current passing reruns used `prelude`
-injection and manual stop after the artifact was written (`agent_return_code =
-143`); `sdk_live` / `hooks_live` initialized on Ark/Kimi but did not produce a
-first tool event on this task prompt, so live delivery remains an engineering
-follow-up for this case.
-
-## Why This Exists
-
-Benchmark reward is useful for ranking agents, but it is too sparse for
-improving harnesses. A failed terminal-agent run can fail because of verifier
-misalignment, a thin validation margin, a tool/API loop, missing artifact
-closure, or a bad search strategy. Those all look like reward `0`.
-
-Harness-TrajecDebug adds the missing process layer:
+Harness-TrajecDebug reads the same trace through three views:
 
 ```text
 trace + verifier output
@@ -127,71 +68,137 @@ trace + verifier output
   -> ICL data quality signal
 ```
 
-The core research question is:
+The first target application is ICL data selection for smaller terminal agents.
+Instead of feeding small models random successful traces or outcome-only traces,
+the framework selects trajectories with reusable process signal:
 
-> Can process-aware trajectory selection produce better ICL examples for small
-> terminal agents than prompt-based LLM filtering or outcome-only filtering?
+- successful traces with verifier-aligned artifact closure,
+- near-miss traces with clear critical-step evidence,
+- contrastive traces where a bad branch and a repairable decision are visible,
+- traces that demonstrate planning, validation, recovery, and state checking.
 
-## Install
+SFT, preference learning, process rewards, and RL curricula are later downstream
+uses. The current milestone is a reliable trace-to-ICL-example pipeline.
 
-```bash
-cd /path/to/Harness-TrajecDebug
-python3 -m pip install -e .
-```
+## Documentation Map
 
-No runtime dependencies are required.
+| File | What it is for |
+| --- | --- |
+| `docs/framework.md` | Reference/state/commitment workflow and ICL selection logic. |
+| `docs/failure-taxonomy.md` | Failure routing tree, pattern definitions, and repair levers. |
+| `docs/integrations.md` | Codex, Claude Code, Kimi-Code, Harbor, and ATIF viewer adapters. |
+| `docs/trajectorydebug-hint-and-icl-flow.md` | TD hint-generation and runtime ICL injection diagrams. |
+| `docs/related-work-metaharness.md` | Positioning against Meta-Harness and proposed comparison experiments. |
+| `docs/roadmap.md` | Current progress, planned experiments, and longer-term training uses. |
+| `docs/closed-loop-case-summary.md` | Current closed-loop case summary. |
+| `docs/candidate-search-status.md` | Accepted/rejected candidate status and endpoint notes. |
+| `AGENT_MIGRATION_RUNBOOK.md` | End-to-end server migration and Harbor -> diagnosis -> repair -> viewer workflow. |
 
-## Server Migration
+Blog-style case studies:
 
-For a new server, clone the repo and run the preflight first:
+- `docs/blog/trajectorydebug-algorithm-flow.md`
+- `docs/blog/query-optimize-runtime-debug-action.md`
+- `docs/blog/sanitize-git-repo-joint-failure-lifting.md`
+- `docs/blog/filter-js-from-html-clean-preservation.md`
+- `docs/blog/raman-fitting-axis-critical-step.md`
+- `docs/blog/pytorch-model-recovery-forward-api-critical-step.md`
 
-```bash
-cd /path/to/Harness-TrajecDebug
-bash scripts/preflight.sh
-```
+Raw and generated research material is intentionally kept outside the core
+package:
 
-The preflight checks the host without printing secret values: Python, Node/npm,
-Harbor, Docker, Seed/Kimi variables, Codex hints, the ATIF viewer checkout, and
-the local harness inventory. Then follow
-[AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) to choose a harness,
-run Harbor tasks, diagnose critical steps, launch repair passes, and export the
-process into the ATIF trajectory viewer.
+- `harbor/runs/` contains small checked-in Harbor run examples.
+- `docs/blog/raw_logs/blog_raw_logs/` contains blog-facing raw trace bundles,
+  prompts, teacher cards, task variants, checksums, and Harbor run logs.
+- `docs/case-studies/` contains case-study reports and reproducibility
+  material.
+- `artifacts/harbor-runs/` and `runs/harbor_icl_baseline/` are local result
+  pools used for sweeps and canaries when present.
+- `artifacts/kimi-session-records-usage-20260611/` contains archived Kimi wire
+  records and token-usage manifests when present locally.
 
-## Quick Start
+## Meta-Harness Relationship
 
-Run the built-in train-fasttext example:
+This repository follows the same high-level bet as
+[Meta-Harness](https://github.com/stanford-iris-lab/meta-harness): final reward
+is too sparse, and raw execution traces contain useful signal. The optimization
+layer is different.
 
-```bash
-harness-trajdebug diagnose \
-  --trace examples/traces/train-fasttext-kimi-k26-minimal.json \
-  --run-id train-fasttext-kimi-k26-minimal \
-  --output examples/diagnoses/train-fasttext-kimi-k26-diagnosis.json
-```
+| Dimension | Meta-Harness | Harness-TrajecDebug |
+| --- | --- | --- |
+| Main objective | Search for better harness code | Select better trajectory data for ICL |
+| Unit optimized | Candidate harness implementation | Trace, trace segment, or contrastive pair |
+| Primary output | New task-specific harness | Diagnosed trace record and data-quality signal |
+| Intervention time | Before and during the next run | After a run, before future ICL runs |
+| Trace use | Proposer reads raw history to write harness code | Diagnosis labels critical steps and reusable examples |
 
-Run the passing cancel-async-tasks example:
+The projects are complementary. Meta-Harness can discover a harness-level
+intervention, such as deterministic environment bootstrapping.
+Harness-TrajecDebug can turn the resulting traces into labeled examples or use
+its diagnostic labels as a compact index for future harness search.
 
-```bash
-harness-trajdebug diagnose \
-  --trace examples/traces/cancel-async-tasks-passed-minimal.json \
-  --run-id cancel-async-tasks-passed-minimal \
-  --output examples/diagnoses/cancel-async-tasks-diagnosis.json
-```
+## Current Mechanism Results
 
-The command alias `harness-trajecdebug` is also available.
+The current runtime-ICL canaries show that process-aware Debug-Trajectory cards
+can repair failures that outcome-only context does not fix.
 
-Inspect local harness backends:
+On `query-optimize`, Claude Code + `kimi-k2.6` produced a semantically correct
+SQL rewrite that still failed the official runtime gate. A same-task controlled
+canary compared:
+
+| Condition | Runtime injection | Result |
+| --- | --- | --- |
+| `no_icl` | none | reward `0.0`; solution slower than the official golden query |
+| `outcome_only + sdk_live` | teacher outcome summary only | reward `0.0`; injection happened, but the agent rebuilt the insufficient route |
+| `debug_action + sdk_live` | Debug-Trajectory repair card with `/app/sol.sql` | reward `1.0`; the agent materialized the teacher artifact and passed 6/6 verifier tests |
+
+The stronger current signal is joint-failure lifting: failed traces can still be
+useful ICL data when their process evidence identifies the critical decision
+boundary.
+
+| Task | Context source | Historical Codex + GPT-5.5 | Historical Claude Code + Kimi-k2.6 | HTD runtime rerun |
+| --- | --- | ---: | ---: | ---: |
+| `sanitize-git-repo` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
+| `sanitize-git-repo` | oracle-free joint-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
+| `filter-js-from-html` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
+| `filter-js-from-html` | oracle-free shared-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
+
+This is not yet the final held-out generalization claim. It is a mechanism
+check showing that critical-step examples can correct interactive reruns, while
+the benchmark work moves toward held-out task matrices.
+
+## Current Experiment Material
+
+| Material | Location | Notes |
+| --- | --- | --- |
+| ICL baseline design and runner scripts | `experiments/harbor_icl_baseline/` | Includes the fairness protocol for comparing against Meta-Harness-style changed-harness baselines. |
+| Query-optimize raw-log bundle | `docs/blog/raw_logs/blog_raw_logs/` | Contains prompts, teacher cards, task variants, raw Harbor runs, and checksums. |
+| Meta-Harness-style Harbor comparison | `harbor/runs/` | `cancel-async-tasks` has a small 4x comparison: with Meta-Harness-style injection passed 4/4, without it passed 0/4. |
+| Kimi-Code Terminal-Bench sweep | `artifacts/harbor-runs/` | Local sweep result pool with `with-metaharness` and `without-metaharness` variants when present. |
+| Raw Kimi agent sessions | `artifacts/kimi-session-records-usage-20260611/` | Archived `wire.jsonl` session records plus token summaries when present locally. |
+
+These are early engineering artifacts, not a paper-ready benchmark claim. They
+are useful because they preserve prompts, trajectories, verifier output, reward
+files, and failure footprints for later diagnosis and ICL selection.
+
+## Harbor And Harness Workflows
+
+List locally discoverable harnesses:
 
 ```bash
 harness-trajdebug harnesses
 ```
 
-List Harbor-compatible tasks and import a Harbor run:
+List Harbor-compatible tasks:
 
 ```bash
 harness-trajdebug harbor-tasks \
   --root /Volumes/SSD/terminal-bench-harbor/harbor/datasets/terminal-bench-2.1-proxy/tasks \
   --limit 5
+```
 
+Import and diagnose a Harbor run:
+
+```bash
 harness-trajdebug harbor-import \
   --run /Volumes/SSD/terminal-bench-harbor/harbor/runs/tb21-train-fasttext-claude-code-kimi-k26 \
   --output-dir artifacts/normalized-harbor \
@@ -208,45 +215,37 @@ harness-trajdebug atif-viewer-export \
   --diagnose
 ```
 
-## Vercel Demo
-
-This repository also includes a lightweight Vercel demo:
-
-- `index.html`, `styles.css`, and `app.js` render the web interface.
-- `api/diagnose.py` runs the same Python diagnosis engine on bundled examples.
-
-Deploy it with:
+For a new server, start with:
 
 ```bash
-npx vercel --prod
+bash scripts/preflight.sh
 ```
 
-Then verify the cloud API:
+Then follow `AGENT_MIGRATION_RUNBOOK.md` for the full migration, Harbor run,
+diagnosis, repair, and viewer-export workflow.
+
+## Harbor ICL Baseline
+
+The baseline suite compares random/outcome-only/raw-trace/prompt-filtered
+selection against Harness-TrajecDebug debug cards and runtime injection. The
+full design lives in `experiments/harbor_icl_baseline/README.md`; the fairness
+boundary lives in `experiments/harbor_icl_baseline/fairness_protocol.md`.
+
+Common entry points:
 
 ```bash
-curl https://your-deployment-url.vercel.app/api/diagnose?example=all
+scripts/build_icl_task_matrix.py
+scripts/build_joint_failure_matrix.py
+scripts/run_daily_icl_mechanism.sh \
+  --task gcode-to-text \
+  --context-variant debug_action \
+  --verifier-timeout 300
 ```
 
-## Example Output
-
-For the train-fasttext near miss, the prototype produces:
-
-```json
-{
-  "task_family": "train-fasttext",
-  "outcome": "failed",
-  "final_failure": "final verifier P@1=0.617 < threshold 0.62",
-  "failure_patterns": [
-    {"name": "thin-margin promotion"},
-    {"name": "compact-frontier search gap"}
-  ],
-  "critical_step": {
-    "pattern": "thin-margin promotion",
-    "step_index": 8,
-    "evidence": "P@1 0.621"
-  }
-}
-```
+Daily canaries separate mechanism health from model quality. No-model checks
+exercise artifact closure and runtime injection paths; real model reward
+benchmarking should wait until endpoint preflight and verifier readiness are
+healthy.
 
 ## Trace Input Schema
 
@@ -266,281 +265,36 @@ The minimal input is a JSON object:
 }
 ```
 
-The parser also understands simple `toolCalls`, `reasoning`, and nested string
-fields from common trace viewers.
+The parser also understands simple `toolCalls`, `reasoning`, nested string
+fields from common trace viewers, ATIF `trajectory.json`, and Codex-style JSONL
+streams when imported through the Harbor adapter.
 
 ## Development
 
-```bash
-python3 -m pip install -e .
-python3 -m unittest discover -s tests
-python3 -m py_compile src/harness_trajecdebug/*.py
-```
-
-Or use:
+Run the test suite:
 
 ```bash
 make test
 make examples
 ```
 
-## Harbor ICL Baseline
-
-Build the task matrix from historical local runs. This identifies Kimi-k2.6
-failed/unresolved tasks where Codex+GPT-5.5 teacher reward is `1.0`:
+Or run the underlying checks directly:
 
 ```bash
-scripts/build_icl_task_matrix.py
+python3 -m unittest discover -s tests
+python3 -m py_compile src/harness_trajecdebug/*.py
 ```
 
-The matrix is written to `runs/harbor_icl_baseline/task_matrix.json` and
-`runs/harbor_icl_baseline/task_matrix.md`.
-
-Build the joint-failure matrix for tasks where both compared runs failed:
+Run the Vercel demo locally or deploy it with:
 
 ```bash
-scripts/build_joint_failure_matrix.py
+npx vercel --prod
 ```
 
-The matrix is written to `runs/harbor_icl_baseline/joint_failure_matrix.json`
-and `runs/harbor_icl_baseline/joint_failure_matrix.md`.
-
-Replay the next matrix canaries without launching Harbor:
+Then verify the cloud API:
 
 ```bash
-scripts/run_icl_matrix_canaries.sh \
-  --limit 2 \
-  --model kimi-k2.6 \
-  --endpoint-profile auto \
-  --inject-mode continue_after \
-  --context-variant debug_action
-```
-
-When endpoint preflight is healthy, add `--run` to run those canaries
-sequentially.
-
-Each matrix canary batch writes `summary.json` and `summary.md` under
-`runs/harbor_icl_baseline/matrix_canary/<batch>/`, separating replay readiness
-from actual Harbor reward. This keeps endpoint/quota failures distinct from
-method or verifier failures.
-
-Run the full runtime-ICL baseline suite for one task without model calls:
-
-```bash
-scripts/run_icl_baseline_suite.sh \
-  --task gcode-to-text \
-  --model kimi-k2.6 \
-  --endpoint-profile auto \
-  --inject-mode continue_after \
-  --verifier-timeout 600
-```
-
-This replays `outcome_only`, `raw_trace`, `prompt_filtered`,
-`debug_trajectory`, and `debug_action` under the same runtime injection mode.
-When endpoint preflight is healthy, add `--run` to launch the same suite through
-Harbor sequentially.
-
-Aggregate static, runtime, SDK-live, and matrix canary outcomes after every
-daily batch:
-
-```bash
-scripts/aggregate_icl_results.py --pack-dir runs/harbor_icl_baseline
-scripts/report_icl_readiness.py --pack-dir runs/harbor_icl_baseline
-```
-
-The aggregate report writes `baseline_results.json` and `baseline_results.md`.
-The readiness report writes `icl_readiness.json` and `icl_readiness.md`.
-Only real verifier outcomes such as `passed` and `failed_verifier` enter mean
-reward. Infrastructure states such as `preflight_blocked`, `model_rate_limited`,
-`missing_result`, `infrastructure_error`, `verifier_dependency_failure`, and
-`verifier_timeout_after_materialization` remain visible but are excluded from
-pass-rate comparison.
-
-Runtime runs preserve evidence by default: if a job directory already exists,
-`scripts/run_harbor_dynamic_icl.sh` moves it to `<jobs-dir>/_archived/` before
-launching a new real run. `--dry-run` is non-destructive and writes its log to
-`/private/tmp`.
-
-Before spending model calls, verify that same-task Debug-Action cards can
-materialize the intended artifact:
-
-```bash
-scripts/check_debug_action_closure.py \
-  --pack-dir runs/harbor_icl_baseline \
-  --task query-optimize \
-  --task break-filter-js-from-html \
-  --task gcode-to-text
-```
-
-This writes `artifact_closure/debug_action_closure.json` and `.md`, and the
-aggregate report includes these rows as non-model artifact evidence. They do
-not enter verifier reward averages.
-
-For a stronger no-model check, run the Debug-Action artifact through Harbor's
-official verifier:
-
-```bash
-scripts/run_harbor_artifact_closure.sh \
-  --task gcode-to-text \
-  --context-variant debug_action \
-  --verifier-timeout 180
-```
-
-These rows appear as `harbor_artifact_closure`. They are useful for separating
-artifact validity from model behavior, but verifier setup/network failures are
-still classified separately from model failures. Use `--verifier-timeout` for
-daily canaries so slow official tests cannot block the whole batch.
-
-To verify the runtime injection controller itself without calling a model
-endpoint, run a no-model Harbor smoke test. This simulates an `AskUserQuestion`
-trigger, records the injected context decision, materializes the Debug-Action
-artifact in Docker, and then runs the official verifier:
-
-```bash
-scripts/run_harbor_runtime_smoke.sh \
-  --task gcode-to-text \
-  --context-variant debug_action \
-  --trigger ask_user_question \
-  --verifier-timeout 180
-
-scripts/run_harbor_runtime_smoke.sh \
-  --task gcode-to-text \
-  --context-variant debug_action \
-  --trigger WebSearch \
-  --verifier-timeout 180
-```
-
-These rows appear as `harbor_runtime_smoke`. They prove the mechanism path, not
-Kimi model quality.
-
-For the current daily-safe check, run the mechanism canary. It does not call a
-model endpoint; it rebuilds the selected card, runs local artifact closure,
-runs the Debug-Action artifact through Harbor's official verifier, smokes both
-`AskUserQuestion` and `WebSearch` runtime injection paths, and refreshes
-`baseline_results.*` plus `icl_readiness.*`:
-
-```bash
-scripts/run_daily_icl_mechanism.sh \
-  --task gcode-to-text \
-  --context-variant debug_action \
-  --verifier-timeout 300
-```
-
-Promote the daily job from `daily_mechanism_canary_only` to model reward
-benchmarking only when endpoint preflight is healthy and the readiness report
-has no verifier blockers for the selected task set. Until then, mechanism smoke
-rows are evidence that runtime injection works, not evidence that Kimi improved.
-
-Build a same-task trace-assisted repair pack from local GPT-5.5 teacher runs:
-
-```bash
-python3 scripts/build_harbor_icl_baseline.py \
-  --output-dir runs/harbor_icl_baseline \
-  --model kimi-for-coding \
-  --max-context-chars 12000
-```
-
-Run one Kimi-K2.5 condition through the Token Plan / Claude Code route:
-
-```bash
-scripts/run_harbor_icl_variants.sh \
-  --pack-dir runs/harbor_icl_baseline \
-  --model kimi-for-coding \
-  --task cancel-async-tasks \
-  --variant debug_trajectory \
-  --kimi-code
-```
-
-Use `--dry-run` first to inspect the Harbor command without calling the model
-API.
-
-Run the daily-safe runtime ICL canary. Without `--run`, this checks endpoint
-health and replays live-controller triggers without launching Harbor:
-
-```bash
-scripts/run_daily_icl_canary.sh \
-  --task count-dataset-tokens \
-  --model kimi-k2.6 \
-  --endpoint-profile auto \
-  --inject-mode sdk_live \
-  --context-variant debug_action \
-  --verifier-timeout 600
-```
-
-Add `--run` only after the preflight is healthy.
-
-Use `--endpoint-profile ark`, `--endpoint-profile dashscope`, or
-`--endpoint-profile kimi` to switch Anthropic-compatible providers without
-changing the ICL condition. These profiles read `ARK_API_KEY`,
-`DASHSCOPE_API_KEY`, or `KIMI_API_KEY` from the local shell and never write
-secrets into run configs. `auto` keeps the current behavior: `ANTHROPIC_*`
-first, then `TOKEN_PLAN_*`.
-
-Run the runtime controller-style baseline without editing `instruction.md`:
-
-```bash
-scripts/run_harbor_dynamic_icl.sh \
-  --pack-dir runs/harbor_icl_baseline \
-  --model kimi-k2.6 \
-  --task count-dataset-tokens \
-  --endpoint-profile auto \
-  --context-variant debug_action \
-  --inject-mode continue_after \
-  --first-turn-timeout 75 \
-  --verifier-timeout 600
-```
-
-Run the Claude Code native hook mode when you want the injection to happen
-inside the ordinary CLI run, before matching tool calls. This mode writes a
-temporary Claude settings file, installs a `PreToolUse` command hook, passes
-`--settings` plus `--include-hook-events` to Claude Code, and injects context
-when Claude reaches `AskUserQuestion`, `WebSearch`, `WebFetch`, or a dependency
-install command:
-
-```bash
-scripts/run_harbor_dynamic_icl.sh \
-  --pack-dir runs/harbor_icl_baseline \
-  --model kimi-k2.6 \
-  --task gcode-to-text \
-  --endpoint-profile auto \
-  --context-variant debug_action \
-  --inject-mode hooks_live \
-  --verifier-timeout 600 \
-  --dry-run
-```
-
-Run the experimental same-process SDK live-intercept mode:
-
-```bash
-scripts/check_model_endpoint.py --model kimi-k2.6
-
-scripts/run_harbor_dynamic_icl.sh \
-  --pack-dir runs/harbor_icl_baseline \
-  --model kimi-k2.6 \
-  --task count-dataset-tokens \
-  --context-variant debug_action \
-  --inject-mode sdk_live \
-  --sdk-live-intercept-tool WebSearch \
-  --sdk-live-intercept-tool WebFetch \
-  --preflight
-```
-
-Summarize an `sdk_live` trial after it finishes:
-
-```bash
-scripts/summarize_sdk_live_trial.py \
-  runs/harbor_icl_baseline/harbor_runs_sdk_live/<job>/<trial> \
-  --output runs/harbor_icl_baseline/harbor_runs_sdk_live/<job>/<trial>/sdk-live-summary.json
-```
-
-Replay the controller decision against a saved first-turn log:
-
-```bash
-PYTHONPATH=src scripts/replay_runtime_controller.py \
-  --log-path runs/harbor_icl_baseline/harbor_runs/<job>/<trial>/agent/claude-code-first.txt \
-  --context-path runs/harbor_icl_baseline/teacher_cards/<task>/debug_action.md \
-  --output-path /tmp/htd-controller-real.json \
-  --artifact-root /tmp/htd-empty-app
+curl https://your-deployment-url.vercel.app/api/diagnose?example=all
 ```
 
 ## Current Scope
@@ -556,7 +310,7 @@ Implemented failure patterns:
 - `budget debt loop`
 - `no critical failure detected`
 
-Current implementation:
+Implemented capabilities:
 
 - rule-based reference/state/commitment parser,
 - failure taxonomy and critical-step selector,
@@ -566,11 +320,12 @@ Current implementation:
 - ATIF trajectory viewer local-bundle export for Harbor runs,
 - bundled train-fasttext and cancel-async-tasks examples,
 - Vercel demo API that runs diagnosis on example traces,
-- initial GitHub CI.
+- initial unit tests and GitHub CI.
 
 Next milestones:
 
 - broader adapters for common harness trace formats,
 - Harbor-compatible dataset adapters beyond Terminal-Bench, such as SWE-bench Pro,
 - Harness x Model experiment runner,
-- ICL data selection benchmark against prompt-based and outcome-only baselines.
+- ICL data selection benchmark against random, outcome-only, prompt-filtered,
+  and raw-trace retrieval baselines.
