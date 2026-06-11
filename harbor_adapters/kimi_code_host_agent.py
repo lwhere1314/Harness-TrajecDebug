@@ -39,11 +39,11 @@ class KimiCodeHostAgent(BaseAgent):
         **kwargs,
     ):
         super().__init__(logs_dir=logs_dir, model_name=model_name, *args, **kwargs)
-        self.kimi_code_root = Path(kimi_code_root).expanduser().resolve()
+        self.kimi_code_root = Path(kimi_code_root).expanduser().absolute()
         self.node_bin = Path(node_bin).expanduser().resolve() if "/" in node_bin else Path(node_bin)
         self.prompt_timeout_sec = int(prompt_timeout_sec)
         self.previous_failure_path = (
-            Path(previous_failure_path).expanduser().resolve()
+            Path(previous_failure_path).expanduser().absolute()
             if previous_failure_path
             else None
         )
@@ -103,7 +103,7 @@ class KimiCodeHostAgent(BaseAgent):
         environment: BaseEnvironment,
         context: AgentContext,
     ) -> None:
-        workspace = (self.logs_dir / "host-workspace").resolve()
+        workspace = (self.logs_dir / "host-workspace").absolute()
         if workspace.exists():
             shutil.rmtree(workspace)
         workspace.mkdir(parents=True)

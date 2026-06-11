@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).absolute().parents[1]
 DEFAULT_AUDIT = REPO_ROOT / (
     "docs/case-studies/kimi-code-tb21-metaharness-sweep-2026-06-10/"
     "tb21_89_audit.json"
