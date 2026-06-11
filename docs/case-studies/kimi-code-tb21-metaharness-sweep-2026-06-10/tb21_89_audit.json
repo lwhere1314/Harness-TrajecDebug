@@ -67,18 +67,19 @@
       "tasks_dir": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks"
     },
     "task_count": 89,
-    "with_metaharness_m_current": 8,
+    "with_metaharness_m_current": 9,
     "with_metaharness_solved_tasks": [
       "cancel-async-tasks",
       "count-dataset-tokens",
       "feal-differential-cryptanalysis",
       "kv-store-grpc",
       "openssl-selfsigned-cert",
+      "polyglot-rust-c",
       "query-optimize",
       "sanitize-git-repo",
       "torch-tensor-parallelism"
     ],
-    "with_metaharness_total_current": 41,
+    "with_metaharness_total_current": 42,
     "with_metaharness_unsolved_observed_tasks": [
       "break-filter-js-from-html",
       "chess-best-move",
@@ -1001,14 +1002,14 @@
       "baseline_reward": 0.0,
       "baseline_status": "timeout_failure",
       "baseline_trial": "polyglot-rust-c__qyDKxNa",
-      "counts_for_m": false,
+      "counts_for_m": true,
       "counts_for_without_n": false,
       "task": "polyglot-rust-c",
       "with_metaharness_exception": null,
-      "with_metaharness_result_path": null,
-      "with_metaharness_reward": null,
-      "with_metaharness_status": "not_run",
-      "with_metaharness_trial": null
+      "with_metaharness_result_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-polyglot-rust-c-kimicode-with-metaharness-mhharbor-tmpcwd-20260611T131112/polyglot-rust-c__we6utdR/result.json",
+      "with_metaharness_reward": 1.0,
+      "with_metaharness_status": "passed",
+      "with_metaharness_trial": "polyglot-rust-c__we6utdR"
     },
     {
       "baseline_exception": null,

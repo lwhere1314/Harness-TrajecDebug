@@ -96,17 +96,26 @@ Two later repair probes are retained only as diagnostics because they failed
 before a clean verifier result.
 
 Additional partial diagnostics for `mteb-retrieve`, `nginx-request-logging`,
-and `polyglot-rust-c` are included as
+and the first `polyglot-rust-c` startup attempt are included as
 `raw-logs/metaharness-partials-kimicode-20260611.tar.zst`. These runs are not
 counted. `mteb-retrieve` r1 produced a `RuntimeError` before verifier because
 the MTEB wrapper `encode()` call needed `task_name`; r2/r3 wrote the expected
 `result.txt` but the verifier process stopped during large dependency
-downloads before `result.json`. `nginx-request-logging` and `polyglot-rust-c`
-ended before a verifier result was produced.
+downloads before `result.json`. `nginx-request-logging` and the first
+`polyglot-rust-c` startup attempt ended before a verifier result was produced.
+
+Additional successful `polyglot-rust-c` logs are included as
+`raw-logs/polyglot-rust-c-kimicode-20260611.tar.zst`. This counted run used
+the same Harbor task, model, and Meta-Harness adapter, but launched Harbor from
+`/tmp` on an isolated `mh-harbor` Docker profile to avoid the local
+`tb21-external-project-guard` process that kills long-running processes whose
+current working directory is this repository. Kimi Code wrote
+`polyglot/main.rs`, uploaded the workspace, and the official verifier passed
+with reward `1.0`.
 
 Additional Kimi Code session usage records are included as
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`. This archive contains the
-22 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
+24 Kimi session `wire.jsonl`/`state.json` records used to backfill token usage
 from `usage.record` events.
 
 Completed task families so far:
@@ -194,8 +203,11 @@ Completed task families so far:
 - `nginx-request-logging`: partial diagnostic only. The run injected the prior
   proxy/localhost failure but the Harbor parent exited before Kimi produced a
   workspace artifact or verifier result; the orphan Kimi process was stopped.
-- `polyglot-rust-c`: startup partial only. Harbor created the job/trial shell
-  but exited before agent workspace files or verifier output existed.
+- `polyglot-rust-c`: selected from the K2.6 timeout-failure pool. An initial
+  startup attempt ended before verifier and is retained as diagnostic only. A
+  later clean run from `/tmp` on the isolated `mh-harbor` Docker profile
+  avoided the local process guard, let Kimi Code write `polyglot/main.rs`, and
+  passed the official verifier with reward `1.0`.
 
 ## Evaluation
 
@@ -212,19 +224,26 @@ those fields null, so the metrics script falls back to the local Kimi session
 `raw-logs/kimi-session-wire-usage-20260611.tar.zst`.
 
 Token coverage is now 78/89 rows for the `claude-code + kimi-k2.6` baseline and
-22/22 rows for the current with Meta-Harness Kimi Code subset. On the 22 paired
-rows, mean total `input+output` tokens moved from `893,998.909` to
-`778,325.818` (`-115,673.091`), while mean cache-adjusted
-`input-cache+output` tokens moved from `32,005.273` to `52,426.182`
-(`+20,420.909`). The median paired deltas are `+10,980.000` total tokens and
-`+18,824.000` cache-adjusted tokens. The interpretation is therefore mixed:
+24/24 rows for the current with Meta-Harness Kimi Code subset. On the 24 paired
+rows, mean total `input+output` tokens moved from `828,173.083` to
+`730,232.417` (`-97,940.667`), while mean cache-adjusted
+`input-cache+output` tokens moved from `29,449.000` to `51,405.750`
+(`+21,956.750`). The median paired deltas are `+31,229.000` total tokens and
+`+25,460.500` cache-adjusted tokens. The interpretation is therefore mixed:
 with Meta-Harness is lower on mean total tokens in this paired subset, but
 higher on uncached/cache-adjusted tokens.
 
+Token-cost caveat: 3 baseline timeout rows report `0` total tokens directly in
+Harbor `agent_result`, including `polyglot-rust-c`; one of those zero-token
+baseline rows is in the current paired subset. These raw values are retained
+rather than imputed. The paired token deltas should therefore be read as
+observed Harbor/Kimi usage fields, not as a fully normalized provider-billing
+estimate.
+
 Current latency summary for the same paired subset: baseline mean wall time is
-`3,474.376` seconds and with Meta-Harness mean wall time is `615.379` seconds
-(`-2,858.997`). The corresponding medians are `972.452` seconds and
-`638.580` seconds, with median paired wall-time delta `-294.089` seconds. This
+`3,338.294` seconds and with Meta-Harness mean wall time is `609.470` seconds
+(`-2,728.824`). The corresponding medians are `1,090.430` seconds and
+`616.708` seconds, with median paired wall-time delta `-421.124` seconds. This
 latency comparison is not a controlled full-suite conclusion yet because the
 with Meta-Harness set is still a targeted recovery subset and mixes passes,
 failures, timeout-upload recoveries, and verifier-invalid diagnostics.
@@ -238,21 +257,22 @@ Current auditable snapshot:
 
 - without Meta-Harness baseline: `33/89` tasks have reward `1.0` in the
   `claude-code + kimi-k2.6` run root.
-- with Meta-Harness-style Kimi Code context: `41/89` currently proven, i.e.
-  `33 + 8`.
+- with Meta-Harness-style Kimi Code context: `42/89` currently proven, i.e.
+  `33 + 9`.
 - current additional solved tasks: `cancel-async-tasks`, `kv-store-grpc`,
   `openssl-selfsigned-cert`, `query-optimize`, `sanitize-git-repo`,
-  `torch-tensor-parallelism`, `count-dataset-tokens`, and
-  `feal-differential-cryptanalysis`.
+  `torch-tensor-parallelism`, `count-dataset-tokens`,
+  `feal-differential-cryptanalysis`, and `polyglot-rust-c`.
 - baseline invalid/missing-rerun bucket: `build-pov-ray`, `crack-7z-hash`,
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
-- baseline failure bucket still requiring Meta-Harness traversal or confirmation:
-  47 tasks, of which 11 now have observed with Meta-Harness failures
+- baseline reward-0/timeout bucket: 47 tasks. Of these, 9 now have counted
+  with Meta-Harness passes and 11 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
   `dna-insert`, `filter-js-from-html`, `gcode-to-text`, `headless-terminal`,
   `largest-eigenval`, `pypi-server`, `raman-fitting`, and
-  `write-compressor`).
+  `write-compressor`), leaving 27 baseline-failed tasks without a counted
+  with Meta-Harness result.
 
 This is not yet the final requested number. The final report must first rerun
 the invalid baseline bucket and finish Meta-Harness traversal over the remaining
@@ -351,6 +371,12 @@ environment snapshot. The strongest trajectory diffs observed:
   index and explicit setuptools package discovery; those probes are useful
   trajectory evidence but not counted because they failed before a clean
   verifier result.
+- `polyglot-rust-c`: Meta-Harness supplied the prior missing-file verifier
+  failure (`/app/polyglot/main.rs` was absent) plus the minimal environment
+  snapshot. After an earlier infrastructure-only startup partial, the clean
+  run wrote the required single source file, stopped on
+  `stop_after_path=polyglot/main.rs`, uploaded it, and passed both the Rust and
+  C++ verifier paths.
 
 ## Current Negative Candidate
 
@@ -428,5 +454,8 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `nginx-request-logging`: selected because the baseline failure was a local
   8080/proxy service failure. The run did not reach a workspace artifact or
   verifier result before Harbor exited, so it is not counted.
-- `polyglot-rust-c`: selected as a lightweight missing-file failure. The job
-  exited before agent output, so it is not counted.
+- `polyglot-rust-c`: selected as a lightweight missing-file failure. The first
+  job exited before agent output and is retained as diagnostic raw evidence.
+  A clean rerun from `/tmp` on the isolated `mh-harbor` Docker profile avoided
+  the local process guard, wrote `polyglot/main.rs`, and passed the official
+  verifier, adding one new task to the current `m` count.

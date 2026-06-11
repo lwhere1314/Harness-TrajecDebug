@@ -289,6 +289,18 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
                     sum(1 for row in items if row["token_usage_available"]),
                     len(items),
                 ),
+                "zero_total_token_rows": sum(
+                    1
+                    for row in items
+                    if row["token_usage_available"] and row["total_input_output_tokens"] == 0
+                ),
+                "zero_total_token_timeout_rows": sum(
+                    1
+                    for row in items
+                    if row["token_usage_available"]
+                    and row["total_input_output_tokens"] == 0
+                    and row["exception_type"] == "AgentTimeoutError"
+                ),
                 "mean_wall_duration_sec": mean(row["wall_duration_sec"] for row in items),
                 "median_wall_duration_sec": median(
                     row["wall_duration_sec"] for row in items
@@ -342,6 +354,9 @@ def summarize(rows: list[dict[str, Any]], pair_rows: list[dict[str, Any]]) -> di
             ),
             "token_delta_rows": sum(
                 1 for row in pair_rows if row["delta_total_input_output_tokens"] is not None
+            ),
+            "baseline_zero_total_token_rows": sum(
+                1 for row in pair_rows if row["baseline_total_input_output_tokens"] == 0
             ),
             "mean_delta_reward": mean(row["delta_reward"] for row in pair_rows),
             "mean_baseline_wall_duration_sec": mean(
