@@ -106,8 +106,9 @@ Codex skill -> detached launcher -> Harness wrapper -> Claude Code SDK sdk_live
 Direct `codex exec -m kimi-k2.6` against the SEED endpoint is not treated as
 the supported path unless an OpenAI Responses-compatible adapter is available.
 In local smoke testing, nested `codex exec` did not complete even for a trivial
-shell command, so do not present direct Codex CLI execution as verified until
-that local CLI/provider path is fixed.
+`echo CODEX_EXEC_OK` command, including with a temporary clean `CODEX_HOME`.
+Do not present direct Codex CLI execution as verified until that local
+CLI/provider path can pass the echo gate and then the compact recorded demo.
 
 ## Kimi Code
 
@@ -132,6 +133,22 @@ The wrapper maps `SEED_CODING_PLAN_BASE_URL` and
 `SEED_CODING_PLAN_API_KEY` into Kimi Code's `KIMI_MODEL_BASE_URL` and
 `KIMI_MODEL_API_KEY`, uses `KIMI_MODEL_PROVIDER_TYPE=anthropic`, and runs
 `kimi-k2.6` through the local Kimi Code dev CLI.
+
+For the recorded demo smoke, use a short explicit Bash instruction and let the
+wrapper print the parsed summary. In current local testing this path completed
+and produced the diagnosis plus closure artifacts, while longer "run and then
+report every metric" prompts and slash-command-only Kimi prompts could start a
+session and then stall before the first model response:
+
+```bash
+scripts/run_kimicode_skill_smoke.sh \
+  'Use Bash to run: HTD_DEMO_PAUSE=0 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded --compact --out-dir /tmp/htd-kimi-recorded'
+```
+
+The wrapper runs Kimi through a PTY-friendly foreground monitor, disables Kimi
+thinking by default for this smoke path, records stdout/stderr under
+`runs/kimi_code_smoke/home/run-logs/`, and exits as soon as it sees recorded
+demo completion or injection evidence.
 
 For the full `query-optimize` runtime Debug-Action reproduction, use:
 
@@ -178,6 +195,11 @@ evidence, check these separately:
 - Docker lifecycle layer: recording demos should pass `--no-force-build` and
   may pass `--keep-environment` so Harbor reuses warm images and preserves the
   task container for inspection.
+- Query-optimize live demo layer: pass `--tag-local-hb-prebuilt` or set
+  `HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1` so Harbor's no-force path uses the local
+  `hb__query-optimize:latest` image. The upstream
+  `alexgshaw/query-optimize:20251031` image does not include Python/pip, which
+  `sdk_live` needs before Claude Code starts.
 
 For cold Harbor task images, run `sdk_live` with enough setup budget, for
 example `--sdk-live-install-timeout 900 --agent-timeout 1800`. If the task image
@@ -199,9 +221,9 @@ Common local signatures include Docker build exit `-9`, missing
 | Entrypoint | Status |
 | --- | --- |
 | Claude Code headless prompt -> `htd-agent demo query-optimize --recorded --compact` | Verified locally: first reward `0`, closure passed, recorded with-TD reward `1`, `injection_count=1`. |
-| Kimi Code smoke wrapper -> same compact recorded command | Verified locally by generated diagnosis and closure artifacts. |
+| Kimi Code smoke wrapper -> short explicit Bash prompt -> same compact recorded command | Verified locally: Kimi called `Bash`, the demo produced `critical_step`, `closure_passed`, recorded reward `1`, and `injection_count=1`. |
 | Claude Code -> live `--live-fail-teacher --compact` | Verified to launch the real Harbor `sdk_live` path; current local failures were Docker/Python setup failures before valid injection evidence. |
-| Nested `codex exec` prompt-mode run | Not verified in this local environment; keep Codex support to the app/thread skill path or detached launcher until CLI execution is fixed. |
+| Nested `codex exec` prompt-mode run | Tested and not passing in this local environment: even `echo CODEX_EXEC_OK` exits before model/tool output. Keep Codex support to the app/thread skill path or detached launcher until CLI execution is fixed. |
 
 For live evidence, keep:
 

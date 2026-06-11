@@ -86,6 +86,7 @@ recording:
 ```bash
 HTD_DEMO_NO_FORCE_BUILD=1
 HTD_DEMO_KEEP_ENVIRONMENT=1
+HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1
 ```
 
 `HTD_DEMO_NO_FORCE_BUILD=1` tells Harbor to reuse the task `docker_image` or a
@@ -95,6 +96,13 @@ cached image instead of forcing a rebuild. This is the default for the demo.
 the end of the run. Use it for recording so the warmed Python/pip/SDK state can
 remain inspectable. For clean benchmark sweeps, leave it unset so each trial
 starts from a clean task environment.
+
+`HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1` tells the demo to tag
+`hb__query-optimize:latest` to the `docker_image` name in `task.toml` before the
+no-force live run. This matters because Harbor uses `task.toml`'s prebuilt image
+when `force_build=false`; the upstream `alexgshaw/query-optimize:20251031`
+image is smaller but does not provide the Python/pip runtime needed by
+`sdk_live`, while the locally built `hb__query-optimize:latest` image does.
 
 Before recording a live run:
 
@@ -110,7 +118,8 @@ scripts/run_harbor_dynamic_icl.sh \
   --sdk-live-intercept-tool Bash \
   --dry-run \
   --no-force-build \
-  --keep-environment
+  --keep-environment \
+  --tag-local-hb-prebuilt
 ```
 
 The dry run should show:
@@ -118,6 +127,7 @@ The dry run should show:
 ```text
 Force build: 0
 Keep environment: 1
+Tag local hb prebuilt: 1
 "force_build": false
 "delete": false
 ```
@@ -153,13 +163,32 @@ Then paste this for the live recording once Docker is warm:
 ```text
 /harness-runtime-icl
 Do not edit files. Run exactly:
-HTD_DEMO_PAUSE=0 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher --compact
+HTD_DEMO_PAUSE=0 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher --compact
 Report the first reward, card teacher outcome, live reward, injection_count, injection_reasons, and live trial directory.
 ```
 
 If the live command fails, save the trial path and runner log shown on screen.
 The important environment-failure signatures are `sdk_live Python/pip bootstrap
 failed`, Docker build exit `-9`, missing `reward.txt`, or `claude_init: false`.
+
+## Agent CLI Smoke Checks
+
+The main recording should happen inside Claude Code. To show that the same
+plugin entry point is usable from Kimi Code, run this headless smoke separately:
+
+```bash
+scripts/run_kimicode_skill_smoke.sh \
+  'Use Bash to run: HTD_DEMO_PAUSE=0 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded --compact --out-dir /tmp/htd-kimi-recorded'
+```
+
+Run this from a real terminal or PTY. Expected evidence includes `kimi_rc: 0`,
+`kimi_tool_calls: ['Bash']`, `critical_step`, `closure_passed`, recorded reward
+`1`, and `injection_count: 1`.
+
+Codex support is the current Codex app/thread skill path plus the detached
+launcher for long Harbor jobs. Do not claim nested `codex exec` as working in
+the demo until `echo CODEX_EXEC_OK` and the compact recorded command both
+complete through that CLI.
 
 ## Scenes
 

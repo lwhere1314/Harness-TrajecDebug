@@ -15,6 +15,7 @@ LIVE_ROOT="${HTD_DEMO_LIVE_ROOT:-$REPO_ROOT}"
 LIVE_ROOT_SOURCE="${HTD_DEMO_LIVE_ROOT:+env}"
 NO_FORCE_BUILD="${HTD_DEMO_NO_FORCE_BUILD:-1}"
 KEEP_ENVIRONMENT="${HTD_DEMO_KEEP_ENVIRONMENT:-0}"
+TAG_LOCAL_HB_PREBUILT="${HTD_DEMO_TAG_LOCAL_HB_PREBUILT:-1}"
 
 usage() {
   cat <<'USAGE'
@@ -31,6 +32,9 @@ Environment:
   HTD_DEMO_COMPACT=1           Agent-friendly output; write long logs to files.
   HTD_DEMO_NO_FORCE_BUILD=1    Reuse warm Docker images for live mode. Default: 1.
   HTD_DEMO_KEEP_ENVIRONMENT=1  Keep Harbor Docker containers after live mode.
+  HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1
+                               Tag hb__<task>:latest to the task docker_image
+                               before no-force live mode. Default: 1.
   HTD_DEMO_LIVE_ROOT=DIR       Optional repo mirror for live long Harbor runs.
   HARBOR_RUNNER=FILE           Required by --live-full-fail-teacher unless your
                                local default runner path exists.
@@ -220,6 +224,7 @@ LIVE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPACT="${HTD_DEMO_COMPACT:-0}"
 NO_FORCE_BUILD="${HTD_DEMO_NO_FORCE_BUILD:-1}"
 KEEP_ENVIRONMENT="${HTD_DEMO_KEEP_ENVIRONMENT:-0}"
+TAG_LOCAL_HB_PREBUILT="${HTD_DEMO_TAG_LOCAL_HB_PREBUILT:-1}"
 
 if [[ -f "$HOME/.bashrc" ]]; then
   set +u
@@ -232,7 +237,7 @@ cd "$LIVE_ROOT"
 mkdir -p "$LIVE_ROOT/$LIVE_JOBS"
 
 printf '\n$ cd %q && scripts/run_harbor_dynamic_icl.sh --pack-dir docs/blog/raw_logs/blog_raw_logs --task query-optimize --model kimi-k2.6 --jobs-dir %q --context-variant %q --inject-mode sdk_live --endpoint-profile seed-coding-plan --sdk-live-intercept-tool Bash --sdk-live-install-timeout 900 --setup-timeout 1200 --agent-timeout 1800 --verifier-timeout 600\n' "$LIVE_ROOT" "$LIVE_JOBS" "$CONTEXT_VARIANT"
-printf 'docker_reuse: no_force_build=%s keep_environment=%s\n' "$NO_FORCE_BUILD" "$KEEP_ENVIRONMENT"
+printf 'docker_reuse: no_force_build=%s keep_environment=%s tag_local_hb_prebuilt=%s\n' "$NO_FORCE_BUILD" "$KEEP_ENVIRONMENT" "$TAG_LOCAL_HB_PREBUILT"
 RUN_LOG="$LIVE_ROOT/$LIVE_JOBS/htd-demo-live-run.log"
 run_live() {
   local args=(
@@ -255,6 +260,9 @@ run_live() {
   fi
   if [[ "$KEEP_ENVIRONMENT" == "1" ]]; then
     args+=(--keep-environment)
+  fi
+  if [[ "$TAG_LOCAL_HB_PREBUILT" == "1" ]]; then
+    args+=(--tag-local-hb-prebuilt)
   fi
   "${args[@]}"
 }
@@ -321,6 +329,7 @@ LIVE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPACT="${HTD_DEMO_COMPACT:-0}"
 NO_FORCE_BUILD="${HTD_DEMO_NO_FORCE_BUILD:-1}"
 KEEP_ENVIRONMENT="${HTD_DEMO_KEEP_ENVIRONMENT:-0}"
+TAG_LOCAL_HB_PREBUILT="${HTD_DEMO_TAG_LOCAL_HB_PREBUILT:-1}"
 
 if [[ -f "$HOME/.bashrc" ]]; then
   set +u
@@ -469,7 +478,7 @@ PY
 
 printf '\n\033[1;36m# 5. Live second run: inject fail_debug_action_live at PreToolUse(Bash)\033[0m\n'
 printf '\n$ scripts/run_harbor_dynamic_icl.sh --pack-dir %q --task query-optimize --model kimi-k2.6 --jobs-dir %q --context-variant fail_debug_action_live --inject-mode sdk_live --endpoint-profile seed-coding-plan --sdk-live-intercept-tool Bash --sdk-live-install-timeout 900 --setup-timeout 1200 --agent-timeout 1800 --verifier-timeout 600\n' "$RUNTIME_PACK" "$SECOND_JOBS"
-printf 'docker_reuse: no_force_build=%s keep_environment=%s\n' "$NO_FORCE_BUILD" "$KEEP_ENVIRONMENT"
+printf 'docker_reuse: no_force_build=%s keep_environment=%s tag_local_hb_prebuilt=%s\n' "$NO_FORCE_BUILD" "$KEEP_ENVIRONMENT" "$TAG_LOCAL_HB_PREBUILT"
 mkdir -p "$LIVE_ROOT/$SECOND_JOBS"
 SECOND_LOG="$LIVE_ROOT/$SECOND_JOBS/htd-demo-live-run.log"
 run_second() {
@@ -493,6 +502,9 @@ run_second() {
   fi
   if [[ "$KEEP_ENVIRONMENT" == "1" ]]; then
     args+=(--keep-environment)
+  fi
+  if [[ "$TAG_LOCAL_HB_PREBUILT" == "1" ]]; then
+    args+=(--tag-local-hb-prebuilt)
   fi
   "${args[@]}"
 }
@@ -593,7 +605,7 @@ if [[ "$MODE" == "live_full_fail_teacher" ]]; then
   write_full_fail_helper "$FULL_HELPER"
   printf '\n$ cd %q && %q %q %q\n' "$LIVE_ROOT" "$FULL_HELPER" "$BASELINE_JOBS" "$SECOND_JOBS"
   cd "$LIVE_ROOT"
-  HTD_DEMO_COMPACT="$COMPACT" HTD_DEMO_NO_FORCE_BUILD="$NO_FORCE_BUILD" HTD_DEMO_KEEP_ENVIRONMENT="$KEEP_ENVIRONMENT" exec "$FULL_HELPER" "$BASELINE_JOBS" "$SECOND_JOBS"
+  HTD_DEMO_COMPACT="$COMPACT" HTD_DEMO_NO_FORCE_BUILD="$NO_FORCE_BUILD" HTD_DEMO_KEEP_ENVIRONMENT="$KEEP_ENVIRONMENT" HTD_DEMO_TAG_LOCAL_HB_PREBUILT="$TAG_LOCAL_HB_PREBUILT" exec "$FULL_HELPER" "$BASELINE_JOBS" "$SECOND_JOBS"
 fi
 
 say "1. First run failed: no ICL, kimi-k2.6, query-optimize"
@@ -643,4 +655,4 @@ write_live_helper "$LIVE_HELPER" "$CARD_VARIANT"
 
 printf '\n$ cd %q && %q %q %q\n' "$LIVE_ROOT" "$LIVE_HELPER" "$LIVE_JOBS" "$CARD_VARIANT"
 cd "$LIVE_ROOT"
-HTD_DEMO_COMPACT="$COMPACT" HTD_DEMO_NO_FORCE_BUILD="$NO_FORCE_BUILD" HTD_DEMO_KEEP_ENVIRONMENT="$KEEP_ENVIRONMENT" exec "$LIVE_HELPER" "$LIVE_JOBS" "$CARD_VARIANT"
+HTD_DEMO_COMPACT="$COMPACT" HTD_DEMO_NO_FORCE_BUILD="$NO_FORCE_BUILD" HTD_DEMO_KEEP_ENVIRONMENT="$KEEP_ENVIRONMENT" HTD_DEMO_TAG_LOCAL_HB_PREBUILT="$TAG_LOCAL_HB_PREBUILT" exec "$LIVE_HELPER" "$LIVE_JOBS" "$CARD_VARIANT"

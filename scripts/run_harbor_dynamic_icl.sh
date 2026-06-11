@@ -19,6 +19,7 @@ DELETE_EXISTING=0
 FORCE_CONTEXT_CALL=1
 FORCE_BUILD=1
 KEEP_ENVIRONMENT="${HTD_KEEP_ENVIRONMENT:-0}"
+TAG_LOCAL_HB_PREBUILT="${HTD_TAG_LOCAL_HB_PREBUILT:-0}"
 DRY_RUN=0
 PREFLIGHT=0
 PREFLIGHT_TIMEOUT="20"
@@ -52,6 +53,9 @@ Options:
   --no-force-context      Make htd-context optional instead of required once
   --no-force-build        Reuse the task docker_image / cached image when possible
   --keep-environment      Do not delete the Harbor Docker environment after the run
+  --tag-local-hb-prebuilt Before no-force-build runs, tag hb__<task>:latest to
+                          the task.toml docker_image so Harbor uses the warm
+                          locally built image.
   --keep-existing         Do not archive an existing job directory before running
   --delete-existing       Delete an existing job directory instead of archiving.
                           Avoid this unless you intentionally want to discard
@@ -90,6 +94,7 @@ while [[ $# -gt 0 ]]; do
     --no-force-context) FORCE_CONTEXT_CALL=0; shift ;;
     --no-force-build) FORCE_BUILD=0; shift ;;
     --keep-environment) KEEP_ENVIRONMENT=1; shift ;;
+    --tag-local-hb-prebuilt) TAG_LOCAL_HB_PREBUILT=1; shift ;;
     --keep-existing) CLEAN_EXISTING=0; shift ;;
     --delete-existing) DELETE_EXISTING=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
@@ -147,6 +152,41 @@ fi
 if [[ ! -f "$CONTEXT_PATH" ]]; then
   echo "Missing runtime context card: $CONTEXT_PATH" >&2
   exit 1
+fi
+
+read_task_docker_image() {
+  python3 - "$1" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+try:
+    text = path.read_text(encoding="utf-8")
+except OSError:
+    raise SystemExit(0)
+match = re.search(r'^\s*docker_image\s*=\s*"([^"]+)"\s*$', text, re.MULTILINE)
+if match:
+    print(match.group(1))
+PY
+}
+
+TAGGED_PREBUILT=""
+if [[ "$FORCE_BUILD" == "0" && "$TAG_LOCAL_HB_PREBUILT" == "1" ]]; then
+  TASK_DOCKER_IMAGE="$(read_task_docker_image "$TASK_DIR/task.toml")"
+  LOCAL_HB_IMAGE="hb__$(basename "$TASK_DIR"):latest"
+  if [[ -z "$TASK_DOCKER_IMAGE" ]]; then
+    echo "No docker_image in $TASK_DIR/task.toml; skipping local hb image tag." >&2
+  elif docker image inspect "$LOCAL_HB_IMAGE" >/dev/null 2>&1; then
+    if [[ "$DRY_RUN" == "1" ]]; then
+      TAGGED_PREBUILT="would-tag $LOCAL_HB_IMAGE -> $TASK_DOCKER_IMAGE"
+    else
+      docker tag "$LOCAL_HB_IMAGE" "$TASK_DOCKER_IMAGE"
+      TAGGED_PREBUILT="$LOCAL_HB_IMAGE -> $TASK_DOCKER_IMAGE"
+    fi
+  else
+    echo "Local warm image missing: $LOCAL_HB_IMAGE; build once or unset --no-force-build." >&2
+  fi
 fi
 
 mkdir -p "$JOBS_DIR"
@@ -259,6 +299,10 @@ echo "Inject mode: $INJECT_MODE"
 echo "Endpoint profile: $ENDPOINT_PROFILE"
 echo "Force build: $FORCE_BUILD"
 echo "Keep environment: $KEEP_ENVIRONMENT"
+echo "Tag local hb prebuilt: $TAG_LOCAL_HB_PREBUILT"
+if [[ -n "$TAGGED_PREBUILT" ]]; then
+  echo "Tagged prebuilt: $TAGGED_PREBUILT"
+fi
 if [[ -n "$SDK_LIVE_INTERCEPT_TOOLS" ]]; then
   echo "SDK live intercept tools: $SDK_LIVE_INTERCEPT_TOOLS"
 fi

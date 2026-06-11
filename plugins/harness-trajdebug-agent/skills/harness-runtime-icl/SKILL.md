@@ -151,6 +151,12 @@ That script maps `SEED_CODING_PLAN_BASE_URL` and `SEED_CODING_PLAN_API_KEY` to
 Kimi Code's `KIMI_MODEL_BASE_URL` and `KIMI_MODEL_API_KEY`, sets
 `KIMI_MODEL_PROVIDER_TYPE=anthropic`, and runs `kimi-k2.6` through the local
 Kimi Code dev CLI from the repository root so project skills are discoverable.
+For the recorded demo smoke, prefer a short explicit Bash instruction such as
+`Use Bash to run: HTD_DEMO_PAUSE=0 plugins/harness-trajdebug-agent/scripts/htd-agent
+demo query-optimize --recorded --compact`. Let the wrapper parse and print the
+metrics. In local testing that completed, while slash-command-only prompts and
+long "run and then report every metric" prompts could start a session and then
+stall before the first model response.
 
 For Codex prompt-mode runs, keep the compatibility boundary explicit:
 
@@ -160,7 +166,7 @@ For Codex prompt-mode runs, keep the compatibility boundary explicit:
 - Do not treat direct `codex exec -m kimi-k2.6` as supported unless the endpoint
   exposes an OpenAI Responses-compatible wire API and the local CLI path has
   been verified. In local nested smoke testing, `codex exec` did not complete
-  even for a trivial shell command.
+  even for a trivial `echo CODEX_EXEC_OK` command.
 
 2. For recording demos, avoid cold Docker work unless the user explicitly wants
    to test image construction. Pass `--no-force-build` or set
@@ -169,6 +175,11 @@ For Codex prompt-mode runs, keep the compatibility boundary explicit:
    `--keep-environment` so the task container remains inspectable after the
    run. Do not run another long Harbor/Terminal-Bench job concurrently on a
    small local Docker/Colima allocation.
+   For the `query-optimize` demo, also pass `--tag-local-hb-prebuilt` or set
+   `HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1`. Harbor's no-force Docker backend uses
+   the `docker_image` from `task.toml`; the upstream image lacks Python/pip,
+   while the local `hb__query-optimize:latest` image has the runtime needed by
+   `sdk_live`.
 3. Treat `sdk_live` as requiring a Python-capable target container. The live
    SDK runner must be able to execute `python3 -m pip --version` before it
    starts Claude Code. If the task image lacks Python or pip, prebuild or

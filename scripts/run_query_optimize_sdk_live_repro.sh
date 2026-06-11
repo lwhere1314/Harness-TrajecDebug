@@ -17,6 +17,10 @@ Runs the query-optimize sdk_live reproduction with kimi-k2.6 through the SEED
 endpoint profile. JOBS_DIR defaults to runs/harbor_icl_repro_seed.
 CONTEXT_VARIANT defaults to debug_action; use fail_debug_action for the
 reward-0 teacher-card demo.
+
+By default this reuses the warm local Harbor image and tags
+hb__query-optimize:latest to the task docker_image before no-force runs. Set
+HTD_TAG_LOCAL_HB_PREBUILT=0 to disable that behavior.
 USAGE
   exit 0
 fi
@@ -25,6 +29,7 @@ JOBS_DIR="${1:-runs/harbor_icl_repro_seed}"
 CONTEXT_VARIANT="${2:-debug_action}"
 NO_FORCE_BUILD="${HTD_NO_FORCE_BUILD:-1}"
 KEEP_ENVIRONMENT="${HTD_KEEP_ENVIRONMENT:-0}"
+TAG_LOCAL_HB_PREBUILT="${HTD_TAG_LOCAL_HB_PREBUILT:-1}"
 
 args=(
   scripts/run_harbor_dynamic_icl.sh
@@ -48,6 +53,10 @@ fi
 
 if [[ "$KEEP_ENVIRONMENT" == "1" ]]; then
   args+=(--keep-environment)
+fi
+
+if [[ "$TAG_LOCAL_HB_PREBUILT" == "1" ]]; then
+  args+=(--tag-local-hb-prebuilt)
 fi
 
 exec "${args[@]}"

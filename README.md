@@ -65,11 +65,14 @@ For Claude Code or other agent-driven recordings, add `--compact` or set
 shows the reward, diagnosis, card closure, injection count, and verifier
 summary.
 
-Live modes reuse warm Harbor / Terminal-Bench Docker images by default. Set
-`HTD_DEMO_KEEP_ENVIRONMENT=1` during recording if you want Harbor containers to
-remain available after the run. Cold Docker builds, missing Python/pip inside
-the target image, or concurrent Harbor jobs are infrastructure failures, not
-Harness-TrajecDebug algorithm failures.
+Live modes reuse warm Harbor / Terminal-Bench Docker images by default. During
+the `query-optimize` recording demo, `HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1` also
+tags the local `hb__query-optimize:latest` image to the task `docker_image`
+name so Harbor's no-force path uses the Python/pip-capable image required by
+`sdk_live`. Set `HTD_DEMO_KEEP_ENVIRONMENT=1` during recording if you want
+Harbor containers to remain available after the run. Cold Docker builds,
+missing Python/pip inside the target image, or concurrent Harbor jobs are
+infrastructure failures, not Harness-TrajecDebug algorithm failures.
 
 The demo material lives in [`demo/`](demo/):
 
@@ -183,8 +186,8 @@ Supported or exercised surfaces:
 | Surface | Current role |
 | --- | --- |
 | Claude Code | Verified for the compact recorded demo and for launching the live Harbor `sdk_live` path. Live success requires a warm Python/pip-capable task image. |
-| Codex | Verified as the current Codex app/thread calling the same wrapper. Nested `codex exec` against the local custom endpoint is not claimed as supported yet. |
-| Kimi Code | Verified for the compact recorded demo through the local skill-smoke wrapper; full live reuse goes through the same Harbor runner. |
+| Kimi Code | Verified for the compact recorded demo through the local skill-smoke wrapper using a short explicit Bash prompt; full live reuse goes through the same Harbor runner. |
+| Codex | Verified as the current Codex app/thread calling the same wrapper and suitable for detached launcher orchestration. Nested `codex exec` is tested but not passing locally yet, even for `echo CODEX_EXEC_OK`. |
 | Harbor / Terminal-Bench | Provides task environments, official verifier output, and raw run directories. |
 
 See [`docs/agent-plugin.md`](docs/agent-plugin.md) and
