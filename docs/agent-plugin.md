@@ -105,8 +105,9 @@ Codex skill -> detached launcher -> Harness wrapper -> Claude Code SDK sdk_live
 
 Direct `codex exec -m kimi-k2.6` against the SEED endpoint is not treated as
 the supported path unless an OpenAI Responses-compatible adapter is available.
-In local smoke testing, Codex accepted the custom provider config but the stream
-failed before completion, which is consistent with a wire-API mismatch.
+In local smoke testing, nested `codex exec` did not complete even for a trivial
+shell command, so do not present direct Codex CLI execution as verified until
+that local CLI/provider path is fixed.
 
 ## Kimi Code
 
@@ -135,7 +136,8 @@ The wrapper maps `SEED_CODING_PLAN_BASE_URL` and
 For the full `query-optimize` runtime Debug-Action reproduction, use:
 
 ```bash
-scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed fail_debug_action
+HTD_NO_FORCE_BUILD=1 HTD_KEEP_ENVIRONMENT=1 \
+  scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed fail_debug_action
 ```
 
 From Codex, prefer the detached form shown above for the same reproduction.
@@ -144,7 +146,8 @@ For the recording demo, use the plugin wrapper so Claude Code, Codex, and Kimi
 Code users all see the same entry point:
 
 ```bash
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
 ```
 
 ## Smoke check
@@ -172,6 +175,9 @@ evidence, check these separately:
   starts, or the task image is prebuilt with Python/pip.
 - SDK dependency layer: use `claude-agent-sdk==0.1.43`, `mcp>=1.27.2`,
   `httpx==0.28.1`, and `httpcore==1.0.9`.
+- Docker lifecycle layer: recording demos should pass `--no-force-build` and
+  may pass `--keep-environment` so Harbor reuses warm images and preserves the
+  task container for inspection.
 
 For cold Harbor task images, run `sdk_live` with enough setup budget, for
 example `--sdk-live-install-timeout 900 --agent-timeout 1800`. If the task image
@@ -182,6 +188,20 @@ If the task image lacks Python/pip or PyPI access is flaky, prebuild a runtime
 image or wheelhouse first. Treat missing Python, old `mcp` imports such as
 `ToolAnnotations`, pip resolver backtracking, and package download timeouts as
 environment failures, not Harness-TrajecDebug algorithm failures.
+
+Harbor / Docker failures should be reported separately from model failures.
+Common local signatures include Docker build exit `-9`, missing
+`verifier/reward.txt`, `sdk_live Python/pip bootstrap failed`, and
+`claude_init: false`.
+
+## Verified entrypoints
+
+| Entrypoint | Status |
+| --- | --- |
+| Claude Code headless prompt -> `htd-agent demo query-optimize --recorded --compact` | Verified locally: first reward `0`, closure passed, recorded with-TD reward `1`, `injection_count=1`. |
+| Kimi Code smoke wrapper -> same compact recorded command | Verified locally by generated diagnosis and closure artifacts. |
+| Claude Code -> live `--live-fail-teacher --compact` | Verified to launch the real Harbor `sdk_live` path; current local failures were Docker/Python setup failures before valid injection evidence. |
+| Nested `codex exec` prompt-mode run | Not verified in this local environment; keep Codex support to the app/thread skill path or detached launcher until CLI execution is fixed. |
 
 For live evidence, keep:
 

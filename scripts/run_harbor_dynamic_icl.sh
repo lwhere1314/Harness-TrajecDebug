@@ -18,6 +18,7 @@ CLEAN_EXISTING=1
 DELETE_EXISTING=0
 FORCE_CONTEXT_CALL=1
 FORCE_BUILD=1
+KEEP_ENVIRONMENT="${HTD_KEEP_ENVIRONMENT:-0}"
 DRY_RUN=0
 PREFLIGHT=0
 PREFLIGHT_TIMEOUT="20"
@@ -50,6 +51,7 @@ Options:
                           Timeout for the first no-context turn in continue_after mode. Default: 75
   --no-force-context      Make htd-context optional instead of required once
   --no-force-build        Reuse the task docker_image / cached image when possible
+  --keep-environment      Do not delete the Harbor Docker environment after the run
   --keep-existing         Do not archive an existing job directory before running
   --delete-existing       Delete an existing job directory instead of archiving.
                           Avoid this unless you intentionally want to discard
@@ -87,6 +89,7 @@ while [[ $# -gt 0 ]]; do
     --first-turn-timeout) FIRST_TURN_TIMEOUT="$2"; shift 2 ;;
     --no-force-context) FORCE_CONTEXT_CALL=0; shift ;;
     --no-force-build) FORCE_BUILD=0; shift ;;
+    --keep-environment) KEEP_ENVIRONMENT=1; shift ;;
     --keep-existing) CLEAN_EXISTING=0; shift ;;
     --delete-existing) DELETE_EXISTING=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
@@ -180,7 +183,7 @@ mkdir -p "$(dirname "$LOG_FILE")"
 
 export PYTHONPATH="$REPO_ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
 
-python3 - "$CONFIG_PATH" "$JOB_NAME" "$JOBS_DIR" "$MODEL" "$ENDPOINT_PROFILE" "$SETUP_TIMEOUT" "$AGENT_TIMEOUT" "$VERIFIER_TIMEOUT" "$TASK_DIR" "$CONTEXT_PATH" "$FORCE_CONTEXT_CALL" "$FORCE_BUILD" "$INJECT_MODE" "$FIRST_TURN_TIMEOUT" "$SDK_LIVE_INTERCEPT_TOOLS" "$SDK_LIVE_INSTALL_TIMEOUT" <<'PY'
+python3 - "$CONFIG_PATH" "$JOB_NAME" "$JOBS_DIR" "$MODEL" "$ENDPOINT_PROFILE" "$SETUP_TIMEOUT" "$AGENT_TIMEOUT" "$VERIFIER_TIMEOUT" "$TASK_DIR" "$CONTEXT_PATH" "$FORCE_CONTEXT_CALL" "$FORCE_BUILD" "$KEEP_ENVIRONMENT" "$INJECT_MODE" "$FIRST_TURN_TIMEOUT" "$SDK_LIVE_INTERCEPT_TOOLS" "$SDK_LIVE_INSTALL_TIMEOUT" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -198,6 +201,7 @@ from pathlib import Path
     context_path,
     force_context_call,
     force_build,
+    keep_environment,
     inject_mode,
     first_turn_timeout,
     sdk_live_intercept_tools,
@@ -216,6 +220,7 @@ config = {
     "environment": {
         "type": "docker",
         "force_build": force_build == "1",
+        "delete": keep_environment != "1",
     },
     "verifier": {
         "override_timeout_sec": float(verifier_timeout),
@@ -252,6 +257,8 @@ echo "Task: $TASK_DIR"
 echo "Context: $CONTEXT_PATH"
 echo "Inject mode: $INJECT_MODE"
 echo "Endpoint profile: $ENDPOINT_PROFILE"
+echo "Force build: $FORCE_BUILD"
+echo "Keep environment: $KEEP_ENVIRONMENT"
 if [[ -n "$SDK_LIVE_INTERCEPT_TOOLS" ]]; then
   echo "SDK live intercept tools: $SDK_LIVE_INTERCEPT_TOOLS"
 fi

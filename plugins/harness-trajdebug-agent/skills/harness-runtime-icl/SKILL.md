@@ -101,7 +101,16 @@ teacher, generated/selected Debug-Action card, live injection, and verifier
 result in one terminal:
 
 ```bash
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+```
+
+When an agent CLI is driving the demo, use compact output so long Harbor logs
+are written to files and the terminal keeps only the reward, diagnosis, closure,
+and injection summary:
+
+```bash
+HTD_DEMO_PAUSE=0 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded --compact
 ```
 
 When launching that long run from Codex CLI, prefer the detached launcher:
@@ -149,15 +158,23 @@ For Codex prompt-mode runs, keep the compatibility boundary explicit:
   Claude Code SDK `sdk_live` -> `kimi-k2.6` through the SEED
   Anthropic-compatible endpoint.
 - Do not treat direct `codex exec -m kimi-k2.6` as supported unless the endpoint
-  exposes an OpenAI Responses-compatible wire API. A local smoke test accepted
-  the custom provider config but failed during streaming before completion.
+  exposes an OpenAI Responses-compatible wire API and the local CLI path has
+  been verified. In local nested smoke testing, `codex exec` did not complete
+  even for a trivial shell command.
 
-2. Treat `sdk_live` as requiring a Python-capable target container. The live
+2. For recording demos, avoid cold Docker work unless the user explicitly wants
+   to test image construction. Pass `--no-force-build` or set
+   `HTD_DEMO_NO_FORCE_BUILD=1` so Harbor reuses warm task images. During a
+   recording, also set `HTD_DEMO_KEEP_ENVIRONMENT=1` or pass
+   `--keep-environment` so the task container remains inspectable after the
+   run. Do not run another long Harbor/Terminal-Bench job concurrently on a
+   small local Docker/Colima allocation.
+3. Treat `sdk_live` as requiring a Python-capable target container. The live
    SDK runner must be able to execute `python3 -m pip --version` before it
    starts Claude Code. If the task image lacks Python or pip, prebuild or
    prewarm the task image, or use `prelude` for batch evidence until the live
    image is prepared.
-3. Pin the SDK dependency set used inside the target container. The known-good
+4. Pin the SDK dependency set used inside the target container. The known-good
    baseline is:
 
 ```text
@@ -167,15 +184,15 @@ httpx==0.28.1
 httpcore==1.0.9
 ```
 
-4. For cold task images, pass a long enough SDK install timeout and agent
+5. For cold task images, pass a long enough SDK install timeout and agent
    timeout, for example `--sdk-live-install-timeout 900 --agent-timeout 1800`.
    The install timeout covers the in-container `claude-agent-sdk` install; the
    agent timeout must still leave room for Claude Code and verifier setup.
-5. If the target container has flaky PyPI access, use a prebuilt wheelhouse or
+6. If the target container has flaky PyPI access, use a prebuilt wheelhouse or
    image layer rather than relying on live `pip install`. Do not classify
    failures such as missing Python, pip resolver backtracking, old `mcp`
    imports, or package download timeouts as TD algorithm failures.
-6. For `sdk_live` evidence, preserve `sdk-live-events.jsonl`,
+7. For `sdk_live` evidence, preserve `sdk-live-events.jsonl`,
    `sdk-install.log`, `agent/command-*/stdout.txt`, and the Harbor runner log.
    A valid live run should show SDK setup, Claude Code init, at least one
    injection event, and verifier output in the same trial directory.

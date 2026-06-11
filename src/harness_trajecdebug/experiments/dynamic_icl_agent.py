@@ -62,6 +62,9 @@ class DynamicIclClaudeCode(ClaudeCode):
         live_hook_file = self.logs_dir / "live_icl_hook.py"
         live_sdk_file = self.logs_dir / "live_icl_sdk_runner.py"
         hook_settings_file = self.logs_dir / "claude-hooks-settings.json"
+        bootstrap_stdout_file = self.logs_dir / "sdk-live-python-bootstrap.stdout.txt"
+        bootstrap_stderr_file = self.logs_dir / "sdk-live-python-bootstrap.stderr.txt"
+        bootstrap_return_file = self.logs_dir / "sdk-live-python-bootstrap.return-code.txt"
         context_file.write_text(payload, encoding="utf-8")
         continue_file.write_text(self._continue_prompt(payload), encoding="utf-8")
         tool_file.write_text(_HTD_CONTEXT_TOOL, encoding="utf-8")
@@ -138,6 +141,20 @@ class DynamicIclClaudeCode(ClaudeCode):
             target_path="/opt/harness-trajecdebug/claude-hooks-settings.json",
         )
         await environment.exec(command="chmod +x /usr/local/bin/htd-context /usr/local/bin/htd-controller-decision")
+        if self._inject_mode == "sdk_live":
+            result = await environment.exec(
+                command=_PYTHON_BOOTSTRAP_SHELL + '\n"$HTD_PYTHON_BIN" -m pip --version\n',
+                env={"DEBIAN_FRONTEND": "noninteractive"},
+                timeout_sec=self._sdk_live_install_timeout_sec,
+            )
+            bootstrap_stdout_file.write_text(result.stdout or "", encoding="utf-8")
+            bootstrap_stderr_file.write_text(result.stderr or "", encoding="utf-8")
+            bootstrap_return_file.write_text(f"{result.return_code}\n", encoding="utf-8")
+            if result.return_code != 0:
+                raise RuntimeError(
+                    "sdk_live Python/pip bootstrap failed during setup; "
+                    f"see {bootstrap_stdout_file} and {bootstrap_stderr_file}"
+                )
 
     def create_run_agent_commands(self, instruction: str):
         instruction = claude_prompt_cli_safe(instruction)

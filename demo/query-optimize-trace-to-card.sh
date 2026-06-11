@@ -10,13 +10,16 @@ CARD_VARIANT="debug_action"
 TEACHER_KIND="pass"
 OUT_DIR="$REPO_ROOT/runs/demo-query-optimize-trace-to-card"
 PAUSE="${HTD_DEMO_PAUSE:-1}"
+COMPACT="${HTD_DEMO_COMPACT:-0}"
 LIVE_ROOT="${HTD_DEMO_LIVE_ROOT:-$REPO_ROOT}"
 LIVE_ROOT_SOURCE="${HTD_DEMO_LIVE_ROOT:+env}"
+NO_FORCE_BUILD="${HTD_DEMO_NO_FORCE_BUILD:-1}"
+KEEP_ENVIRONMENT="${HTD_DEMO_KEEP_ENVIRONMENT:-0}"
 
 usage() {
   cat <<'USAGE'
 Usage:
-  demo/query-optimize-trace-to-card.sh [--recorded|--live|--live-fail-teacher|--live-full-fail-teacher] [--out-dir DIR]
+  demo/query-optimize-trace-to-card.sh [--recorded|--live|--live-fail-teacher|--live-full-fail-teacher] [--compact] [--out-dir DIR]
 
 Recorded mode is fast and uses checked-in failing/passing evidence.
 Live mode runs the second query-optimize debug_action + sdk_live attempt.
@@ -25,6 +28,9 @@ Live full fail-teacher mode runs a fresh no-ICL first attempt before diagnosis.
 
 Environment:
   HTD_DEMO_PAUSE=0             Disable short pauses between sections.
+  HTD_DEMO_COMPACT=1           Agent-friendly output; write long logs to files.
+  HTD_DEMO_NO_FORCE_BUILD=1    Reuse warm Docker images for live mode. Default: 1.
+  HTD_DEMO_KEEP_ENVIRONMENT=1  Keep Harbor Docker containers after live mode.
   HTD_DEMO_LIVE_ROOT=DIR       Optional repo mirror for live long Harbor runs.
   HARBOR_RUNNER=FILE           Required by --live-full-fail-teacher unless your
                                local default runner path exists.
@@ -47,6 +53,7 @@ while [[ $# -gt 0 ]]; do
       TEACHER_KIND="fail"
       shift
       ;;
+    --compact) COMPACT="1"; PAUSE="0"; shift ;;
     --out-dir) OUT_DIR="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -71,6 +78,66 @@ say() {
 run_shell() {
   printf '\n$ %s\n' "$*"
   /bin/bash -lc "$*"
+}
+
+show_card() {
+  local card="$1"
+  if [[ "$COMPACT" == "1" ]]; then
+    printf '\n$ python3 - %q  # compact card summary\n' "$card"
+    python3 - "$card" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+print(f"card: {path}")
+for line in lines:
+    if line.startswith("# "):
+        print(line)
+    elif line.startswith("Teacher outcome:"):
+        print(line)
+    elif line.startswith("Failed gate:"):
+        print(line)
+    elif line.startswith("Pattern:"):
+        print(line)
+    elif line.startswith("## Recommended next action"):
+        print("recommended_action: materialize /app/sol.sql")
+    elif line.startswith("## Stop rule"):
+        print("stop_rule: write artifact, cheap smoke check, then official verifier")
+        break
+PY
+  else
+    run_shell "sed -n '1,90p' '$card'"
+  fi
+}
+
+show_verifier_stdout() {
+  local stdout_file="$1"
+  if [[ "$COMPACT" == "1" ]]; then
+    printf '\n$ python3 - %q  # compact verifier summary\n' "$stdout_file"
+    python3 - "$stdout_file" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+print(f"verifier_stdout: {path}")
+for line in reversed(lines):
+    if re.search(r"=+ .*passed.* in .* =+", line) or " failed, " in line or " passed in " in line:
+        print(f"pytest_summary: {line.strip('= ')}")
+        break
+for line in lines:
+    if "speedup_solution_vs_golden" in line:
+        print(f"runtime_summary: {line.strip()[:220]}")
+        break
+for line in lines:
+    if line.startswith("FAILED ") or line.startswith("PASSED "):
+        print(f"verifier_case: {line.strip()[:220]}")
+PY
+  else
+    run_shell "tail -n 45 '$stdout_file'"
+  fi
 }
 
 summarize_diagnosis() {
@@ -150,6 +217,9 @@ set -euo pipefail
 LIVE_JOBS="${1:?missing live jobs dir}"
 CONTEXT_VARIANT="${2:-debug_action}"
 LIVE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+COMPACT="${HTD_DEMO_COMPACT:-0}"
+NO_FORCE_BUILD="${HTD_DEMO_NO_FORCE_BUILD:-1}"
+KEEP_ENVIRONMENT="${HTD_DEMO_KEEP_ENVIRONMENT:-0}"
 
 if [[ -f "$HOME/.bashrc" ]]; then
   set +u
@@ -159,21 +229,44 @@ if [[ -f "$HOME/.bashrc" ]]; then
 fi
 
 cd "$LIVE_ROOT"
+mkdir -p "$LIVE_ROOT/$LIVE_JOBS"
 
 printf '\n$ cd %q && scripts/run_harbor_dynamic_icl.sh --pack-dir docs/blog/raw_logs/blog_raw_logs --task query-optimize --model kimi-k2.6 --jobs-dir %q --context-variant %q --inject-mode sdk_live --endpoint-profile seed-coding-plan --sdk-live-intercept-tool Bash --sdk-live-install-timeout 900 --setup-timeout 1200 --agent-timeout 1800 --verifier-timeout 600\n' "$LIVE_ROOT" "$LIVE_JOBS" "$CONTEXT_VARIANT"
-scripts/run_harbor_dynamic_icl.sh \
-  --pack-dir docs/blog/raw_logs/blog_raw_logs \
-  --task query-optimize \
-  --model kimi-k2.6 \
-  --jobs-dir "$LIVE_JOBS" \
-  --context-variant "$CONTEXT_VARIANT" \
-  --inject-mode sdk_live \
-  --endpoint-profile seed-coding-plan \
-  --sdk-live-intercept-tool Bash \
-  --sdk-live-install-timeout 900 \
-  --setup-timeout 1200 \
-  --agent-timeout 1800 \
-  --verifier-timeout 600
+printf 'docker_reuse: no_force_build=%s keep_environment=%s\n' "$NO_FORCE_BUILD" "$KEEP_ENVIRONMENT"
+RUN_LOG="$LIVE_ROOT/$LIVE_JOBS/htd-demo-live-run.log"
+run_live() {
+  local args=(
+    scripts/run_harbor_dynamic_icl.sh
+    --pack-dir docs/blog/raw_logs/blog_raw_logs \
+    --task query-optimize \
+    --model kimi-k2.6 \
+    --jobs-dir "$LIVE_JOBS" \
+    --context-variant "$CONTEXT_VARIANT" \
+    --inject-mode sdk_live \
+    --endpoint-profile seed-coding-plan \
+    --sdk-live-intercept-tool Bash \
+    --sdk-live-install-timeout 900 \
+    --setup-timeout 1200 \
+    --agent-timeout 1800 \
+    --verifier-timeout 600
+  )
+  if [[ "$NO_FORCE_BUILD" == "1" ]]; then
+    args+=(--no-force-build)
+  fi
+  if [[ "$KEEP_ENVIRONMENT" == "1" ]]; then
+    args+=(--keep-environment)
+  fi
+  "${args[@]}"
+}
+if [[ "$COMPACT" == "1" ]]; then
+  printf 'compact_log: %s\n' "$RUN_LOG"
+  if ! run_live >"$RUN_LOG" 2>&1; then
+    tail -n 80 "$RUN_LOG" >&2 || true
+    exit 1
+  fi
+else
+  run_live
+fi
 
 LIVE_TRIAL="$(find "$LIVE_ROOT/$LIVE_JOBS" -path '*/query-optimize__*' -type d | head -n 1)"
 if [[ -z "$LIVE_TRIAL" ]]; then
@@ -184,8 +277,12 @@ fi
 printf '\n$ cat %q\n' "$LIVE_TRIAL/verifier/reward.txt"
 cat "$LIVE_TRIAL/verifier/reward.txt"
 
-printf '\n$ tail -n 45 %q\n' "$LIVE_TRIAL/verifier/test-stdout.txt"
-tail -n 45 "$LIVE_TRIAL/verifier/test-stdout.txt"
+TAIL_LINES=45
+if [[ "$COMPACT" == "1" ]]; then
+  TAIL_LINES=18
+fi
+printf '\n$ tail -n %s %q\n' "$TAIL_LINES" "$LIVE_TRIAL/verifier/test-stdout.txt"
+tail -n "$TAIL_LINES" "$LIVE_TRIAL/verifier/test-stdout.txt"
 
 printf '\n$ PYTHONPATH=src python3 scripts/summarize_sdk_live_trial.py %q --output %q\n' "$LIVE_TRIAL" "$LIVE_TRIAL/sdk-live-summary.json"
 PYTHONPATH=src python3 scripts/summarize_sdk_live_trial.py "$LIVE_TRIAL" --output "$LIVE_TRIAL/sdk-live-summary.json" >/dev/null
@@ -221,6 +318,9 @@ set -euo pipefail
 BASELINE_JOBS="${1:?missing baseline jobs dir}"
 SECOND_JOBS="${2:?missing second jobs dir}"
 LIVE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+COMPACT="${HTD_DEMO_COMPACT:-0}"
+NO_FORCE_BUILD="${HTD_DEMO_NO_FORCE_BUILD:-1}"
+KEEP_ENVIRONMENT="${HTD_DEMO_KEEP_ENVIRONMENT:-0}"
 
 if [[ -f "$HOME/.bashrc" ]]; then
   set +u
@@ -240,12 +340,25 @@ fi
 
 printf '\n\033[1;36m# 1. Fresh first run: no ICL, kimi-k2.6, query-optimize\033[0m\n'
 printf '\n$ MODEL=kimi-k2.6 scripts/run_harbor_icl_variants.sh --pack-dir docs/blog/raw_logs/blog_raw_logs --task query-optimize --variant no_icl --jobs-dir %q --no-force-build\n' "$BASELINE_JOBS"
-MODEL=kimi-k2.6 scripts/run_harbor_icl_variants.sh \
-  --pack-dir docs/blog/raw_logs/blog_raw_logs \
-  --task query-optimize \
-  --variant no_icl \
-  --jobs-dir "$BASELINE_JOBS" \
-  --no-force-build
+mkdir -p "$LIVE_ROOT/$BASELINE_JOBS"
+BASELINE_LOG="$LIVE_ROOT/$BASELINE_JOBS/htd-demo-baseline-run.log"
+run_baseline() {
+  MODEL=kimi-k2.6 scripts/run_harbor_icl_variants.sh \
+    --pack-dir docs/blog/raw_logs/blog_raw_logs \
+    --task query-optimize \
+    --variant no_icl \
+    --jobs-dir "$BASELINE_JOBS" \
+    --no-force-build
+}
+if [[ "$COMPACT" == "1" ]]; then
+  printf 'compact_log: %s\n' "$BASELINE_LOG"
+  if ! run_baseline >"$BASELINE_LOG" 2>&1; then
+    tail -n 80 "$BASELINE_LOG" >&2 || true
+    exit 1
+  fi
+else
+  run_baseline
+fi
 
 FAIL_TRIAL="$(find "$LIVE_ROOT/$BASELINE_JOBS" -path '*/query-optimize__*' -type d | head -n 1)"
 if [[ -z "$FAIL_TRIAL" ]]; then
@@ -255,8 +368,12 @@ fi
 
 printf '\n$ cat %q\n' "$FAIL_TRIAL/verifier/reward.txt"
 cat "$FAIL_TRIAL/verifier/reward.txt"
-printf '\n$ tail -n 45 %q\n' "$FAIL_TRIAL/verifier/test-stdout.txt"
-tail -n 45 "$FAIL_TRIAL/verifier/test-stdout.txt"
+TAIL_LINES=45
+if [[ "$COMPACT" == "1" ]]; then
+  TAIL_LINES=18
+fi
+printf '\n$ tail -n %s %q\n' "$TAIL_LINES" "$FAIL_TRIAL/verifier/test-stdout.txt"
+tail -n "$TAIL_LINES" "$FAIL_TRIAL/verifier/test-stdout.txt"
 
 if [[ "$(tr -d '[:space:]' < "$FAIL_TRIAL/verifier/reward.txt")" != "0" ]]; then
   echo "Fresh no-ICL run did not fail, so this is not a fail-teacher demo candidate." >&2
@@ -305,8 +422,27 @@ scripts/build_query_optimize_fail_debug_action_card.py \
   --diagnosis "$DIAGNOSIS" \
   --task-dir docs/blog/raw_logs/blog_raw_logs/task_variants/no_icl/query-optimize \
   --output "$GENERATED_CARD"
-printf '\n$ sed -n %q %q\n' '1,120p' "$GENERATED_CARD"
-sed -n '1,120p' "$GENERATED_CARD"
+if [[ "$COMPACT" == "1" ]]; then
+  printf '\n$ python3 - %q  # compact generated-card summary\n' "$GENERATED_CARD"
+  python3 - "$GENERATED_CARD" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+print(f"card: {path}")
+for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+    if line.startswith("# ") or line.startswith("Teacher outcome:") or line.startswith("Failed gate:") or line.startswith("Pattern:"):
+        print(line)
+    elif line.startswith("## Recommended next action"):
+        print("recommended_action: materialize /app/sol.sql")
+    elif line.startswith("## Stop rule"):
+        print("stop_rule: write artifact, cheap smoke check, then official verifier")
+        break
+PY
+else
+  printf '\n$ sed -n %q %q\n' '1,120p' "$GENERATED_CARD"
+  sed -n '1,120p' "$GENERATED_CARD"
+fi
 
 printf '\n\033[1;36m# 4. Card closure check: synthesized action materializes /app/sol.sql\033[0m\n'
 CLOSURE_JSON="$LIVE_ROOT/$BASELINE_JOBS/fail_debug_action_closure.json"
@@ -333,19 +469,42 @@ PY
 
 printf '\n\033[1;36m# 5. Live second run: inject fail_debug_action_live at PreToolUse(Bash)\033[0m\n'
 printf '\n$ scripts/run_harbor_dynamic_icl.sh --pack-dir %q --task query-optimize --model kimi-k2.6 --jobs-dir %q --context-variant fail_debug_action_live --inject-mode sdk_live --endpoint-profile seed-coding-plan --sdk-live-intercept-tool Bash --sdk-live-install-timeout 900 --setup-timeout 1200 --agent-timeout 1800 --verifier-timeout 600\n' "$RUNTIME_PACK" "$SECOND_JOBS"
-scripts/run_harbor_dynamic_icl.sh \
-  --pack-dir "$RUNTIME_PACK" \
-  --task query-optimize \
-  --model kimi-k2.6 \
-  --jobs-dir "$SECOND_JOBS" \
-  --context-variant fail_debug_action_live \
-  --inject-mode sdk_live \
-  --endpoint-profile seed-coding-plan \
-  --sdk-live-intercept-tool Bash \
-  --sdk-live-install-timeout 900 \
-  --setup-timeout 1200 \
-  --agent-timeout 1800 \
-  --verifier-timeout 600
+printf 'docker_reuse: no_force_build=%s keep_environment=%s\n' "$NO_FORCE_BUILD" "$KEEP_ENVIRONMENT"
+mkdir -p "$LIVE_ROOT/$SECOND_JOBS"
+SECOND_LOG="$LIVE_ROOT/$SECOND_JOBS/htd-demo-live-run.log"
+run_second() {
+  local args=(
+    scripts/run_harbor_dynamic_icl.sh
+    --pack-dir "$RUNTIME_PACK" \
+    --task query-optimize \
+    --model kimi-k2.6 \
+    --jobs-dir "$SECOND_JOBS" \
+    --context-variant fail_debug_action_live \
+    --inject-mode sdk_live \
+    --endpoint-profile seed-coding-plan \
+    --sdk-live-intercept-tool Bash \
+    --sdk-live-install-timeout 900 \
+    --setup-timeout 1200 \
+    --agent-timeout 1800 \
+    --verifier-timeout 600
+  )
+  if [[ "$NO_FORCE_BUILD" == "1" ]]; then
+    args+=(--no-force-build)
+  fi
+  if [[ "$KEEP_ENVIRONMENT" == "1" ]]; then
+    args+=(--keep-environment)
+  fi
+  "${args[@]}"
+}
+if [[ "$COMPACT" == "1" ]]; then
+  printf 'compact_log: %s\n' "$SECOND_LOG"
+  if ! run_second >"$SECOND_LOG" 2>&1; then
+    tail -n 80 "$SECOND_LOG" >&2 || true
+    exit 1
+  fi
+else
+  run_second
+fi
 
 LIVE_TRIAL="$(find "$LIVE_ROOT/$SECOND_JOBS" -path '*/query-optimize__*' -type d | head -n 1)"
 if [[ -z "$LIVE_TRIAL" ]]; then
@@ -354,8 +513,12 @@ if [[ -z "$LIVE_TRIAL" ]]; then
 fi
 printf '\n$ cat %q\n' "$LIVE_TRIAL/verifier/reward.txt"
 cat "$LIVE_TRIAL/verifier/reward.txt"
-printf '\n$ tail -n 45 %q\n' "$LIVE_TRIAL/verifier/test-stdout.txt"
-tail -n 45 "$LIVE_TRIAL/verifier/test-stdout.txt"
+TAIL_LINES=45
+if [[ "$COMPACT" == "1" ]]; then
+  TAIL_LINES=18
+fi
+printf '\n$ tail -n %s %q\n' "$TAIL_LINES" "$LIVE_TRIAL/verifier/test-stdout.txt"
+tail -n "$TAIL_LINES" "$LIVE_TRIAL/verifier/test-stdout.txt"
 printf '\n$ PYTHONPATH=src python3 scripts/summarize_sdk_live_trial.py %q --output %q\n' "$LIVE_TRIAL" "$LIVE_TRIAL/sdk-live-summary.json"
 PYTHONPATH=src python3 scripts/summarize_sdk_live_trial.py "$LIVE_TRIAL" --output "$LIVE_TRIAL/sdk-live-summary.json" >/dev/null
 python3 - "$LIVE_TRIAL/sdk-live-summary.json" <<'PY'
@@ -430,12 +593,12 @@ if [[ "$MODE" == "live_full_fail_teacher" ]]; then
   write_full_fail_helper "$FULL_HELPER"
   printf '\n$ cd %q && %q %q %q\n' "$LIVE_ROOT" "$FULL_HELPER" "$BASELINE_JOBS" "$SECOND_JOBS"
   cd "$LIVE_ROOT"
-  exec "$FULL_HELPER" "$BASELINE_JOBS" "$SECOND_JOBS"
+  HTD_DEMO_COMPACT="$COMPACT" HTD_DEMO_NO_FORCE_BUILD="$NO_FORCE_BUILD" HTD_DEMO_KEEP_ENVIRONMENT="$KEEP_ENVIRONMENT" exec "$FULL_HELPER" "$BASELINE_JOBS" "$SECOND_JOBS"
 fi
 
 say "1. First run failed: no ICL, kimi-k2.6, query-optimize"
 run_shell "cat '$FAIL_TRIAL/verifier/reward.txt'"
-run_shell "tail -n 45 '$FAIL_TRIAL/verifier/test-stdout.txt'"
+show_verifier_stdout "$FAIL_TRIAL/verifier/test-stdout.txt"
 
 say "2. Harness-TrajecDebug imports the terminal-agent trace and diagnoses it"
 DIAG_DIR="$OUT_DIR/diagnosis"
@@ -449,7 +612,7 @@ if [[ "$TEACHER_KIND" == "fail" ]]; then
 else
   say "3. Critical-step repair becomes a Debug-Action card"
 fi
-run_shell "sed -n '1,90p' '$CARD_PATH'"
+show_card "$CARD_PATH"
 
 if [[ "$TEACHER_KIND" == "fail" ]]; then
   say "4. The fail-teacher card is executable: synthesized action materializes /app/sol.sql"
@@ -464,7 +627,7 @@ summarize_closure "$CLOSURE_JSON"
 if [[ "$MODE" == "recorded" ]]; then
   say "5. Recorded with-TD run: sdk_live injects the card and verifier passes"
   run_shell "cat '$SUCCESS_TRIAL/verifier/reward.txt'"
-  run_shell "tail -n 45 '$SUCCESS_TRIAL/verifier/test-stdout.txt'"
+  show_verifier_stdout "$SUCCESS_TRIAL/verifier/test-stdout.txt"
   summarize_sdk_live "$SUCCESS_TRIAL/sdk-live-summary.json"
   say "Recorded mode complete. Re-run with --live to execute the second attempt now."
   exit 0
@@ -480,4 +643,4 @@ write_live_helper "$LIVE_HELPER" "$CARD_VARIANT"
 
 printf '\n$ cd %q && %q %q %q\n' "$LIVE_ROOT" "$LIVE_HELPER" "$LIVE_JOBS" "$CARD_VARIANT"
 cd "$LIVE_ROOT"
-exec "$LIVE_HELPER" "$LIVE_JOBS" "$CARD_VARIANT"
+HTD_DEMO_COMPACT="$COMPACT" HTD_DEMO_NO_FORCE_BUILD="$NO_FORCE_BUILD" HTD_DEMO_KEEP_ENVIRONMENT="$KEEP_ENVIRONMENT" exec "$LIVE_HELPER" "$LIVE_JOBS" "$CARD_VARIANT"

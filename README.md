@@ -39,7 +39,8 @@ first agent run fails
 For a real rerun of the second attempt:
 
 ```bash
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
 ```
 
 For a fail-teacher demo where the injected card is derived from reward-0 data,
@@ -47,15 +48,28 @@ the recommended recording command is:
 
 ```bash
 # Uses checked-in failed teacher evidence, then runs the second attempt live.
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
 ```
 
 For research/debugging, there is also a slower full-live mode:
 
 ```bash
 # Runs a fresh first failure, generates a fail-teacher card, then reruns live.
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
 ```
+
+For Claude Code or other agent-driven recordings, add `--compact` or set
+`HTD_DEMO_COMPACT=1` so long Harbor logs are written to files while the terminal
+shows the reward, diagnosis, card closure, injection count, and verifier
+summary.
+
+Live modes reuse warm Harbor / Terminal-Bench Docker images by default. Set
+`HTD_DEMO_KEEP_ENVIRONMENT=1` during recording if you want Harbor containers to
+remain available after the run. Cold Docker builds, missing Python/pip inside
+the target image, or concurrent Harbor jobs are infrastructure failures, not
+Harness-TrajecDebug algorithm failures.
 
 The demo material lives in [`demo/`](demo/):
 
@@ -168,9 +182,9 @@ Supported or exercised surfaces:
 
 | Surface | Current role |
 | --- | --- |
-| Claude Code | Can run the `trajectorydebug` / `harness-runtime-icl` skills and execute sdk-live injection. |
-| Codex | Can call the same skill wrapper and launch the Harness-TrajecDebug runtime path. |
-| Kimi Code | Can load the local skill shim and trigger the same reproduction workflow. |
+| Claude Code | Verified for the compact recorded demo and for launching the live Harbor `sdk_live` path. Live success requires a warm Python/pip-capable task image. |
+| Codex | Verified as the current Codex app/thread calling the same wrapper. Nested `codex exec` against the local custom endpoint is not claimed as supported yet. |
+| Kimi Code | Verified for the compact recorded demo through the local skill-smoke wrapper; full live reuse goes through the same Harbor runner. |
 | Harbor / Terminal-Bench | Provides task environments, official verifier output, and raw run directories. |
 
 See [`docs/agent-plugin.md`](docs/agent-plugin.md) and

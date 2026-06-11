@@ -26,11 +26,19 @@ cd Harness-TrajecDebug
 HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded
 ```
 
+Agent-friendly rehearsal, useful inside Claude Code:
+
+```bash
+cd Harness-TrajecDebug
+HTD_DEMO_PAUSE=0 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded --compact
+```
+
 Live second run with the pass-teacher Debug-Action card:
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
 ```
 
 Recommended live recording: checked-in failed teacher evidence, then a real
@@ -38,7 +46,8 @@ second run with a failure-derived Debug-Action card:
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
 ```
 
 Optional research/debug mode: full live fail-teacher run, including a fresh
@@ -47,7 +56,8 @@ agent can time out, pass unexpectedly, or hit environment setup issues.
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
+HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
+  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
 ```
 
 The four modes are:
@@ -67,6 +77,89 @@ demo script, helper scripts, task variants, and teacher cards. For
 `HARBOR_RUNNER=/path/to/run_terminal_bench_harbor.sh` unless your local default
 runner path already exists. The script sources `~/.bashrc` internally for
 endpoint-profile checks and live runners.
+
+## Docker Warm-Run Policy
+
+The live demo is intentionally configured to avoid cold Docker work during
+recording:
+
+```bash
+HTD_DEMO_NO_FORCE_BUILD=1
+HTD_DEMO_KEEP_ENVIRONMENT=1
+```
+
+`HTD_DEMO_NO_FORCE_BUILD=1` tells Harbor to reuse the task `docker_image` or a
+cached image instead of forcing a rebuild. This is the default for the demo.
+
+`HTD_DEMO_KEEP_ENVIRONMENT=1` tells Harbor not to delete the task container at
+the end of the run. Use it for recording so the warmed Python/pip/SDK state can
+remain inspectable. For clean benchmark sweeps, leave it unset so each trial
+starts from a clean task environment.
+
+Before recording a live run:
+
+```bash
+plugins/harness-trajdebug-agent/scripts/htd-agent doctor
+scripts/run_harbor_dynamic_icl.sh \
+  --pack-dir docs/blog/raw_logs/blog_raw_logs \
+  --task query-optimize \
+  --context-variant fail_debug_action \
+  --inject-mode sdk_live \
+  --model kimi-k2.6 \
+  --endpoint-profile seed-coding-plan \
+  --sdk-live-intercept-tool Bash \
+  --dry-run \
+  --no-force-build \
+  --keep-environment
+```
+
+The dry run should show:
+
+```text
+Force build: 0
+Keep environment: 1
+"force_build": false
+"delete": false
+```
+
+If a live run dies while installing Python/pip, during Docker build, or before
+`claude_init: true`, classify it as a Harbor/Docker setup failure. It is not
+evidence that the Debug-Action card or TrajectoryDebug algorithm failed.
+
+Avoid running another long Harbor or Terminal-Bench job at the same time while
+recording this demo. On small local Docker/Colima allocations, concurrent jobs
+can make apt, pip, or verifier steps exit with a killed process.
+
+## Claude Code Recording SOP
+
+Open Claude Code from the repository root:
+
+```bash
+cd Harness-TrajecDebug
+claude --model sonnet --permission-mode bypassPermissions
+```
+
+Paste this first for a safe rehearsal:
+
+```text
+/harness-runtime-icl
+Do not edit files. Run exactly:
+HTD_DEMO_PAUSE=0 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded --compact --out-dir /tmp/htd-claude-recorded
+Report the first reward, diagnosis critical step, card closure, recorded with-TD reward, injection_count, and injection_reasons.
+```
+
+Then paste this for the live recording once Docker is warm:
+
+```text
+/harness-runtime-icl
+Do not edit files. Run exactly:
+HTD_DEMO_PAUSE=0 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher --compact
+Report the first reward, card teacher outcome, live reward, injection_count, injection_reasons, and live trial directory.
+```
+
+If the live command fails, save the trial path and runner log shown on screen.
+The important environment-failure signatures are `sdk_live Python/pip bootstrap
+failed`, Docker build exit `-9`, missing `reward.txt`, or `claude_init: false`.
 
 ## Scenes
 
