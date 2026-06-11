@@ -187,7 +187,7 @@ Supported or exercised surfaces:
 | --- | --- |
 | Claude Code | Verified for the compact recorded demo and for launching the live Harbor `sdk_live` path. Live success requires a warm Python/pip-capable task image. |
 | Kimi Code | Verified for the compact recorded demo through the local skill-smoke wrapper using a short explicit Bash prompt; full live reuse goes through the same Harbor runner. |
-| Codex | Verified as the current Codex app/thread calling the same wrapper and suitable for detached launcher orchestration. Nested `codex exec` is tested but not passing locally yet, even for `echo CODEX_EXEC_OK`. |
+| Codex | Verified as the current Codex app/thread calling the same wrapper and suitable for detached launcher orchestration. Nested `codex exec` has a gate script, [`scripts/run_codex_skill_smoke.sh`](scripts/run_codex_skill_smoke.sh), and is not passing locally yet even for `echo CODEX_EXEC_OK`. |
 | Harbor / Terminal-Bench | Provides task environments, official verifier output, and raw run directories. |
 
 See [`docs/agent-plugin.md`](docs/agent-plugin.md) and

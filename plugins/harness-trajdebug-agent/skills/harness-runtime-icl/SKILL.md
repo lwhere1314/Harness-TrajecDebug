@@ -166,7 +166,10 @@ For Codex prompt-mode runs, keep the compatibility boundary explicit:
 - Do not treat direct `codex exec -m kimi-k2.6` as supported unless the endpoint
   exposes an OpenAI Responses-compatible wire API and the local CLI path has
   been verified. In local nested smoke testing, `codex exec` did not complete
-  even for a trivial `echo CODEX_EXEC_OK` command.
+  even for a trivial `echo CODEX_EXEC_OK` command. Use
+  `scripts/run_codex_skill_smoke.sh --echo` first, then
+  `scripts/run_codex_skill_smoke.sh --recorded`; only claim nested Codex CLI
+  support after both gates pass.
 
 2. For recording demos, avoid cold Docker work unless the user explicitly wants
    to test image construction. Pass `--no-force-build` or set

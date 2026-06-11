@@ -110,6 +110,16 @@ In local smoke testing, nested `codex exec` did not complete even for a trivial
 Do not present direct Codex CLI execution as verified until that local
 CLI/provider path can pass the echo gate and then the compact recorded demo.
 
+Use the repository gate script for that check:
+
+```bash
+scripts/run_codex_skill_smoke.sh --echo
+scripts/run_codex_skill_smoke.sh --recorded
+```
+
+The script writes logs under `runs/codex_cli_smoke/` and fails closed if Codex
+does not print `CODEX_EXEC_OK`, recorded demo completion, or injection evidence.
+
 ## Kimi Code
 
 Kimi Code scans project-local `.agents/skills/` and `.kimi-code/skills/`.
@@ -223,7 +233,7 @@ Common local signatures include Docker build exit `-9`, missing
 | Claude Code headless prompt -> `htd-agent demo query-optimize --recorded --compact` | Verified locally: first reward `0`, closure passed, recorded with-TD reward `1`, `injection_count=1`. |
 | Kimi Code smoke wrapper -> short explicit Bash prompt -> same compact recorded command | Verified locally: Kimi called `Bash`, the demo produced `critical_step`, `closure_passed`, recorded reward `1`, and `injection_count=1`. |
 | Claude Code -> live `--live-fail-teacher --compact` | Verified to launch the real Harbor `sdk_live` path; current local failures were Docker/Python setup failures before valid injection evidence. |
-| Nested `codex exec` prompt-mode run | Tested and not passing in this local environment: even `echo CODEX_EXEC_OK` exits before model/tool output. Keep Codex support to the app/thread skill path or detached launcher until CLI execution is fixed. |
+| Nested `codex exec` prompt-mode run | Gate script added and currently fails locally: even `echo CODEX_EXEC_OK` exits before model/tool output. Keep Codex support to the app/thread skill path or detached launcher until CLI execution is fixed. |
 
 For live evidence, keep:
 

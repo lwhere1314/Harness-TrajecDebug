@@ -186,9 +186,16 @@ Run this from a real terminal or PTY. Expected evidence includes `kimi_rc: 0`,
 `1`, and `injection_count: 1`.
 
 Codex support is the current Codex app/thread skill path plus the detached
-launcher for long Harbor jobs. Do not claim nested `codex exec` as working in
-the demo until `echo CODEX_EXEC_OK` and the compact recorded command both
-complete through that CLI.
+launcher for long Harbor jobs. For nested Codex CLI, use the explicit gate:
+
+```bash
+scripts/run_codex_skill_smoke.sh --echo
+scripts/run_codex_skill_smoke.sh --recorded
+```
+
+Do not claim nested `codex exec` as working in the demo until `--echo` prints
+`CODEX_EXEC_OK` and `--recorded` prints the compact recorded demo completion or
+injection evidence.
 
 ## Scenes
 
