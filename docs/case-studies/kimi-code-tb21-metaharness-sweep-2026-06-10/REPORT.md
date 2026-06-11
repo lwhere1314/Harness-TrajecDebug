@@ -75,6 +75,12 @@ Additional partial `video-processing` logs are included as
 `raw-logs/video-processing-partial-kimicode-20260611.tar.zst`. These runs are
 not counted: both ended before `jump_analyzer.py` or `result.json` was produced.
 
+Additional `video-processing` SIGTERM diagnostic logs are included as
+`raw-logs/video-processing-sigterm-kimicode-20260611.tar.zst`. This run is not
+counted: Kimi Code analyzed the example video and wrote debug frame artifacts,
+but the Harbor process exited with return code `-15` before `jump_analyzer.py`
+or any verifier `result.json` was produced.
+
 Additional `adaptive-rejection-sampler` diagnostic logs are included as
 `raw-logs/adaptive-rejection-sampler-invalid-kimicode-20260611.tar.zst`. This
 run is not counted: Kimi Code wrote `ars.R`, but Harbor's outer agent timeout
@@ -151,6 +157,10 @@ Completed task families so far:
 - `video-processing`: partial diagnostic only. Two with Meta-Harness attempts
   started video analysis and wrote exploratory scripts/images, but neither
   produced final `jump_analyzer.py` or a Harbor `result.json`.
+- `video-processing` SIGTERM retry: partial diagnostic only. The retry used the
+  prior verifier feedback and a stop condition for `jump_analyzer.py`; it
+  generated debug frame artifacts and Kimi session wire usage, then exited with
+  return code `-15` before writing the final script or verifier result.
 - `adaptive-rejection-sampler`: diagnostic only. The run wrote `ars.R`, but the
   adapter timeout was set too close to the task-level Harbor timeout, so Harbor
   produced `AgentTimeoutError` before workspace upload/verifier execution.
@@ -361,5 +371,6 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
 - `video-processing`: the prior failure showed an off-by-few-frame takeoff
   estimate (`55` vs `[50,54]`, and `225` vs `[219,223]`). Meta-Harness injected
   this exact signal, and Kimi Code began frame-difference exploration, but both
-  attempts ended before producing final `jump_analyzer.py`; these logs are
-  retained only as partial infrastructure diagnostics.
+  original attempts plus the SIGTERM retry ended before producing final
+  `jump_analyzer.py`; these logs are retained only as partial infrastructure
+  diagnostics.
