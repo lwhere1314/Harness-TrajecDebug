@@ -8,12 +8,22 @@ critical steps, repair hints, and ICL data-quality signals.
 The project is intentionally conservative. It only emits a failure pattern when
 there is concrete trace evidence and a final verifier footprint.
 
+The product direction is a harness-agnostic plugin layer, not a replacement
+harness. Harbor, Terminal-Bench, Meta-Harness-style runners, Claude Code, Codex,
+and Kimi Code should be able to call the same TrajectoryDebug interface to run
+experiments, preserve raw traces, diagnose failures, select or synthesize
+Debug-Action cards, rerun with runtime ICL, and export a reproducible evidence
+bundle.
+
 ## Contents
 
 - A reusable diagnosis core for terminal-agent traces under
   `src/harness_trajecdebug/`.
 - A CLI for local diagnosis, Harbor task discovery, Harbor run import, harness
   inventory, and ATIF viewer export.
+- Cross-agent skill/plugin shims under `plugins/harness-trajdebug-agent/`,
+  `.claude/skills/`, `.agents/skills/`, and `.kimi-code/skills/` so Claude
+  Code, Codex, and Kimi Code can invoke the same workflows.
 - Minimal normalized examples under `examples/traces/` and
   `examples/diagnoses/`.
 - Research notes under `docs/`, including the framework, failure taxonomy,

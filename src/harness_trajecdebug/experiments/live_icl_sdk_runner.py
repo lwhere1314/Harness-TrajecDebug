@@ -33,6 +33,12 @@ except ModuleNotFoundError:
 
 
 SDK_VERSION = "0.1.43"
+SDK_INSTALL_REQUIREMENTS = [
+    f"claude-agent-sdk=={SDK_VERSION}",
+    "mcp>=1.27.2",
+    "httpx==0.28.1",
+    "httpcore==1.0.9",
+]
 
 
 def read_text(path: Path) -> str:
@@ -85,8 +91,10 @@ def ensure_sdk(
         "-m",
         "pip",
         "install",
+        "--default-timeout",
+        "60",
         "--no-cache-dir",
-        f"claude-agent-sdk=={SDK_VERSION}",
+        *SDK_INSTALL_REQUIREMENTS,
     ]
     append_jsonl(event_log, {"type": "sdk_install", "status": "starting", "command": command})
     install_env = os.environ.copy()

@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+command_name="${1:-doctor}"
+if [ "$#" -gt 0 ]; then
+  shift
+fi
+
+run_htd() {
+  if command -v harness-trajdebug >/dev/null 2>&1; then
+    exec harness-trajdebug "$@"
+  fi
+
+  local root="${HTD_ROOT:-$(pwd)}"
+  if [ -d "$root/src/harness_trajecdebug" ]; then
+    exec env PYTHONPATH="$root/src${PYTHONPATH:+:$PYTHONPATH}" python3 -m harness_trajecdebug.cli "$@"
+  fi
+
+  echo "harness-trajdebug is not installed and HTD_ROOT does not point to a Harness-TrajecDebug checkout" >&2
+  echo "Set HTD_ROOT=/path/to/Harness-TrajecDebug or run from the repo root." >&2
+  exit 127
+}
+
+case "$command_name" in
+  doctor)
+    echo "Harness-TrajecDebug agent plugin doctor"
+    echo "cwd: $(pwd)"
+    if command -v harness-trajdebug >/dev/null 2>&1; then
+      echo "harness-trajdebug: $(command -v harness-trajdebug)"
+    elif [ -d "${HTD_ROOT:-$(pwd)}/src/harness_trajecdebug" ]; then
+      echo "harness-trajdebug: using PYTHONPATH fallback from ${HTD_ROOT:-$(pwd)}/src"
+    else
+      echo "harness-trajdebug: missing; set HTD_ROOT or run 'python3 -m pip install -e .'"
+    fi
+    for cli in claude codex kimi; do
+      if command -v "$cli" >/dev/null 2>&1; then
+        printf '%s: %s\n' "$cli" "$(command -v "$cli")"
+      else
+        printf '%s: missing\n' "$cli"
+      fi
+    done
+    for env_name in SEED_CODING_PLAN_BASE_URL SEED_CODING_PLAN_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_API_KEY; do
+      if [ -n "${!env_name:-}" ]; then
+        printf '%s: present\n' "$env_name"
+      else
+        printf '%s: missing\n' "$env_name"
+      fi
+    done
+    echo "sdk_live python: target Harbor container must provide python3 + pip, or use a prebuilt image/wheelhouse"
+    echo "sdk_live deps: claude-agent-sdk==0.1.43 mcp>=1.27.2 httpx==0.28.1 httpcore==1.0.9"
+    for dir in \
+      ".claude/skills/trajectorydebug" \
+      ".agents/skills/trajectorydebug" \
+      ".kimi-code/skills/trajectorydebug" \
+      "plugins/harness-trajdebug-agent"; do
+      if [ -e "$dir" ]; then
+        printf '%s: present\n' "$dir"
+      else
+        printf '%s: absent\n' "$dir"
+      fi
+    done
+    ;;
+  diagnose)
+    run_htd diagnose "$@"
+    ;;
+  harbor-import)
+    run_htd harbor-import "$@"
+    ;;
+  atif-export)
+    run_htd atif-viewer-export "$@"
+    ;;
+  harnesses)
+    run_htd harnesses "$@"
+    ;;
+  tasks)
+    run_htd harbor-tasks "$@"
+    ;;
+  trials)
+    run_htd harbor-trials "$@"
+    ;;
+  daily-mechanism)
+    exec bash scripts/run_daily_icl_mechanism.sh "$@"
+    ;;
+  daily-canary)
+    exec bash scripts/run_daily_icl_canary.sh "$@"
+    ;;
+  *)
+    cat >&2 <<'USAGE'
+Usage:
+  htd-agent doctor
+  htd-agent diagnose --trace TRACE_JSON [--run-id RUN_ID] [--output OUT]
+  htd-agent harbor-import --run HARBOR_RUN --output-dir OUT --diagnose
+  htd-agent atif-export --run HARBOR_RUN --viewer-root VIEWER --diagnose
+  htd-agent harnesses
+  htd-agent tasks --root TASK_ROOT [--limit N]
+  htd-agent trials --run HARBOR_RUN
+  htd-agent daily-mechanism --task TASK --context-variant debug_action
+  htd-agent daily-canary --task TASK --model kimi-k2.6 --inject-mode sdk_live
+
+For sdk_live, the target Harbor container must have python3 + pip or a
+prebuilt SDK layer/wheelhouse. Known-good deps:
+  claude-agent-sdk==0.1.43 mcp>=1.27.2 httpx==0.28.1 httpcore==1.0.9
+USAGE
+    exit 2
+    ;;
+esac

@@ -1,0 +1,37 @@
+{
+  "name": "harness-trajdebug-agent",
+  "version": "0.1.0",
+  "description": "TrajectoryDebug skills for diagnosing terminal-agent traces and running runtime ICL canaries.",
+  "author": {
+    "name": "Harness-TrajecDebug"
+  },
+  "homepage": "https://github.com/lwhere1314/Harness-TrajecDebug",
+  "repository": "https://github.com/lwhere1314/Harness-TrajecDebug",
+  "license": "MIT",
+  "keywords": [
+    "trajectory-debug",
+    "terminal-agent",
+    "harbor",
+    "terminal-bench",
+    "icl",
+    "debug-action"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Harness TrajecDebug",
+    "shortDescription": "Diagnose traces and run TD ICL canaries",
+    "longDescription": "Use Harness-TrajecDebug from Codex to diagnose Harbor and terminal-agent trajectories, select Debug-Action cards, compare no-TD versus with-TD runs, and preserve verifier-aligned evidence.",
+    "developerName": "Harness-TrajecDebug",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/lwhere1314/Harness-TrajecDebug",
+    "defaultPrompt": [
+      "Diagnose this Harbor run with TrajectoryDebug",
+      "Build a Debug-Action card for this failed trace",
+      "Compare no-TD and with-TD evidence for this task"
+    ]
+  }
+}

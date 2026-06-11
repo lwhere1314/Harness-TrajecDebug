@@ -1,0 +1,20 @@
+{
+  "name": "harness-trajdebug-agent",
+  "version": "0.1.0",
+  "description": "TrajectoryDebug skills for diagnosing terminal-agent traces and running runtime ICL canaries.",
+  "keywords": [
+    "trajectory-debug",
+    "terminal-agent",
+    "harbor",
+    "terminal-bench",
+    "icl",
+    "debug-action"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Harness TrajecDebug",
+    "shortDescription": "Diagnose traces and run TD ICL canaries",
+    "developerName": "Harness-TrajecDebug",
+    "websiteURL": "https://github.com/lwhere1314/Harness-TrajecDebug"
+  }
+}
