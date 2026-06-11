@@ -1,0 +1,41 @@
+Harbor: /opt/miniconda3/envs/terminal-bench/bin/harbor
+Task: runs/harbor_icl_baseline/task_variants/no_icl/query-optimize
+Context: runs/harbor_icl_baseline/teacher_cards/query-optimize/debug_action.md
+Inject mode: sdk_live
+Endpoint profile: ark
+SDK live intercept tools: Bash,WebSearch,WebFetch
+First-turn timeout: 75
+Verifier timeout: 600
+Job: htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6
+Config: /private/tmp/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6.json
+Runner log: runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/runner.log
+Agent: DynamicIclClaudeCode
+Running model endpoint preflight...
+{
+  "ok": true,
+  "status": 200,
+  "kind": "ok",
+  "url": "https://ark.cn-beijing.volces.com/api/coding/v1/messages",
+  "body_excerpt": "{\"id\":\"021781045727406480c9da16195717d454d02a438d86eb76a41a9\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"kimi-k2.6\",\"content\":[{\"type\":\"thinking\",\"thinking\":\"The user wants me to reply with\"},{\"type\":\"text\",\"text\":\"\"}],\"stop_reason\":\"max_tokens\",\"usage\":{\"input_tokens\":10,\"output_tokens\":8,\"cache_read_input_tokens\":0}}",
+  "profile": "ark",
+  "resolved_profile": "ark",
+  "base_url_source": "ARK_BASE_URL",
+  "api_key_source": "ARK_API_KEY"
+}
+Wrote Claude Code trajectory to runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/trajectory.json
+  1/1 Mean: 1.000 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:05:09 0:00:00Results written to runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/result.json
+        claude-code on adhoc         
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric              ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ Agent               │ claude-code │
+│ Dataset             │ adhoc       │
+│ Trials              │ 1           │
+│ Errors              │ 0           │
+│                     │             │
+│ Mean                │ 1.000       │
+│                     │             │
+│ Reward Distribution │             │
+│   reward = 1.0      │ 1           │
+└─────────────────────┴─────────────┘
+

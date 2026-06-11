@@ -1,0 +1,47 @@
+Collecting pytest==8.4.1
+  Downloading pytest-8.4.1-py3-none-any.whl.metadata (7.7 kB)
+Collecting pytest-json-ctrf==0.3.5
+  Downloading pytest_json_ctrf-0.3.5-py3-none-any.whl.metadata (3.3 kB)
+Collecting iniconfig>=1 (from pytest==8.4.1)
+  Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting packaging>=20 (from pytest==8.4.1)
+  Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting pluggy<2,>=1.5 (from pytest==8.4.1)
+  Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Collecting pygments>=2.7.2 (from pytest==8.4.1)
+  Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Downloading pytest-8.4.1-py3-none-any.whl (365 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 365.5/365.5 kB 881.9 kB/s eta 0:00:00
+Downloading pytest_json_ctrf-0.3.5-py3-none-any.whl (6.8 kB)
+Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Downloading packaging-26.2-py3-none-any.whl (100 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.2/100.2 kB 76.8 MB/s eta 0:00:00
+Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 1.0 MB/s eta 0:00:00
+Installing collected packages: pygments, pluggy, packaging, iniconfig, pytest, pytest-json-ctrf
+Successfully installed iniconfig-2.3.0 packaging-26.2 pluggy-1.6.0 pygments-2.20.0 pytest-8.4.1 pytest-json-ctrf-0.3.5
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.1, pluggy-1.6.0
+rootdir: /tests
+plugins: json-ctrf-0.3.5
+collected 6 items
+
+../tests/test_outputs.py ......                                          [100%]
+
+==================================== PASSES ====================================
+___________________ test_compare_golden_vs_solution_runtime ____________________
+----------------------------- Captured stdout call -----------------------------
+Running iteration 0 of 5
+{'iterations': 5, 'golden': {'median_s': 0.3506215589986823, 'min_s': 0.34885960099927615, 'max_s': 0.3533477480013971}, 'solution': {'median_s': 0.23314867799854255, 'min_s': 0.23150180599986925, 'max_s': 0.2517580320018169}, 'speedup_solution_vs_golden': 1.5038539442238403}
+___________________ test_solution_contains_single_sql_query ____________________
+----------------------------- Captured stdout call -----------------------------
+✓ Solution file contains exactly one valid SQL SELECT statement
+=========================== short test summary info ============================
+PASSED ../tests/test_outputs.py::test_compare_golden_vs_my_sql_query_correctness
+PASSED ../tests/test_outputs.py::test_check_for_db_modifications
+PASSED ../tests/test_outputs.py::test_compare_golden_vs_solution_runtime
+PASSED ../tests/test_outputs.py::test_outputs_match_exactly
+PASSED ../tests/test_outputs.py::test_solution_contains_single_sql_query
+PASSED ../tests/test_outputs.py::test_solution_is_small
+======================== 6 passed in 162.19s (0:02:42) =========================
