@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -70,6 +71,29 @@ def main() -> int:
         action="store_true",
         help="Also run Meta-Harness for tasks whose baseline result is invalid/missing.",
     )
+    parser.add_argument(
+        "--wait-for-docker-idle",
+        action="store_true",
+        help="Wait until the Harbor Docker host has no running containers before each task.",
+    )
+    parser.add_argument(
+        "--docker-idle-seconds",
+        type=int,
+        default=10,
+        help="How long Docker must stay empty before starting a task.",
+    )
+    parser.add_argument(
+        "--docker-idle-timeout-sec",
+        type=int,
+        default=0,
+        help="Maximum seconds to wait for Docker idle; 0 means wait indefinitely.",
+    )
+    parser.add_argument(
+        "--docker-idle-poll-sec",
+        type=int,
+        default=15,
+        help="Polling interval while waiting for Docker idle.",
+    )
     args = parser.parse_args()
 
     audit = json.loads(args.audit_json.read_text())
@@ -97,6 +121,8 @@ def main() -> int:
         if previous and previous.get("status") == "finished" and not args.force:
             print(f"[{iso_now()}] skip finished {task}", flush=True)
             continue
+        if args.wait_for_docker_idle:
+            wait_for_docker_idle(args)
         brief = write_repair_brief(row, args)
         job_name = f"tb21-{safe(task)}-kimicode-with-metaharness-{datetime.now():%Y%m%dT%H%M%S}"
         task_path = args.tasks_dir / task
@@ -190,6 +216,52 @@ def select_tasks(rows: list[dict[str, Any]], args: argparse.Namespace) -> list[d
             continue
         selected.append(row)
     return selected
+
+
+def wait_for_docker_idle(args: argparse.Namespace) -> None:
+    deadline = (
+        time.monotonic() + args.docker_idle_timeout_sec
+        if args.docker_idle_timeout_sec > 0
+        else None
+    )
+    idle_since: float | None = None
+    last_report: str | None = None
+    while True:
+        active = running_docker_containers()
+        now = time.monotonic()
+        if not active:
+            if idle_since is None:
+                idle_since = now
+                print(f"[{iso_now()}] Docker idle; waiting {args.docker_idle_seconds}s", flush=True)
+            if now - idle_since >= args.docker_idle_seconds:
+                print(f"[{iso_now()}] Docker idle gate passed", flush=True)
+                return
+        else:
+            idle_since = None
+            report = "; ".join(active[:5])
+            if len(active) > 5:
+                report += f"; ... +{len(active) - 5} more"
+            if report != last_report:
+                print(f"[{iso_now()}] waiting for Docker idle: {report}", flush=True)
+                last_report = report
+        if deadline is not None and now >= deadline:
+            raise TimeoutError("Timed out waiting for Docker idle")
+        time.sleep(max(1, args.docker_idle_poll_sec))
+
+
+def running_docker_containers() -> list[str]:
+    env = os.environ.copy()
+    env["DOCKER_HOST"] = DOCKER_HOST
+    result = subprocess.run(
+        ["docker", "ps", "--format", "{{.Names}} {{.Image}} {{.Status}}"],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"docker ps failed: {result.stderr.strip()}")
+    return [line for line in result.stdout.splitlines() if line.strip()]
 
 
 def write_repair_brief(row: dict[str, Any], args: argparse.Namespace) -> Path:
