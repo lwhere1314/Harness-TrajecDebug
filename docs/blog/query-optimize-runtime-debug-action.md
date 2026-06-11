@@ -87,6 +87,107 @@ task" into "commit to an engineering search route." Injecting there gives the
 model a chance to avoid re-discovering a merely adequate SQL rewrite and instead
 use the verified compact artifact route.
 
+## Raw Evidence For The Injection Point
+
+The claim above is not inferred from the final solution alone. It is visible in
+two raw logs preserved in the evidence bundle:
+
+- SDK event stream:
+  [`agent/sdk-live-events.jsonl`](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sdk-live-events.jsonl)
+- Claude Code native session stream:
+  [`agent/sessions/projects/-app/7ae21fa8-7488-49ad-8605-1effb41d7068.jsonl`](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sessions/projects/-app/7ae21fa8-7488-49ad-8605-1effb41d7068.jsonl)
+
+The SDK event stream shows the exact order:
+
+| Raw line | Event | Evidence |
+| --- | --- | --- |
+| [`sdk-live-events.jsonl` L9](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sdk-live-events.jsonl#L9) | `sdk_message` | Claude Code requests `Bash_1` with `sqlite3 /app/oewn.sqlite ".schema"`. |
+| [`sdk-live-events.jsonl` L10](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sdk-live-events.jsonl#L10) | `pre_tool_use` | The controller sees `tool_name="Bash"`, `reason="Bash"`, and `already_injected=false`. |
+| [`sdk-live-events.jsonl` L11](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sdk-live-events.jsonl#L11) | `live_injection` | Harness-TrajecDebug injects `3694` characters through `PreToolUse.additionalContext`. |
+| [`sdk-live-events.jsonl` L12](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sdk-live-events.jsonl#L12) | `sdk_message` | The `.schema` result returns after the injection event. |
+| [`sdk-live-events.jsonl` L13](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sdk-live-events.jsonl#L13) | `sdk_message` | The next model reasoning explicitly starts from the Debug-Action card and the teacher artifact. |
+
+The native Claude session stream shows the same boundary from Claude Code's
+side:
+
+| Raw line | Event | Evidence |
+| --- | --- | --- |
+| [`session.jsonl` L8](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sessions/projects/-app/7ae21fa8-7488-49ad-8605-1effb41d7068.jsonl#L8) | assistant `tool_use` | `Bash_1` is the `.schema` command. |
+| [`session.jsonl` L9](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sessions/projects/-app/7ae21fa8-7488-49ad-8605-1effb41d7068.jsonl#L9) | `hook_additional_context` | The injected attachment is labeled `HARNESS-TRAJECDEBUG LIVE ICL INJECTION`, with `Trigger: Bash`, `hookName="PreToolUse:Bash"`, and `toolUseID="Bash_1"`. |
+| [`session.jsonl` L10](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/agent/sessions/projects/-app/7ae21fa8-7488-49ad-8605-1effb41d7068.jsonl#L10) | user `tool_result` | The schema output is delivered after the injected attachment. |
+
+The run summary records the aggregate controller state:
+[`sdk-live-summary.json` L13-L17](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/sdk-live-summary.json#L13-L17)
+reports `tool_event_count=5`, `injection_count=1`, and
+`injection_reasons=["Bash"]`.
+
+So the concrete sequence is:
+
+```text
+Read /app/my-sql-query.sql
+agent requests: sqlite3 /app/oewn.sqlite ".schema"
+PreToolUse(Bash) fires with already_injected=false
+Debug-Action card is attached through PreToolUse.additionalContext
+.schema output returns
+next model reasoning starts from the teacher artifact
+```
+
+This establishes the timing: the card arrived before the model reasoned from the
+schema result and before it chose a SQL rewrite strategy.
+
+## Why The `.schema` Boundary Worked
+
+The `.schema` command itself was not magic, and Harness-TrajecDebug did not add
+that command to the prompt. Claude Code chose it as the natural next inspection
+step. The controller used it as a trigger because it was the first Bash boundary
+after the model had read the slow query and before it committed to an
+optimization plan.
+
+Before that boundary, Claude Code only knew the task contract and the slow SQL.
+After the schema came back, it had enough database context to choose a concrete
+route: inspect version support, build a CTE/window-function rewrite, test it,
+time it, and write `/app/sol.sql`. In the failing runs, that route was sensible
+but not fast enough for the official runtime gate.
+
+The Debug-Action card arrived at the narrow gap between those two phases. It did
+not merely say "a prior run passed." It gave the agent a task-matched repair
+card with:
+
+- the same task contract;
+- a teacher outcome of `reward=1.0`;
+- the verified artifact path `/app/sol.sql`;
+- a concrete next action to materialize that artifact;
+- guardrails to stop after cheap closure instead of doing full recomputation.
+
+That is why the same insertion location had different outcomes depending on the
+content. The `outcome_only + sdk_live` run was also injected at the first
+`.schema` Bash boundary, but its injected context was only a short outcome
+summary:
+[`sdk-live-events.jsonl` L9-L11](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-outcome_only-query-optimize-kimi-k2-6/query-optimize__R8AokaA/agent/sdk-live-events.jsonl#L9-L11)
+shows the same `.schema` request, `PreToolUse(Bash)`, and `live_injection`, but
+with only `500` injected characters. It did not contain the artifact-producing
+action, so the agent continued down the autonomous rewrite route and failed the
+runtime gate.
+
+## Trajectory Shift After Injection
+
+The raw trajectories show three different paths after the same early task setup:
+
+| Condition | Post-`.schema` trajectory | Verifier evidence |
+| --- | --- | --- |
+| `no_icl` | `Read` slow query, inspect `.schema`, check SQLite version, run and time the original query, write a `word_synset_counts` / `ROW_NUMBER()` rewrite to `/app/sol.sql`. | Runtime failed: golden median `0.3557s`, solution median `0.5464s` ([`test-stdout.txt` L914-L926](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-icl-no_icl-query-optimize-kimi-k2-6/query-optimize__cTzLSZp/verifier/test-stdout.txt#L914-L926)). |
+| `outcome_only + sdk_live` | Injected at the same `.schema` Bash boundary, then continued with `.version`, `/tmp/opt_query.sql`, query-plan comparison, timing, and a `ROW_NUMBER()` rewrite. | Runtime failed: golden median `0.3597s`, solution median `0.4767s` ([`test-stdout.txt` L101-L113](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-outcome_only-query-optimize-kimi-k2-6/query-optimize__R8AokaA/verifier/test-stdout.txt#L101-L113)). |
+| `debug_action + sdk_live` | Injected at `.schema`, then the next reasoning says the Debug-Action card suggests a verifier-passing teacher artifact; the agent checks `.indexes`, writes the artifact to `/app/sol.sql`, reads it back, and stops. | Runtime passed: golden median `0.3506s`, solution median `0.2331s`; `6 passed in 162.19s` ([`test-stdout.txt` L36-L47](raw_logs/blog_raw_logs/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-debug_action-query-optimize-kimi-k2-6/query-optimize__aRKxGBq/verifier/test-stdout.txt#L36-L47)). |
+
+The cleanest interpretation is therefore:
+
+```text
+same early task setup
+same first Bash schema boundary for both sdk_live variants
+outcome-only context -> continues generic rewrite -> runtime fail
+debug-action context -> materializes verified artifact -> runtime pass
+```
+
 ## What The Debug-Action Card Changed
 
 Without the Debug-Action card, `kimi-k2.6` tends to do the reasonable but
