@@ -23,14 +23,14 @@ Fast rehearsal:
 
 ```bash
 cd /Users/hugo/Projects/Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 scripts/demo_query_optimize_trace_to_card.sh --recorded
+HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --recorded
 ```
 
 Live rerun:
 
 ```bash
 cd /Users/hugo/Projects/Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 scripts/demo_query_optimize_trace_to_card.sh --live
+HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live
 ```
 
 For the live rerun, the script defaults to

@@ -14,7 +14,7 @@ LIVE_ROOT="${HTD_DEMO_LIVE_ROOT:-/Users/hugo/Documents/Harness-TrajecDebug}"
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/demo_query_optimize_trace_to_card.sh [--recorded|--live] [--out-dir DIR]
+  demo/query-optimize-trace-to-card.sh [--recorded|--live] [--out-dir DIR]
 
 Recorded mode is fast and uses checked-in failing/passing evidence.
 Live mode runs the second query-optimize debug_action + sdk_live attempt.
