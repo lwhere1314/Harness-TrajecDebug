@@ -71,6 +71,12 @@ counted: Kimi Code recovered the secret and cleaned the git unreachable objects,
 but the official verifier exited before writing `reward.txt`, so Harbor raised
 `RewardFileNotFoundError`.
 
+Additional successful `git-leak-recovery` rerun logs are included as
+`raw-logs/git-leak-recovery-rerun-kimicode-20260611.tar.zst`. This counted run
+used the same task, model, and Meta-Harness adapter, launched from `/tmp` on the
+isolated `mh-harbor` Docker profile, recovered `secret.txt`, cleaned the repo
+history, and passed the official verifier with reward `1.0`.
+
 Additional partial `video-processing` logs are included as
 `raw-logs/video-processing-partial-kimicode-20260611.tar.zst`. These runs are
 not counted: both ended before `jump_analyzer.py` or `result.json` was produced.
@@ -177,9 +183,12 @@ Completed task families so far:
   verifier reward was produced and the task is excluded from the current score.
 - `raman-fitting`: selected from the K2.6 clean reward-0 pool. The with
   Meta-Harness run produced a valid verifier result with reward `0.0`.
-- `git-leak-recovery`: diagnostic only. The with Meta-Harness run recovered
-  `secret[lost_and_found_in_git]` and cleaned reflog/unreachable git objects,
-  but the verifier failed before writing a reward file.
+- `git-leak-recovery`: selected from the K2.6 clean reward-0 pool. The first
+  with Meta-Harness run recovered `secret[lost_and_found_in_git]` and cleaned
+  reflog/unreachable git objects, but the verifier failed before writing a
+  reward file. A clean rerun on the isolated `mh-harbor` profile completed the
+  same recovery/cleanup path and passed the official verifier with reward
+  `1.0`.
 - `video-processing`: partial diagnostic only. Two with Meta-Harness attempts
   started video analysis and wrote exploratory scripts/images, but neither
   produced final `jump_analyzer.py` or a Harbor `result.json`.
@@ -226,9 +235,9 @@ those fields null, so the metrics script falls back to the local Kimi session
 Token coverage is now 78/89 rows for the `claude-code + kimi-k2.6` baseline and
 24/24 rows for the current with Meta-Harness Kimi Code subset. On the 24 paired
 rows, mean total `input+output` tokens moved from `828,173.083` to
-`730,232.417` (`-97,940.667`), while mean cache-adjusted
-`input-cache+output` tokens moved from `29,449.000` to `51,405.750`
-(`+21,956.750`). The median paired deltas are `+31,229.000` total tokens and
+`741,573.167` (`-86,599.917`), while mean cache-adjusted
+`input-cache+output` tokens moved from `29,449.000` to `51,471.833`
+(`+22,022.833`). The median paired deltas are `+31,229.000` total tokens and
 `+25,460.500` cache-adjusted tokens. The interpretation is therefore mixed:
 with Meta-Harness is lower on mean total tokens in this paired subset, but
 higher on uncached/cache-adjusted tokens.
@@ -241,8 +250,8 @@ observed Harbor/Kimi usage fields, not as a fully normalized provider-billing
 estimate.
 
 Current latency summary for the same paired subset: baseline mean wall time is
-`3,338.294` seconds and with Meta-Harness mean wall time is `609.470` seconds
-(`-2,728.824`). The corresponding medians are `1,090.430` seconds and
+`3,338.294` seconds and with Meta-Harness mean wall time is `602.772` seconds
+(`-2,735.522`). The corresponding medians are `1,090.430` seconds and
 `616.708` seconds, with median paired wall-time delta `-421.124` seconds. This
 latency comparison is not a controlled full-suite conclusion yet because the
 with Meta-Harness set is still a targeted recovery subset and mixes passes,
@@ -257,21 +266,22 @@ Current auditable snapshot:
 
 - without Meta-Harness baseline: `33/89` tasks have reward `1.0` in the
   `claude-code + kimi-k2.6` run root.
-- with Meta-Harness-style Kimi Code context: `42/89` currently proven, i.e.
-  `33 + 9`.
+- with Meta-Harness-style Kimi Code context: `43/89` currently proven, i.e.
+  `33 + 10`.
 - current additional solved tasks: `cancel-async-tasks`, `kv-store-grpc`,
   `openssl-selfsigned-cert`, `query-optimize`, `sanitize-git-repo`,
   `torch-tensor-parallelism`, `count-dataset-tokens`,
-  `feal-differential-cryptanalysis`, and `polyglot-rust-c`.
+  `feal-differential-cryptanalysis`, `polyglot-rust-c`, and
+  `git-leak-recovery`.
 - baseline invalid/missing-rerun bucket: `build-pov-ray`, `crack-7z-hash`,
   `db-wal-recovery`, `extract-elf`, `gpt2-codegolf`, `install-windows-3.11`,
   `make-doom-for-mips`, `make-mips-interpreter`, and `reshard-c4-data`.
-- baseline reward-0/timeout bucket: 47 tasks. Of these, 9 now have counted
+- baseline reward-0/timeout bucket: 47 tasks. Of these, 10 now have counted
   with Meta-Harness passes and 11 now have observed with Meta-Harness failures
   (`break-filter-js-from-html`, `chess-best-move`, `configure-git-webserver`,
   `dna-insert`, `filter-js-from-html`, `gcode-to-text`, `headless-terminal`,
   `largest-eigenval`, `pypi-server`, `raman-fitting`, and
-  `write-compressor`), leaving 27 baseline-failed tasks without a counted
+  `write-compressor`), leaving 26 baseline-failed tasks without a counted
   with Meta-Harness result.
 
 This is not yet the final requested number. The final report must first rerun
@@ -361,8 +371,9 @@ environment snapshot. The strongest trajectory diffs observed:
   pip, or uv. Kimi Code recovered the secret from the unreachable commit,
   wrote `/app/secret.txt`, expired reflogs, removed `ORIG_HEAD`, and ran
   aggressive GC so `git fsck --unreachable --no-reflogs` returned cleanly.
-  The official verifier then failed before creating a reward file, so this
-  remains diagnostic rather than a counted pass.
+  The first verifier attempt failed before creating a reward file, but the
+  clean rerun completed the same artifact path and passed the official
+  verifier, converting the earlier trajectory evidence into a counted pass.
 - `pypi-server`: Meta-Harness supplied the prior package-index failure and
   environment context. The counted run improved the trajectory from "nothing
   installable" to concrete `vectorops` package artifacts plus a running server,
@@ -432,9 +443,10 @@ After opening the PR, I continued scanning K2.6 reward-0 cases:
   reward-0 observed failure.
 - `largest-eigenval`: has a raw with-Meta-Harness verifier result and remains a
   reward-0 observed failure.
-- `git-leak-recovery`: has raw with-Meta-Harness logs and a strong trajectory
-  improvement, but Harbor raised `RewardFileNotFoundError`; it is retained as
-  diagnostic evidence only.
+- `git-leak-recovery`: the first with Meta-Harness run had strong trajectory
+  evidence but Harbor raised `RewardFileNotFoundError`. A clean rerun from
+  `/tmp` on the isolated `mh-harbor` Docker profile produced reward `1.0`,
+  adding one new task to the current `m` count.
 - `video-processing`: the prior failure showed an off-by-few-frame takeoff
   estimate (`55` vs `[50,54]`, and `225` vs `[219,223]`). Meta-Harness injected
   this exact signal, and Kimi Code began frame-difference exploration, but both
