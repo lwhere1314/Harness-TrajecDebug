@@ -11,6 +11,7 @@ TEACHER_KIND="pass"
 OUT_DIR="$REPO_ROOT/runs/demo-query-optimize-trace-to-card"
 PAUSE="${HTD_DEMO_PAUSE:-1}"
 LIVE_ROOT="${HTD_DEMO_LIVE_ROOT:-$REPO_ROOT}"
+LIVE_ROOT_SOURCE="${HTD_DEMO_LIVE_ROOT:+env}"
 
 usage() {
   cat <<'USAGE'
@@ -51,6 +52,14 @@ while [[ $# -gt 0 ]]; do
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
+
+if [[ "$MODE" == "live_full_fail_teacher" && -z "${HTD_DEMO_LIVE_ROOT:-}" ]]; then
+  DEFAULT_LIVE_MIRROR="$HOME/Documents/Harness-TrajecDebug"
+  if [[ "$REPO_ROOT" == "$HOME/Projects/Harness-TrajecDebug" && -d "$DEFAULT_LIVE_MIRROR" ]]; then
+    LIVE_ROOT="$DEFAULT_LIVE_MIRROR"
+    LIVE_ROOT_SOURCE="auto-documents-mirror"
+  fi
+fi
 
 say() {
   printf '\n\033[1;36m# %s\033[0m\n' "$*"
@@ -366,6 +375,26 @@ LIVE_FULL_HELPER
   chmod +x "$helper"
 }
 
+require_live_file() {
+  local root="$1"
+  local rel="$2"
+  if [[ ! -e "$root/$rel" ]]; then
+    echo "Missing live-root file: $root/$rel" >&2
+    echo "Set HTD_DEMO_LIVE_ROOT to an updated repo mirror, or sync/pull this path there." >&2
+    exit 1
+  fi
+}
+
+require_live_exec() {
+  local root="$1"
+  local rel="$2"
+  require_live_file "$root" "$rel"
+  if [[ ! -x "$root/$rel" ]]; then
+    echo "Live-root file is not executable: $root/$rel" >&2
+    exit 1
+  fi
+}
+
 CARD_PATH="$PACK_DIR/teacher_cards/query-optimize/${CARD_VARIANT}.md"
 
 if [[ "$MODE" != "live_full_fail_teacher" && ! -d "$FAIL_TRIAL" ]]; then
@@ -388,6 +417,13 @@ say "0. Setup: same terminal-bench task, same model, same verifier"
 run_shell "source ~/.bashrc >/dev/null 2>&1 || true; cd '$REPO_ROOT' && plugins/harness-trajdebug-agent/scripts/htd-agent doctor"
 
 if [[ "$MODE" == "live_full_fail_teacher" ]]; then
+  if [[ "$LIVE_ROOT_SOURCE" == "auto-documents-mirror" ]]; then
+    say "Using live Harbor mirror: $LIVE_ROOT"
+  fi
+  require_live_exec "$LIVE_ROOT" "scripts/run_harbor_icl_variants.sh"
+  require_live_exec "$LIVE_ROOT" "scripts/run_harbor_dynamic_icl.sh"
+  require_live_exec "$LIVE_ROOT" "scripts/build_query_optimize_fail_debug_action_card.py"
+  require_live_file "$LIVE_ROOT" "docs/blog/raw_logs/blog_raw_logs/task_variants/no_icl/query-optimize/task.toml"
   FULL_HELPER="$LIVE_ROOT/runs/htd_demo_query_optimize_full_fail_teacher_helper.sh"
   BASELINE_JOBS="runs/demo-query-optimize-full-baseline-$(date +%Y%m%dT%H%M%S)"
   SECOND_JOBS="runs/demo-query-optimize-full-with-td-$(date +%Y%m%dT%H%M%S)"
@@ -435,11 +471,8 @@ if [[ "$MODE" == "recorded" ]]; then
 fi
 
 say "5. Live second run: inject ${CARD_VARIANT} at PreToolUse(Bash)"
-if [[ ! -x "$LIVE_ROOT/scripts/run_harbor_dynamic_icl.sh" ]]; then
-  echo "Missing live runner under $LIVE_ROOT" >&2
-  echo "Set HTD_DEMO_LIVE_ROOT to a repo mirror with scripts/run_harbor_dynamic_icl.sh." >&2
-  exit 1
-fi
+require_live_exec "$LIVE_ROOT" "scripts/run_harbor_dynamic_icl.sh"
+require_live_file "$LIVE_ROOT" "docs/blog/raw_logs/blog_raw_logs/teacher_cards/query-optimize/${CARD_VARIANT}.md"
 
 LIVE_JOBS="runs/demo-query-optimize-live-${CARD_VARIANT}-$(date +%Y%m%dT%H%M%S)"
 LIVE_HELPER="$LIVE_ROOT/runs/htd_demo_query_optimize_live_${CARD_VARIANT}_helper.sh"
