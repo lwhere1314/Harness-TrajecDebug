@@ -13,6 +13,15 @@ without Meta-Harness: 33/89
 with Meta-Harness:    33+10/89 = 43/89
 ```
 
+Important evaluation boundary: the `with Meta-Harness` condition is not a
+blind rerun with the same information budget. It is a failure-informed repair
+protocol: the next Kimi Code run receives a prior-failure brief, verifier tail,
+and environment context. Therefore the result should be read as "how many
+previous failures can be recovered when the harness feeds back structured
+failure evidence," not as a claim that the base model solved the same prompt
+from scratch. If the brief is manually curated, that curation is part of the
+harness condition and must be reported.
+
 Harness and model:
 
 - Harness: Harbor / Terminal-Bench 2.1 proxy tasks.
