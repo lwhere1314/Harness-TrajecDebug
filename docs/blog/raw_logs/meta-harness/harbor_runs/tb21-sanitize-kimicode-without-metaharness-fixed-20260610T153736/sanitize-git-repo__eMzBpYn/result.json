@@ -1,0 +1,101 @@
+{
+    "id": "847886ed-b2b5-4f6e-ae7e-29e59d57eaed",
+    "task_name": "sanitize-git-repo",
+    "trial_name": "sanitize-git-repo__eMzBpYn",
+    "trial_uri": "file:///Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-sanitize-kimicode-without-metaharness-fixed-20260610T153736/sanitize-git-repo__eMzBpYn",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/sanitize-git-repo"
+    },
+    "source": null,
+    "task_checksum": "994c01be17dc7b1cdca59092a42aeda19b85b09bdbcd79a3cd693999994abbd1",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/sanitize-git-repo",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "sanitize-git-repo__eMzBpYn",
+        "trials_dir": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-sanitize-kimicode-without-metaharness-fixed-20260610T153736",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
+            "model_name": "kimi-for-coding",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+                "node_bin": "/Users/hugo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+                "prompt_timeout_sec": 900,
+                "include_env_snapshot": false,
+                "upload_mode": "workspace",
+                "clear_app_before_upload": true
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "ad4de4c5-f6f3-4a37-a9fd-e11f9ec059c4"
+    },
+    "agent_info": {
+        "name": "kimi-code",
+        "version": "0.13.0",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": {
+            "host_workspace": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-sanitize-kimicode-without-metaharness-fixed-20260610T153736/sanitize-git-repo__eMzBpYn/agent/host-workspace",
+            "upload_mode": "workspace",
+            "uploaded_path": "/app",
+            "kimi_return_code": 0,
+            "sanity_return_code": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-10T07:37:45.437263Z",
+    "finished_at": "2026-06-10T07:44:38.369682Z",
+    "environment_setup": {
+        "started_at": "2026-06-10T07:37:45.439469Z",
+        "finished_at": "2026-06-10T07:37:46.372728Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-10T07:37:46.372815Z",
+        "finished_at": "2026-06-10T07:37:46.373463Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-10T07:37:46.373526Z",
+        "finished_at": "2026-06-10T07:44:06.966903Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-10T07:44:06.967570Z",
+        "finished_at": "2026-06-10T07:44:27.874024Z"
+    }
+}

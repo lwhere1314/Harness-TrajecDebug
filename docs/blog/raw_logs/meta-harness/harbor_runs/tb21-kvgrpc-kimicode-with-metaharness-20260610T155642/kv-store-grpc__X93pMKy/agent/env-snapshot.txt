@@ -1,0 +1,9 @@
+[Environment Snapshot]
+Working directory: /app
+/app contents:
+total 8
+drwxr-xr-x 2 root root 4096 Jun  9 15:27 .
+drwxr-xr-x 1 root root 4096 Jun 10 07:56 ..
+Available languages/tools: Python 3.13.13; Python 3.13.13; bash: line 1: node: command not found; node: not found
+Package managers: pip 26.0.1 from /usr/local/lib/python3.13/site-packages/pip (python 3.13); pip 26.0.1 from /usr/local/lib/python3.13/site-packages/pip (python 3.13); bash: line 1: uv: command not found; uv: not found
+Proxy/gRPC environment: ALL_PROXY=http://host.docker.internal:1082; HTTPS_PROXY=http://host.docker.internal:1082; HTTP_PROXY=http://host.docker.internal:1082; all_proxy=http://host.docker.internal:1082; http_proxy=http://host.docker.internal:1082; https_proxy=http://host.docker.internal:1082

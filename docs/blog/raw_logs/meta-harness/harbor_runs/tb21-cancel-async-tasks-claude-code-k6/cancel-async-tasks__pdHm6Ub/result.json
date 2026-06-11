@@ -1,0 +1,90 @@
+{
+    "id": "954dbc87-89ac-40da-882d-519751ea6f09",
+    "task_name": "cancel-async-tasks",
+    "trial_name": "cancel-async-tasks__pdHm6Ub",
+    "trial_uri": "file:///Volumes/SSD/terminal-bench-harbor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-cancel-async-tasks-claude-code-k6/cancel-async-tasks__pdHm6Ub",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/cancel-async-tasks"
+    },
+    "source": null,
+    "task_checksum": "7569735619b048948f5d41d321cfe77a7261df93a50c808da8d47148d81cc2af",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/cancel-async-tasks",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "cancel-async-tasks__pdHm6Ub",
+        "trials_dir": "/Users/hugo/Desktop/super-refactor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-cancel-async-tasks-claude-code-k6",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": 1200.0,
+            "max_timeout_sec": null,
+            "kwargs": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": false,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {
+                "keep_containers": true
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "21b510e9-6aa7-4bc9-841e-072d62bc8694"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 39376,
+        "n_cache_tokens": 39360,
+        "n_output_tokens": 9820,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-31T11:44:13.736910Z",
+    "finished_at": "2026-05-31T11:48:46.794541Z",
+    "environment_setup": {
+        "started_at": "2026-05-31T11:44:13.738808Z",
+        "finished_at": "2026-05-31T11:44:14.609187Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-31T11:44:14.609263Z",
+        "finished_at": "2026-05-31T11:44:16.389890Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-31T11:44:16.390054Z",
+        "finished_at": "2026-05-31T11:46:05.145355Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-31T11:46:05.145572Z",
+        "finished_at": "2026-05-31T11:48:35.793035Z"
+    }
+}

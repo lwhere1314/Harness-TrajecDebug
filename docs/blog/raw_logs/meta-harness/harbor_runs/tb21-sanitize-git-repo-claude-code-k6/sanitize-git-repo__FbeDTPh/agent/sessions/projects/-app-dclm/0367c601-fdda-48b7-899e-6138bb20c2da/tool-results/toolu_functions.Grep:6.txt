@@ -1,0 +1,252 @@
+.gitignore:157:#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+training/file_utils.py:59:    "agi_eval_lsat_ar": "f74c0426e8bd08e1e9bcf758ccc1353ca45415a672fa1c763294c3436fee1037",
+training/file_utils.py:60:    "agi_eval_sat_math": "50c64867548c1e76a65051652fca2a2e30e6cbfe6b55eafe00b1c463536565f4",
+training/file_utils.py:61:    "aqua": "7d6823fad372f1e42cd7b43f344d7d1947d0c97a3f9a0f574b22160f107dadca",
+training/file_utils.py:62:    "bigbench_cs_algorithms": "64ed919e3a3ea0ea526af105c173ddd3ba1267c2f6bda54755a2198850bc645a",
+training/file_utils.py:63:    "bigbench_dyck_languages": "77f5eacf426a26b63411e1b33e7e1d4429cf6f6433c4e4f7cf0dcd2aac477520",
+training/file_utils.py:64:    "bigbench_elementary_math_qa": "0e45b1bb172f0b1b0062f0dfd59ab554a43dc7cf876c10f2276387f0809c1b60",
+training/file_utils.py:65:    "bigbench_logical_deduction": "81deb91ab888ef542ce28ac2d63a7fa1a258b981cf0dc6f4fff44fe335ba89e3",
+training/file_utils.py:66:    "bigbench_operators": "79fe39b2d1027394ac0122bb3862e0db7b7f3bc9e267b996077ce2f9319f0e8f",
+training/file_utils.py:67:    "bigbench_repeat_copy_logic": "72fb7fb2a14c9e32103ef9dd62cd8f9c59fb407c9ee69b3b663782b84e661952",
+training/file_utils.py:68:    "gsm8k": "4fea4cbd4aca9c3bcc222134d907e4f94d5ef624c0d69616e7967e169b41decb",
+training/file_utils.py:69:    "logi_qa": "2bec953987b78285e0be404636bf42ccd5d07fee11dc8e6617139826d7895894",
+training/file_utils.py:70:    "math_qa": "fb9849cb1730f671f9dc96951d1aff6d66a7e2bcff35e4e409904d4b401695f1",
+training/file_utils.py:71:    "simple_arithmetic_nospaces": "fb476233cd5cdc6a2306653810ec966181486a28ff54067f5d61aced70f98235",
+training/file_utils.py:72:    "simple_arithmetic_withspaces": "63fb46e6374cb191db78a9dbdfd154a9e857534307aaca909e795a819968ef74",
+training/file_utils.py:73:    "svamp": "8ac6a4a1033cd7d4cee52d3374253f875a7d38e188aeeabadd8cf1a577e05552",
+training/file_utils.py:74:    "agi_eval_lsat_lr": "40fc30f3eb4e9ab34102cd761b8c6fcaa12afd4b0be9d30a1ca8f5c0e87295ae",
+training/file_utils.py:75:    "agi_eval_lsat_rc": "345f8d3c5ab4f5db2e9c41d669db0f4167f4fd74f6d30d3d02d156648d283f3f",
+training/file_utils.py:76:    "agi_eval_sat_en": "0ec66638aa2760a1f521cc1723a32e5a17772cae2dc7634fccf7bf1ad28a56c6",
+training/file_utils.py:77:    "bigbench_understanding_fables": "9bdaf1433c0ab977802b93ce941ad98f3345321faf81b31d782032b3177f8335",
+training/file_utils.py:78:    "boolq": "8a2b46e5adccd171874c3070cf3843251a038e078eaa7d55a5f29afda651b076",
+training/file_utils.py:79:    "coqa": "2a25d60a50aecee2877f5e7f512ce751f57e7993ff027d3ee18fe00523fe0c36",
+training/file_utils.py:80:    "pubmed_qa_labeled": "71e1b98d340c39a66d3373f5f81b56a7af73f3d6c6027572ca13d8e58ea4bddd",
+training/file_utils.py:81:    "squad": "b03b19345e109dbbace401cd660b50850b90839b4aa56caa3d8975796780479b",
+training/file_utils.py:82:    "human_eval": "7dc32b1a52249c677208a1626b72478c312d4eabd364d5336a9b5581626c4271",
+training/file_utils.py:83:    "human_eval-0.25": "67723a17c6f6e6a75537b23db15c7efbfe3a90e3b32719ca6a790f51edeb890d",
+training/file_utils.py:84:    "human_eval-0.5": "75943f7649a6914e4e3a1aca7d8d07230484e5b10c5d13da499a28c62fd2e105",
+training/file_utils.py:85:    "human_eval-0.75": "f32c8cb414162bacb2f693635615856aff9ce10baa4695bddcf01d257173666a",
+training/file_utils.py:86:    "human_eval_return_complex": "dc7043d78523ac91f81d989e09201587a95770b8f15fa37dd639caa54b2c9a8e",
+training/file_utils.py:87:    "human_eval_return_simple": "f3b3980f268358de0f2b4096c46a74df8df7eec15027568d44f0541eab4d9765",
+training/file_utils.py:88:    "processed_human_eval_cpp": "cc70cd2a24efa63d1e29a05993fee1231c63a966cfcdc43fcbda4c70df53cc78",
+training/file_utils.py:89:    "processed_human_eval_js": "a1e9874570525b12e6a267e7b7656170adf59bfe64bfdcebf0e1cb3d6c8299ae",
+training/file_utils.py:90:    "bigbench_conceptual_combinations": "b17fba80117abd9b9af396270fe5691eafafa08853dbc246a5769cd5b662e29c",
+training/file_utils.py:91:    "bigbench_conlang_translation": "3ef864110ccc33bc63d8736c26c798afe3ac82507a1bbce62192cb41f3b7870a",
+training/file_utils.py:92:    "bigbench_language_identification": "84a6dac7cf0ba60737058617feaabf4d4c4bc3bb98fd668f8c3df9905b769d69",
+training/file_utils.py:93:    "hellaswag": "4c5addf39903571c16dc6e8261eb8f05e92cf8b0eb58490b61e84938844d8ba4",
+training/file_utils.py:94:    "lambada_openai": "a8699b4fc07a721e7d9cd58cba0060aa6e8b63c60528485f555c7cb6bd38fa8c",
+training/file_utils.py:95:    "winograd_wsc": "d948bfbdc147d3d494c6e18939405cec48600c28d2ea7f29af45a553a01dbb71",
+training/file_utils.py:96:    "winogrande": "da27270a585f96c26b7563761018c6770172a18d3e4408d6e2048c6b341d770d",
+training/file_utils.py:97:    "bigbench_novel_concepts": "e5e2ac306b86587ae6d78c178bed49e7081c5ed29fdf442bf70cacc0f11435eb",
+training/file_utils.py:98:    "bigbench_strange_stories": "7f46194b3793853f7c98b3d1865a870872c5f0c25c587f97ddca0fffeb1ae3a6",
+training/file_utils.py:99:    "bigbench_strategy_qa": "68a39c750e8905ac6eecb88b5f1e072b3124edbe01d6e11d3944890ed2819938",
+training/file_utils.py:100:    "commonsense_qa": "91e756431c9047d81e9d5cfc14670dee42581cfa1b089235ba269123b258875b",
+training/file_utils.py:101:    "copa": "a5e6055c55eef4451f4990df2d7d20c2a0f1f98cea2b9609e8d8817e0e85e884",
+training/file_utils.py:102:    "openbook_qa": "f725fbc769f7d630038fe59a71a373762ff4e8390855c47ea6077a62cdb0181b",
+training/file_utils.py:103:    "piqa": "0b40a9b951aade9296ee89ba1d8b2fd7cf06edffd2a7be7a11098d78449f5259",
+training/file_utils.py:104:    "siqa": "f4857ed4b452cdae80651f69e22af4f0377af4f8a0b6700e86e4166b97018587",
+training/file_utils.py:105:    "bbq": "63241d0baef9e38c0adb4475293075b970dd72d4fd3dd1159e989781d1467167",
+training/file_utils.py:106:    "enterprise_pii_classification": "c09f8666baffc9f955743368cb4404482b8291157f6ec5c379b03a3d8351ccef",
+training/file_utils.py:107:    "winogender_mc_female": "3ad31a1e5a0021997ecac93f0fed447f2bd397a2c0c776d8fe2090a83c8b22c3",
+training/file_utils.py:108:    "winogender_mc_male": "98624b71df4107f95bc4a3d82e00435bb3f2690a16e994ded5bfb9cabbc2eca5",
+training/file_utils.py:109:    "arc_challenge": "2047faa319cd5939b582ff5b27e8d18633cc6fca972abc4e64fee36ae2750d5f",
+training/file_utils.py:110:    "arc_easy": "f7264add0515608cb0f21404b10d9c8abbd61125d742a672535f2e84db303556",
+training/file_utils.py:111:    "bigbench_misconceptions": "433700ec50bc62200948d6b4b9d902a545c60f0a7c669f14b2263c245760557e",
+training/file_utils.py:112:    "bigbench_qa_wikidata": "2d65962b62a5c8fed3a6e143f209646a32271686a00765d2b8fe29dce385357f",
+training/file_utils.py:113:    "jeopardy_all": "f937b9bd32460994bd391ae3e4dea83cdd4078b01ee1ed906cf32a88a942c8e9",
+training/file_utils.py:114:    "mmlu": "9c96c8418d9e43d35dea841b2fa1d57162e1cb0a3dc693314ba1673e78c0ea57",
+training/file_utils.py:115:    "triviaqa_sm_sub": "8e962e6cd4ab9686c86ff2bc95672221b779e5a3200d49486e255c2c5ba359fe",
+training/file_utils.py:158:                    "sha256": "68716cb8a326c8a2d15fab0bc77a6146139a9b20ba8b0003ddc6e053242a3d50",
+training/file_utils.py:167:                    "sha256": "a2cd985d4f97a0a04fa28e7cfceca87365ec7b83ea6b27cc8962f707a8aeda01",
+training/file_utils.py:171:                    "sha256": "29d3a0b921fcabc5c2e628a7dc16de34780c7176b46d86b7034042c13f5296e8",
+training/file_utils.py:175:                    "sha256": "19e12214dabe7a8598df2f090c16d314938bd3f447e30ae123aab4ca957786ed",
+training/file_utils.py:179:                    "sha256": "684697bd7c23de4b1f69de85f8975293f03503de0caf927c21eba22d0d4d23e6",
+training/file_utils.py:183:                    "sha256": "2dec8cd89bc69ba18e09d14fadb528e991c842e3c97f511215ca304cbb46d086",
+training/file_utils.py:187:                    "sha256": "d741f4a0621e6989014eaa88f87b7256f2f4efaad1bcc0468c8917ea50967740",
+training/file_utils.py:191:                    "sha256": "66c41791b0843b2bf5e297d19dd96929c099de494fb1b750377c2fdcf9328c94",
+training/file_utils.py:195:                    "sha256": "59461734c71c59c18aeebffe3bee350526ee2506b446c129190169a45633fea5",
+training/file_utils.py:199:                    "sha256": "d5a9fea2897a40b7c718008667009bcc3117d5350505e7e5e0702e29a2487edf",
+training/file_utils.py:203:                    "sha256": "36151788110b20486fcba2a3c40e6a63f81a81cf18efdd01a927df13fb9cd74e",
+training/file_utils.py:207:                    "sha256": "834bc6d9f8f1413d9b67bc9e2188ca72da02fa02a4c7a2fd9980ea21517377e4",
+training/file_utils.py:216:                    "sha256": "27486aa41aba5471992a0d69414bc3c2d90c9960f4fec1c1d8d3f567eb799177",
+training/file_utils.py:220:                    "sha256": "f7a2331f83531b00fb4b64ef62908895350d8b08490ee355756f0529453eba3d",
+training/file_utils.py:224:                    "sha256": "62f5d20d3bac68582c4a1b22d128c1319cddb083e64ddb4104bf1c37c8fda6a8",
+training/file_utils.py:228:                    "sha256": "8cf6d619054ca783b1559801f0ef1c9bd64b3a2fe0eab5fb6641fdeab248c3f2",
+setup.py:114:            "en.arpa.bin": "https://huggingface.co/edugp/kenlm/resolve/main/wikipedia/en.arpa.bin",
+setup.py:115:            "en.sp.model": "https://huggingface.co/edugp/kenlm/resolve/main/wikipedia/en.sp.model",
+ray_processing/ray_cluster.yaml:29:    - echo 'export AWS_ACCESS_KEY_ID=<redacted-fake-aws-access-key-id>' >> ~/.bashrc
+ray_processing/ray_cluster.yaml:30:    - echo 'export AWS_SECRET_ACCESS_KEY=<redacted-fake-aws-secret-access-key>' >> ~/.bashrc
+ray_processing/ray_cluster.yaml:43:    - git clone -b https://<redacted-fake-github-token>@github.com/mlfoundations/dcnlp.git
+ray_processing/ray_cluster.yaml:44:    - huggingface-cli login --token <redacted-fake-huggingface-token> -y
+ray_processing/process.py:122:    os.environ["AWS_ACCESS_KEY_ID"] = "<redacted-fake-aws-access-key-id>"
+ray_processing/process.py:123:    os.environ["AWS_SECRET_ACCESS_KEY"] = "<redacted-fake-aws-secret-access-key>"
+tools/push_JSC_model_remotely.py:47:)  # /p/home/jusers/garg4/juwels/garg4/scratch/code/dcnlp/exp_data/models/CC_v3_random_resampled_3B-open_lm_160m-1.0.json
+tests/baselines/mappers/filters/test_content_filters.py:391:    fname = 'tests/baselines/mappers/filters/banlists/ldnoobw.txt' if os.getcwd().endswith("/dcnlp") else "banlists/ldnoobw.txt"
+tests/baselines/mappers/filters/test_metadata_filters.py:57:    fname = 'tests/baselines/mappers/filters/banlists/refinedweb_banned_domains_and_urls.txt' if os.getcwd().endswith("/dcnlp") else 'banlists/refinedweb_banned_domains_and_urls.txt'
+tests/baselines/mappers/filters/test_metadata_filters.py:58:    pickle_fname = 'tests/baselines/mappers/filters/banlists/refinedweb_banned_domains_and_urls_regex.pkl' if os.getcwd().endswith("/dcnlp") else 'banlists/refinedweb_banned_domains_and_urls_regex.pkl'
+tests/baselines/mappers/filters/test_metadata_filters.py:59:    domains_fname = 'tests/baselines/mappers/filters/banlists/refinedweb_banned_domains.txt' if os.getcwd().endswith("/dcnlp") else 'banlists/refinedweb_banned_domains_and_urls.txt'
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:9:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:25:<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Biology-0001.jpg/800px-Biology-0001.jpg">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:28:<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Biology-0001.jpg/640px-Biology-0001.jpg">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:141:			src="/static/images/mobile/copyright/wikipedia-wordmark-en.svg" style="width: 7.5em; height: 1.125em;">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:144:			src="/static/images/mobile/copyright/wikipedia-tagline-en.svg" width="117" height="13" style="width: 7.3125em; height: 0.8125em;">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:981:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1046:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1060:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1076:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1094:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1102:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1107:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1124:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1132:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1143:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1158:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1168:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1182:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1185:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1192:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1214:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1219:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1230:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1261:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1263:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1267:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1271:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1273:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1275:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1281:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1283:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1289:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1295:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1301:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1305:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1315:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1317:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1321:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1339:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1343:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1353:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1371:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1373:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1375:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1381:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1387:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1391:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1393:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1401:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1407:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1411:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1421:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1431:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1433:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1437:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1439:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1445:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1451:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1453:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1455:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1457:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1459:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1463:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1465:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1467:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1469:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1471:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1477:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1481:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1483:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1484:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1486:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1488:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1490:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1494:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1498:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1500:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1502:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1504:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1506:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1510:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1514:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1516:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1518:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1522:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1526:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1528:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1530:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1542:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1552:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1554:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1558:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1560:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1562:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1564:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1572:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1578:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1580:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1584:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1586:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1590:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1592:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1613:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1836:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:2089:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:2205:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:11:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:143:			src="/static/images/mobile/copyright/wikipedia-wordmark-en.svg" style="width: 7.5em; height: 1.125em;">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:146:			src="/static/images/mobile/copyright/wikipedia-tagline-en.svg" width="117" height="13" style="width: 7.3125em; height: 0.8125em;">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:945:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:953:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:964:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1001:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1011:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1018:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1033:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1047:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1063:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1076:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1137:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1142:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1204:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1220:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1221:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1406:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1408:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1410:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1412:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1420:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1422:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1426:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1430:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1432:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1434:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1436:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1440:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1444:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1446:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1448:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1450:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1452:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1460:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1462:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1464:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1470:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1476:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1478:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1482:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1486:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1488:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1490:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1500:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1504:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1506:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1508:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1512:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1516:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1520:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1522:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1526:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1530:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1534:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1536:[Omitted long matching line]
+
+[Showing results with pagination = limit: 250]

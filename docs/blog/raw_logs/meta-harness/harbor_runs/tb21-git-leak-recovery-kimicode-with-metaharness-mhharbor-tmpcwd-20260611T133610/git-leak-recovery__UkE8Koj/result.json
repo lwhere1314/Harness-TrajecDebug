@@ -1,0 +1,105 @@
+{
+    "id": "ea5c2402-8ca5-47cd-ae64-67ddc57f66e3",
+    "task_name": "git-leak-recovery",
+    "trial_name": "git-leak-recovery__UkE8Koj",
+    "trial_uri": "file:///Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-git-leak-recovery-kimicode-with-metaharness-mhharbor-tmpcwd-20260611T133610/git-leak-recovery__UkE8Koj",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/git-leak-recovery"
+    },
+    "source": null,
+    "task_checksum": "3ee4b3412c34f34d45cdfcea3b243dbbbf043bd0ccebb46e5453526a3517a819",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/git-leak-recovery",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "git-leak-recovery__UkE8Koj",
+        "trials_dir": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-git-leak-recovery-kimicode-with-metaharness-mhharbor-tmpcwd-20260611T133610",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
+            "model_name": "kimi-for-coding",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+                "node_bin": "/Users/hugo/.nvm/versions/node/v24.16.0/bin/node",
+                "prompt_timeout_sec": 500,
+                "previous_failure_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/metaharness-briefs/git-leak-recovery.md",
+                "include_env_snapshot": true,
+                "upload_mode": "workspace",
+                "clear_app_before_upload": true,
+                "post_upload_timeout_sec": 180,
+                "upload_on_timeout": true
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "d2a9c079-b65c-46e4-8e95-6dc1d948b44c"
+    },
+    "agent_info": {
+        "name": "kimi-code",
+        "version": "0.13.0",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": {
+            "host_workspace": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-git-leak-recovery-kimicode-with-metaharness-mhharbor-tmpcwd-20260611T133610/git-leak-recovery__UkE8Koj/agent/host-workspace",
+            "upload_mode": "workspace",
+            "uploaded_path": "/app",
+            "kimi_return_code": 0,
+            "kimi_timed_out": false,
+            "sanity_return_code": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-11T05:36:19.120407Z",
+    "finished_at": "2026-06-11T05:40:28.763922Z",
+    "environment_setup": {
+        "started_at": "2026-06-11T05:36:19.122396Z",
+        "finished_at": "2026-06-11T05:36:56.240990Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-11T05:36:56.241127Z",
+        "finished_at": "2026-06-11T05:36:56.241861Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-11T05:36:56.241988Z",
+        "finished_at": "2026-06-11T05:39:16.303827Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-11T05:39:16.304591Z",
+        "finished_at": "2026-06-11T05:40:18.213358Z"
+    }
+}

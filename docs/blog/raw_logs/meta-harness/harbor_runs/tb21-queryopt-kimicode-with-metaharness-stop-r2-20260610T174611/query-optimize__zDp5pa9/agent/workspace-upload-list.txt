@@ -1,0 +1,4 @@
+-r--r--r-- /app/oewn.sqlite
+-rw-r--r-- /app/my-sql-query.sql
+-rw-r--r-- /app/original_output.txt
+-rw-r--r-- /app/sol.sql

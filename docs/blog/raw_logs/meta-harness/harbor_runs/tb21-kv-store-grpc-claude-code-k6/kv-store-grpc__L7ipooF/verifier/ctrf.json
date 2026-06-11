@@ -1,0 +1,86 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.2"
+        },
+        "summary": {
+            "tests": 7,
+            "passed": 6,
+            "failed": 1,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1780247291.4286797,
+            "stop": 1780247291.509331
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_proto_file_creation",
+                "status": "passed",
+                "duration": 0.0002568749987403862,
+                "start": 1780247291.441738,
+                "stop": 1780247291.4421227,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_grpc_tools_installation",
+                "status": "passed",
+                "duration": 0.017321250001259614,
+                "start": 1780247291.4422085,
+                "stop": 1780247291.4596357,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_protobuf_generation",
+                "status": "passed",
+                "duration": 0.0001795839980331948,
+                "start": 1780247291.459754,
+                "stop": 1780247291.4599948,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_server_file_creation",
+                "status": "passed",
+                "duration": 0.00017266700160689652,
+                "start": 1780247291.4600654,
+                "stop": 1780247291.4603014,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_real_grpc_server_running",
+                "status": "passed",
+                "duration": 0.00025300000015704427,
+                "start": 1780247291.4603662,
+                "stop": 1780247291.460678,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_grpc_protocol_handshake",
+                "status": "passed",
+                "duration": 0.018820458000845974,
+                "start": 1780247291.4607437,
+                "stop": 1780247291.4796772,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_grpc_server_functionality",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.004933500998959062,
+                "start": 1780247291.4798768,
+                "stop": 1780247291.50922,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_grpc_server_functionality():\n        \"\"\"\n        Test that the gRPC server responds correctly to SetVal and GetVal requests.\n        This verifies the server implements the KVStore service correctly.\n        \"\"\"\n        import grpc\n        import kv_store_pb2\n        import kv_store_pb2_grpc\n    \n        port = \"5328\"\n        addr = f\"127.0.0.1:{port}\"\n    \n        # Create a channel and stub\n        channel = grpc.insecure_channel(addr)\n        stub = kv_store_pb2_grpc.KVStoreStub(channel)\n    \n        try:\n            # Test SetVal functionality\n>           resp = stub.SetVal(kv_store_pb2.SetValRequest(key=\"test_key\", value=42))\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n/tests/test_outputs.py:156: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/usr/local/lib/python3.13/site-packages/grpc/_channel.py:1181: in __call__\n    return _end_unary_response_blocking(state, call, False, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nstate = <grpc._channel._RPCState object at 0xff77fde38550>\ncall = <grpc._cython.cygrpc.SegregatedCall object at 0xff77fde48e40>\nwith_call = False, deadline = None\n\n    def _end_unary_response_blocking(\n        state: _RPCState,\n        call: cygrpc.SegregatedCall,\n        with_call: bool,\n        deadline: Optional[float],\n    ) -> Union[ResponseType, Tuple[ResponseType, grpc.Call]]:\n        if state.code is grpc.StatusCode.OK:\n            if with_call:\n                rendezvous = _MultiThreadedRendezvous(state, call, None, deadline)\n                return state.response, rendezvous\n            else:\n                return state.response\n        else:\n>           raise _InactiveRpcError(state)  # pytype: disable=not-instantiable\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE           grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:\nE           \tstatus = StatusCode.UNAVAILABLE\nE           \tdetails = \"failed to connect to all addresses; last error: UNKNOWN: ipv4:192.168.5.2:1082: HTTP proxy returned response code 503\"\nE           \tdebug_error_string = \"UNKNOWN:Error received from peer  {grpc_status:14, grpc_message:\"failed to connect to all addresses; last error: UNKNOWN: ipv4:192.168.5.2:1082: HTTP proxy returned response code 503\"}\"\nE           >\n\n/usr/local/lib/python3.13/site-packages/grpc/_channel.py:1006: _InactiveRpcError",
+                "message": "The test failed in the call phase"
+            }
+        ]
+    }
+}

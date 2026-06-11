@@ -1,0 +1,102 @@
+{
+    "id": "b9434055-3bf2-4348-8cd9-73b352c3678e",
+    "task_name": "query-optimize",
+    "trial_name": "query-optimize__J3frX2U",
+    "trial_uri": "file:///Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-queryopt-kimicode-without-metaharness-stop-20260610T171537/query-optimize__J3frX2U",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/query-optimize"
+    },
+    "source": null,
+    "task_checksum": "55a6133ab19cc41f5123c2ff82bfa909ddf98a25eb1a56389c2fb65c69f3dc69",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/query-optimize",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "query-optimize__J3frX2U",
+        "trials_dir": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-queryopt-kimicode-without-metaharness-stop-20260610T171537",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
+            "model_name": "kimi-for-coding",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+                "node_bin": "/Users/hugo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+                "prompt_timeout_sec": 900,
+                "include_env_snapshot": false,
+                "upload_mode": "workspace",
+                "clear_app_before_upload": false,
+                "stop_after_path": "sol.sql"
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "15a39846-150a-4e84-bedb-e724d4f846ca"
+    },
+    "agent_info": {
+        "name": "kimi-code",
+        "version": "0.13.0",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": {
+            "host_workspace": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-queryopt-kimicode-without-metaharness-stop-20260610T171537/query-optimize__J3frX2U/agent/host-workspace",
+            "upload_mode": "workspace",
+            "uploaded_path": "/app",
+            "kimi_return_code": -15,
+            "sanity_return_code": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-10T09:15:46.315980Z",
+    "finished_at": "2026-06-10T09:28:55.306640Z",
+    "environment_setup": {
+        "started_at": "2026-06-10T09:15:46.317823Z",
+        "finished_at": "2026-06-10T09:15:47.148453Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-10T09:15:47.148532Z",
+        "finished_at": "2026-06-10T09:15:47.149155Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-10T09:15:47.149222Z",
+        "finished_at": "2026-06-10T09:20:18.895455Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-10T09:20:18.896245Z",
+        "finished_at": "2026-06-10T09:28:44.672572Z"
+    }
+}

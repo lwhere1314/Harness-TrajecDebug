@@ -1,0 +1,12 @@
+[Environment Snapshot]
+Working directory: /app
+/app contents:
+total 12
+drwxr-xr-x 1 root root 4096 Jun 11 05:36 .
+drwxr-xr-x 1 root root 4096 Jun 11 05:36 ..
+drwxr-xr-x 3 root root 4096 Jun 11 05:36 repo
+Available languages/tools: bash: line 1: python3: command not found; python3: not found; bash: line 1: python: command not found; python: not found; bash: line 1: node: command not found; node: not found
+Package managers: bash: line 1: pip3: command not found; pip3: not found; bash: line 1: pip: command not found; pip: not found; bash: line 1: uv: command not found; uv: not found
+Proxy/gRPC environment: ALL_PROXY=http://host.docker.internal:1082; HTTPS_PROXY=http://host.docker.internal:1082; HTTP_PROXY=http://host.docker.internal:1082; all_proxy=http://host.docker.internal:1082; http_proxy=http://host.docker.internal:1082; https_proxy=http://host.docker.internal:1082
+Memory: total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       389Mi       5.7Gi       800Ki       1.8Gi       7.4Gi

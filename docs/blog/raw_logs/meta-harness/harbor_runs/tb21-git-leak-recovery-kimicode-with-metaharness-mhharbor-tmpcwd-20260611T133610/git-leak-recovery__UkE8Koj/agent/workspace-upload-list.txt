@@ -1,0 +1,4 @@
+-rw-r--r-- /app/repo/README.md
+-rw-r--r-- /app/secret.txt
+drwxr-xr-x /app/repo
+drwxr-xr-x /app/repo/.git

@@ -1,0 +1,8 @@
+{
+  "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+  "node_bin": "/Users/hugo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "dev_script": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code/apps/kimi-code/scripts/dev.mjs",
+  "model_name": "kimi-for-coding",
+  "previous_failure_path": "/Users/hugo/Projects/Harness-TrajecDebug/harbor_adapters/cancel_async_tasks_previous_failure.txt",
+  "include_env_snapshot": true
+}
