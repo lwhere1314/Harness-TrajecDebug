@@ -1,0 +1,4 @@
+interface:
+  display_name: "Harness Runtime ICL"
+  short_description: "TD runtime context injection"
+  default_prompt: "Use Harness Runtime ICL to run a Harbor or Terminal-Bench task with Debug-Action context injection and compare no-TD versus with-TD evidence."
