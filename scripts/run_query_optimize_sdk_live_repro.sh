@@ -11,22 +11,25 @@ fi
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   cat <<'USAGE'
 Usage:
-  scripts/run_query_optimize_sdk_live_repro.sh [JOBS_DIR]
+  scripts/run_query_optimize_sdk_live_repro.sh [JOBS_DIR] [CONTEXT_VARIANT]
 
-Runs the query-optimize debug_action + sdk_live reproduction with kimi-k2.6
-through the SEED endpoint profile. JOBS_DIR defaults to runs/harbor_icl_repro_seed.
+Runs the query-optimize sdk_live reproduction with kimi-k2.6 through the SEED
+endpoint profile. JOBS_DIR defaults to runs/harbor_icl_repro_seed.
+CONTEXT_VARIANT defaults to debug_action; use fail_debug_action for the
+reward-0 teacher-card demo.
 USAGE
   exit 0
 fi
 
 JOBS_DIR="${1:-runs/harbor_icl_repro_seed}"
+CONTEXT_VARIANT="${2:-debug_action}"
 
 exec scripts/run_harbor_dynamic_icl.sh \
   --pack-dir docs/blog/raw_logs/blog_raw_logs \
   --task query-optimize \
   --model kimi-k2.6 \
   --jobs-dir "$JOBS_DIR" \
-  --context-variant debug_action \
+  --context-variant "$CONTEXT_VARIANT" \
   --inject-mode sdk_live \
   --endpoint-profile seed-coding-plan \
   --sdk-live-intercept-tool Bash \

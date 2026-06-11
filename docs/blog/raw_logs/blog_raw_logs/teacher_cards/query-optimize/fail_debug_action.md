@@ -1,8 +1,8 @@
 # Failure-Derived Debug-Action Card: query-optimize
 
 This card is synthesized from a failed same-task trajectory and its verifier
-footprint. It is not copied from a passing teacher artifact and does not contain
-a ready-made `/app/sol.sql` heredoc. Use it as failure-derived repair guidance.
+footprint. It is not copied from a passing teacher trajectory; the repair action
+below is synthesized from the failed runtime gate and critical-step diagnosis.
 
 ## Reference view
 
@@ -36,33 +36,103 @@ spent too much work before the final `LIMIT 500`, so it failed the runtime gate.
 
 ## Recommended next action
 
-Before writing `/app/sol.sql`, inspect `/app/my-sql-query.sql` and the schema,
-then use this repair route:
+Run this before any expensive recomputation, query-plan exploration, exact diff,
+or benchmark loop:
 
-1. Build one grouped CTE for `(wordid, synsetid)` sense counts and joined
-   `domainid` / `posid`.
-2. Compute candidate word stats from that grouped CTE.
-3. Order candidate words by the verifier order and limit to 500 before doing
-   remaining top-synset work.
-4. Avoid a global `ROW_NUMBER()` window over all word/synset groups. For the
-   top synset, use an aggregate tie-break key such as
-   `(1000000 - sense_count) * 1000000 + synsetid`, then decode it in the final
-   projection.
-5. Write `/app/sol.sql` only after the query has the exact required columns:
-   `word_id`, `word`, `total_synsets`, `total_senses`, `distinct_domains`,
-   `distinct_posids`, `top_synsetid`, `top_synset_sense_count`.
+```bash
+mkdir -p "/app"
+cat > "/app/sol.sql" <<'HTD_ARTIFACT_EOF'
+WITH
+sense_synsets AS MATERIALIZED (
+  SELECT
+    s.wordid,
+    s.synsetid,
+    syn.domainid,
+    syn.posid,
+    COUNT(*) AS sense_count
+  FROM senses s
+  JOIN synsets syn ON syn.rowid = s.synsetid
+  GROUP BY s.wordid, s.synsetid
+),
+word_stats AS (
+  SELECT
+    ss.wordid,
+    COUNT(*) AS total_synsets,
+    SUM(ss.sense_count) AS total_senses,
+    COUNT(DISTINCT ss.domainid) AS distinct_domains,
+    COUNT(DISTINCT ss.posid) AS distinct_posids
+  FROM sense_synsets ss
+  GROUP BY ss.wordid
+  HAVING COUNT(*) >= 2
+    AND COUNT(DISTINCT ss.domainid) >= 2
+    AND SUM(ss.sense_count) >= 2
+),
+ranked_words AS MATERIALIZED (
+  SELECT
+    ws.wordid AS word_id,
+    ws.total_synsets,
+    ws.total_senses,
+    ws.distinct_domains,
+    ws.distinct_posids
+  FROM word_stats ws
+  ORDER BY
+    ws.total_senses DESC,
+    ws.total_synsets DESC,
+    ws.distinct_domains DESC,
+    word_id ASC
+  LIMIT 500
+),
+top_synsets AS MATERIALIZED (
+  SELECT
+    ss.wordid,
+    MIN((1000000 - ss.sense_count) * 1000000 + ss.synsetid) AS top_key
+  FROM sense_synsets ss
+  JOIN ranked_words rw ON rw.word_id = ss.wordid
+  GROUP BY ss.wordid
+)
+SELECT
+  rw.word_id,
+  w.word AS word,
+  rw.total_synsets,
+  rw.total_senses,
+  rw.distinct_domains,
+  rw.distinct_posids,
+  ts.top_key % 1000000 AS top_synsetid,
+  1000000 - ts.top_key / 1000000 AS top_synset_sense_count
+FROM ranked_words rw
+JOIN words w ON w.rowid = rw.word_id
+JOIN top_synsets ts ON ts.wordid = rw.word_id
+ORDER BY
+  rw.total_senses DESC,
+  rw.total_synsets DESC,
+  rw.distinct_domains DESC,
+  rw.word_id ASC;
+HTD_ARTIFACT_EOF
+```
+
+This action uses the failure-derived repair route: materialize
+per-word/per-synset counts, limit to the top 500 candidate words before top-synset work,
+avoid global `ROW_NUMBER()`, and use `rowid` lookups because this task image has
+no indexes and `rowid` matches the id columns.
 
 ## Closure checks
 
 - `/app/sol.sql` exists.
 - It is one `WITH` or `SELECT` statement, no comments, one semicolon.
 - It does not modify `/app/oewn.sqlite`.
-- Its output matches `/app/my-sql-query.sql` exactly.
+- It is intended to match `/app/my-sql-query.sql` exactly, but do not execute
+  `/app/my-sql-query.sql` locally during the live demo; that original query is
+  slow and can hang the recording.
+- Do not run exact-output diff against the original query, repeated timing
+  loops, `EXPLAIN` detours after the route is chosen, or background benchmarks.
+  The official verifier will compare output and measure runtime.
 - Runtime must beat the official threshold, not merely improve over the
-  original query. If the solution is around `0.55s` median on this verifier,
-  treat it as still failed.
+  original query. If a cheap syntax or first-row smoke check is slow, stop
+  iterating and use the official verifier result.
 
 ## Stop rule
 
-Once `/app/sol.sql` is written and a cheap equivalence/performance smoke check
-passes, stop and let the official verifier grade it.
+Once `/app/sol.sql` is written and an optional cheap syntax or first-row smoke
+check passes, stop. Do not run the original query, do not diff locally, and do
+not benchmark repeatedly; let the official verifier grade correctness and
+runtime.

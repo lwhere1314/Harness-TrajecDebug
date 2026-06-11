@@ -17,13 +17,18 @@ from pathlib import Path
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Detached launcher for query-optimize debug_action + sdk_live."
+        description="Detached launcher for query-optimize sdk_live reproduction."
     )
     parser.add_argument(
         "jobs_dir",
         nargs="?",
         default="runs/harbor_icl_repro_seed_detached",
         help="Harbor jobs directory passed to run_query_optimize_sdk_live_repro.sh.",
+    )
+    parser.add_argument(
+        "--context-variant",
+        default="debug_action",
+        help="Teacher-card context variant, for example debug_action or fail_debug_action.",
     )
     parser.add_argument("--log-file", help="Path for combined stdout/stderr.")
     parser.add_argument("--pid-file", help="Path where the detached PID is written.")
@@ -47,10 +52,11 @@ def main() -> int:
 
     jobs_arg = shlex.quote(str(jobs_dir))
     repo_arg = shlex.quote(str(repo_root))
+    context_arg = shlex.quote(args.context_variant)
     command = (
         "source ~/.bashrc >/dev/null 2>&1 || true; "
         f"cd {repo_arg}; "
-        f"exec scripts/run_query_optimize_sdk_live_repro.sh {jobs_arg}"
+        f"exec scripts/run_query_optimize_sdk_live_repro.sh {jobs_arg} {context_arg}"
     )
 
     log = log_file.open("ab", buffering=0)
@@ -69,6 +75,7 @@ def main() -> int:
     print(f"pid_file={pid_file}")
     print(f"log_file={log_file}")
     print(f"jobs_dir={repo_root / jobs_dir if not jobs_dir.is_absolute() else jobs_dir}")
+    print(f"context_variant={args.context_variant}")
     return 0
 
 

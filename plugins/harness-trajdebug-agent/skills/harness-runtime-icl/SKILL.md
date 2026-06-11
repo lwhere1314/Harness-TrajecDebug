@@ -89,18 +89,27 @@ For the `query-optimize` runtime Debug-Action case study, use the one-command
 wrapper:
 
 ```bash
-scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed
+scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed fail_debug_action
 ```
 
 It fixes the task, model, context variant, injection mode, SEED endpoint profile,
 `PreToolUse:Bash` trigger, and live SDK timeouts used by the reproducible
 canary.
 
+For the recordable demo, prefer the plugin entry point. It shows the failed
+teacher, generated/selected Debug-Action card, live injection, and verifier
+result in one terminal:
+
+```bash
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+```
+
 When launching that long run from Codex CLI, prefer the detached launcher:
 
 ```bash
 python3 scripts/launch_query_optimize_sdk_live_repro.py \
-  runs/harbor_icl_repro_codex_launch
+  runs/harbor_icl_repro_codex_launch \
+  --context-variant fail_debug_action
 ```
 
 Codex's shell tool may clean up plain `nohup ... &` children after the tool call

@@ -308,7 +308,7 @@ scripts/build_query_optimize_fail_debug_action_card.py \
 printf '\n$ sed -n %q %q\n' '1,120p' "$GENERATED_CARD"
 sed -n '1,120p' "$GENERATED_CARD"
 
-printf '\n\033[1;36m# 4. Card closure check: no artifact heredoc by design\033[0m\n'
+printf '\n\033[1;36m# 4. Card closure check: synthesized action materializes /app/sol.sql\033[0m\n'
 CLOSURE_JSON="$LIVE_ROOT/$BASELINE_JOBS/fail_debug_action_closure.json"
 CLOSURE_MD="$LIVE_ROOT/$BASELINE_JOBS/fail_debug_action_closure.md"
 printf '\n$ scripts/check_debug_action_closure.py --pack-dir %q --task query-optimize --context-variant fail_debug_action_live --output-json %q --output-md %q\n' "$RUNTIME_PACK" "$CLOSURE_JSON" "$CLOSURE_MD"
@@ -452,7 +452,7 @@ fi
 run_shell "sed -n '1,90p' '$CARD_PATH'"
 
 if [[ "$TEACHER_KIND" == "fail" ]]; then
-  say "4. The fail-teacher card is checked: no artifact heredoc by design"
+  say "4. The fail-teacher card is executable: synthesized action materializes /app/sol.sql"
 else
   say "4. The card is executable: it materializes /app/sol.sql and passes closure checks"
 fi

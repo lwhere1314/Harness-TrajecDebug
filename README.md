@@ -22,7 +22,7 @@ The fastest way to understand the project is the top-level demo:
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --recorded
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded
 ```
 
 This shows the complete story on one Terminal-Bench / Harbor task:
@@ -39,18 +39,22 @@ first agent run fails
 For a real rerun of the second attempt:
 
 ```bash
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
 ```
 
 For a fail-teacher demo where the injected card is derived from reward-0 data,
-use one of:
+the recommended recording command is:
 
 ```bash
 # Uses checked-in failed teacher evidence, then runs the second attempt live.
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-fail-teacher
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+```
 
+For research/debugging, there is also a slower full-live mode:
+
+```bash
 # Runs a fresh first failure, generates a fail-teacher card, then reruns live.
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-full-fail-teacher
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
 ```
 
 The demo material lives in [`demo/`](demo/):
@@ -67,7 +71,7 @@ Expected evidence from the demo:
 | First run | `reward=0`, `5 passed, 1 failed`, runtime gate fails |
 | Diagnosis | `critical_step: pattern=budget debt loop` |
 | Pass-teacher card check | `closure: closure_passed`, artifact `/app/sol.sql` |
-| Fail-teacher card check | `Teacher outcome: reward=0.0`, no copied passing artifact; `closure_unavailable` is expected |
+| Fail-teacher card check | `Teacher outcome: reward=0.0`, synthesized repair action, `closure: closure_passed`, artifact `/app/sol.sql` |
 | Runtime injection | `injection_count: 1`, `injection_reasons: ['Bash']` |
 | Second run | `reward=1.0`, `6 passed` |
 

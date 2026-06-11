@@ -23,28 +23,31 @@ Fast rehearsal with checked-in evidence:
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --recorded
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded
 ```
 
 Live second run with the pass-teacher Debug-Action card:
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
 ```
 
-Live second run with a failure-derived teacher card:
+Recommended live recording: checked-in failed teacher evidence, then a real
+second run with a failure-derived Debug-Action card:
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-fail-teacher
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
 ```
 
-Full live fail-teacher run, including a fresh first failure:
+Optional research/debug mode: full live fail-teacher run, including a fresh
+first failure. This is slower and may be less recording-stable because a fresh
+agent can time out, pass unexpectedly, or hit environment setup issues.
 
 ```bash
 cd Harness-TrajecDebug
-HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live-full-fail-teacher
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
 ```
 
 The four modes are:
@@ -116,8 +119,9 @@ under `runs/.../runtime_pack/teacher_cards/query-optimize/fail_debug_action_live
 from that run's failed trial and diagnosis.
 
 For the fail-teacher demo, point at `Teacher outcome: reward=0.0`. This card is
-failure-derived guidance; it intentionally does not copy a passing `/app/sol.sql`
-artifact.
+failure-derived guidance: the teacher run failed, and the executable repair
+action is synthesized from the failed runtime gate plus the critical-step
+diagnosis rather than copied from a passing teacher trajectory.
 
 4. Check that the card is executable.
 
@@ -133,12 +137,15 @@ check: query_optimize_select_only=ok
 Expected on screen for the fail-teacher card:
 
 ```text
-closure: closure_unavailable
-check: card_has_artifact_heredoc=fail
+closure: closure_passed
+artifact: /app/sol.sql
+check: query_optimize_single_statement=ok
+check: query_optimize_select_only=ok
 ```
 
-That failure is expected because the teacher is reward-0 data, not a copied
-passing artifact. The second run still receives the card as repair guidance.
+This is still a fail-teacher demo: the `Teacher outcome` line stays `reward=0.0`.
+The point is that Harness-TrajecDebug turns the failed trace and verifier
+footprint into a bounded repair action that the second agent can execute.
 
 5. Run with runtime injection.
 
@@ -150,7 +157,7 @@ scripts/run_harbor_dynamic_icl.sh \
   --task query-optimize \
   --model kimi-k2.6 \
   --jobs-dir runs/demo-query-optimize-live-YYYYMMDDTHHMMSS \
-  --context-variant debug_action \
+  --context-variant fail_debug_action \
   --inject-mode sdk_live \
   --endpoint-profile seed-coding-plan \
   --sdk-live-intercept-tool Bash
@@ -196,8 +203,8 @@ Fail-teacher card:
 
 ```text
 Here the teacher is deliberately a failed trajectory. We are not giving the
-agent a copied passing solution; we are giving it the critical-step diagnosis
-and the repair route extracted from reward-0 evidence.
+agent a copied passing trajectory; we are giving it a repair action synthesized
+from the failed runtime gate and the critical-step diagnosis.
 ```
 
 Injection:

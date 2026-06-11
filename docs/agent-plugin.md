@@ -92,7 +92,8 @@ returns, while the launcher starts the runner in a new session:
 
 ```bash
 python3 scripts/launch_query_optimize_sdk_live_repro.py \
-  runs/harbor_icl_repro_codex_launch
+  runs/harbor_icl_repro_codex_launch \
+  --context-variant fail_debug_action
 ```
 
 The tested Codex path is:
@@ -134,10 +135,17 @@ The wrapper maps `SEED_CODING_PLAN_BASE_URL` and
 For the full `query-optimize` runtime Debug-Action reproduction, use:
 
 ```bash
-scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed
+scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed fail_debug_action
 ```
 
 From Codex, prefer the detached form shown above for the same reproduction.
+
+For the recording demo, use the plugin wrapper so Claude Code, Codex, and Kimi
+Code users all see the same entry point:
+
+```bash
+HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
+```
 
 ## Smoke check
 

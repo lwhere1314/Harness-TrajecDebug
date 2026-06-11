@@ -37,6 +37,11 @@ artifact first and run the cheapest closure check available. Avoid web fetches,
 heavy dependency installs, or full recomputation whose only purpose is to
 reproduce an already verified teacher artifact.
 
+If the injected card has a stop rule, follow it strictly. For benchmark tasks,
+prefer writing the required artifact and letting the official verifier compare
+outputs and measure runtime; do not add optional local benchmarks or slow
+baseline reruns after the route is chosen.
+
 {context}
 """
 

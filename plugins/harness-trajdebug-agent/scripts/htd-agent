@@ -85,6 +85,29 @@ case "$command_name" in
   trials)
     run_htd harbor-trials "$@"
     ;;
+  demo)
+    task_name="${1:-query-optimize}"
+    if [ "$#" -gt 0 ]; then
+      shift
+    fi
+    root="${HTD_ROOT:-$(pwd)}"
+    case "$task_name" in
+      query-optimize)
+        if [ ! -f "$root/demo/query-optimize-trace-to-card.sh" ]; then
+          echo "Could not find demo/query-optimize-trace-to-card.sh under $root" >&2
+          echo "Set HTD_ROOT=/path/to/Harness-TrajecDebug or run from the repo root." >&2
+          exit 127
+        fi
+        cd "$root"
+        exec bash demo/query-optimize-trace-to-card.sh "$@"
+        ;;
+      *)
+        echo "Unknown demo task: $task_name" >&2
+        echo "Available demo tasks: query-optimize" >&2
+        exit 2
+        ;;
+    esac
+    ;;
   daily-mechanism)
     exec bash scripts/run_daily_icl_mechanism.sh "$@"
     ;;
@@ -101,6 +124,7 @@ Usage:
   htd-agent harnesses
   htd-agent tasks --root TASK_ROOT [--limit N]
   htd-agent trials --run HARBOR_RUN
+  htd-agent demo query-optimize [--recorded|--live|--live-fail-teacher|--live-full-fail-teacher]
   htd-agent daily-mechanism --task TASK --context-variant debug_action
   htd-agent daily-canary --task TASK --model kimi-k2.6 --inject-mode sdk_live
 
