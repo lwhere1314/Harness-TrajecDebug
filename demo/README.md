@@ -22,23 +22,23 @@ Use one terminal window with large font. Keep secrets out of view.
 Fast rehearsal:
 
 ```bash
-cd /Users/hugo/Projects/Harness-TrajecDebug
+cd Harness-TrajecDebug
 HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --recorded
 ```
 
 Live rerun:
 
 ```bash
-cd /Users/hugo/Projects/Harness-TrajecDebug
+cd Harness-TrajecDebug
 HTD_DEMO_PAUSE=1 demo/query-optimize-trace-to-card.sh --live
 ```
 
-For the live rerun, the script defaults to
-`/Users/hugo/Documents/Harness-TrajecDebug` as `HTD_DEMO_LIVE_ROOT`, because
-that mirror is safer for long Harbor processes on this machine. At the live
-injection scene, the wrapper hands off to a helper under that mirror so the
-long Harbor process is launched from the safe path. The script sources
-`~/.bashrc` internally for endpoint-profile checks and the live runner.
+For the live rerun, the script defaults to the current repository root. If your
+machine needs long Harbor processes to run from a separate mirror, set
+`HTD_DEMO_LIVE_ROOT=/path/to/repo-mirror` before running `--live`. At the live
+injection scene, the wrapper hands off to a helper under `HTD_DEMO_LIVE_ROOT`.
+The script sources `~/.bashrc` internally for endpoint-profile checks and the
+live runner.
 
 ## Scenes
 

@@ -9,7 +9,7 @@ CARD_PATH="$PACK_DIR/teacher_cards/query-optimize/debug_action.md"
 MODE="recorded"
 OUT_DIR="$REPO_ROOT/runs/demo-query-optimize-trace-to-card"
 PAUSE="${HTD_DEMO_PAUSE:-1}"
-LIVE_ROOT="${HTD_DEMO_LIVE_ROOT:-/Users/hugo/Documents/Harness-TrajecDebug}"
+LIVE_ROOT="${HTD_DEMO_LIVE_ROOT:-$REPO_ROOT}"
 
 usage() {
   cat <<'USAGE'
@@ -21,7 +21,7 @@ Live mode runs the second query-optimize debug_action + sdk_live attempt.
 
 Environment:
   HTD_DEMO_PAUSE=0             Disable short pauses between sections.
-  HTD_DEMO_LIVE_ROOT=DIR       Mirror repo for live long Harbor runs.
+  HTD_DEMO_LIVE_ROOT=DIR       Optional repo mirror for live long Harbor runs.
 USAGE
 }
 

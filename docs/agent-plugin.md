@@ -113,7 +113,7 @@ Kimi Code scans project-local `.agents/skills/` and `.kimi-code/skills/`.
 It can also install the plugin directly:
 
 ```text
-/plugins install /Users/hugo/Projects/Harness-TrajecDebug/plugins/harness-trajdebug-agent
+/plugins install /path/to/Harness-TrajecDebug/plugins/harness-trajdebug-agent
 ```
 
 After installation, restart or run `/reload`.
