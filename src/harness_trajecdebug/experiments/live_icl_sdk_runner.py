@@ -66,6 +66,14 @@ def append_jsonl(path: Path, event: dict[str, Any]) -> None:
         handle.write(json.dumps(jsonable(event), ensure_ascii=False) + "\n")
 
 
+def output_text(value: str | bytes | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
 def ensure_sdk(
     auto_install: bool,
     install_log: Path,
@@ -110,7 +118,7 @@ def ensure_sdk(
             env=install_env,
         )
     except subprocess.TimeoutExpired as exc:
-        install_log.write_text(exc.stdout or "", encoding="utf-8")
+        install_log.write_text(output_text(exc.stdout), encoding="utf-8")
         append_jsonl(
             event_log,
             {
@@ -237,7 +245,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-log", type=Path, default=Path("/logs/agent/claude-code.txt"))
     parser.add_argument("--event-log", type=Path, default=Path("/logs/agent/sdk-live-events.jsonl"))
     parser.add_argument("--sdk-install-log", type=Path, default=Path("/logs/agent/sdk-install.log"))
-    parser.add_argument("--sdk-install-timeout-sec", type=int, default=240)
+    parser.add_argument("--sdk-install-timeout-sec", type=int, default=900)
     parser.add_argument("--cwd", type=Path, default=Path("/app"))
     parser.add_argument("--cli-path", type=Path, default=Path("/root/.local/bin/claude"))
     parser.add_argument("--model", default=os.environ.get("ANTHROPIC_MODEL", ""))

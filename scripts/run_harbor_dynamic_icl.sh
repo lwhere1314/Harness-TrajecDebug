@@ -9,6 +9,7 @@ CONTEXT_VARIANT="debug_trajectory"
 INJECT_MODE="tool"
 ENDPOINT_PROFILE="${HTD_ENDPOINT_PROFILE:-auto}"
 SDK_LIVE_INTERCEPT_TOOLS=""
+SDK_LIVE_INSTALL_TIMEOUT="${SDK_LIVE_INSTALL_TIMEOUT:-900}"
 SETUP_TIMEOUT="1200"
 AGENT_TIMEOUT="900"
 VERIFIER_TIMEOUT="600"
@@ -39,6 +40,9 @@ Options:
                           token-plan, ark, dashscope, or kimi. Default: auto
   --sdk-live-intercept-tool NAME
                           In sdk_live mode, inject context before this tool name. May repeat.
+  --sdk-live-install-timeout SEC
+                          In sdk_live mode, allow this many seconds for in-container
+                          claude-agent-sdk installation. Default: 900
   --setup-timeout SEC     Agent setup timeout. Default: 1200
   --agent-timeout SEC     Agent execution timeout. Default: 900
   --verifier-timeout SEC  Official verifier timeout. Default: 600
@@ -76,6 +80,7 @@ while [[ $# -gt 0 ]]; do
       SDK_LIVE_INTERCEPT_TOOLS="${SDK_LIVE_INTERCEPT_TOOLS}${SDK_LIVE_INTERCEPT_TOOLS:+,}$2"
       shift 2
       ;;
+    --sdk-live-install-timeout) SDK_LIVE_INSTALL_TIMEOUT="$2"; shift 2 ;;
     --setup-timeout) SETUP_TIMEOUT="$2"; shift 2 ;;
     --agent-timeout) AGENT_TIMEOUT="$2"; shift 2 ;;
     --verifier-timeout) VERIFIER_TIMEOUT="$2"; shift 2 ;;
@@ -175,7 +180,7 @@ mkdir -p "$(dirname "$LOG_FILE")"
 
 export PYTHONPATH="$REPO_ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
 
-python3 - "$CONFIG_PATH" "$JOB_NAME" "$JOBS_DIR" "$MODEL" "$ENDPOINT_PROFILE" "$SETUP_TIMEOUT" "$AGENT_TIMEOUT" "$VERIFIER_TIMEOUT" "$TASK_DIR" "$CONTEXT_PATH" "$FORCE_CONTEXT_CALL" "$FORCE_BUILD" "$INJECT_MODE" "$FIRST_TURN_TIMEOUT" "$SDK_LIVE_INTERCEPT_TOOLS" <<'PY'
+python3 - "$CONFIG_PATH" "$JOB_NAME" "$JOBS_DIR" "$MODEL" "$ENDPOINT_PROFILE" "$SETUP_TIMEOUT" "$AGENT_TIMEOUT" "$VERIFIER_TIMEOUT" "$TASK_DIR" "$CONTEXT_PATH" "$FORCE_CONTEXT_CALL" "$FORCE_BUILD" "$INJECT_MODE" "$FIRST_TURN_TIMEOUT" "$SDK_LIVE_INTERCEPT_TOOLS" "$SDK_LIVE_INSTALL_TIMEOUT" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -196,6 +201,7 @@ from pathlib import Path
     inject_mode,
     first_turn_timeout,
     sdk_live_intercept_tools,
+    sdk_live_install_timeout,
 ) = sys.argv[1:]
 
 config = {
@@ -226,6 +232,7 @@ config = {
                 "inject_mode": inject_mode,
                 "endpoint_profile": endpoint_profile,
                 "first_turn_timeout_sec": int(float(first_turn_timeout)),
+                "sdk_live_install_timeout_sec": int(float(sdk_live_install_timeout)),
                 "sdk_live_intercept_tools": [
                     tool for tool in sdk_live_intercept_tools.split(",") if tool
                 ],
@@ -247,6 +254,9 @@ echo "Inject mode: $INJECT_MODE"
 echo "Endpoint profile: $ENDPOINT_PROFILE"
 if [[ -n "$SDK_LIVE_INTERCEPT_TOOLS" ]]; then
   echo "SDK live intercept tools: $SDK_LIVE_INTERCEPT_TOOLS"
+fi
+if [[ "$INJECT_MODE" == "sdk_live" ]]; then
+  echo "SDK live install timeout: $SDK_LIVE_INSTALL_TIMEOUT"
 fi
 echo "First-turn timeout: $FIRST_TURN_TIMEOUT"
 echo "Verifier timeout: $VERIFIER_TIMEOUT"

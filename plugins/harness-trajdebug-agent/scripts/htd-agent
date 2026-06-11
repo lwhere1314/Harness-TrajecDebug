@@ -32,13 +32,20 @@ case "$command_name" in
     else
       echo "harness-trajdebug: missing; set HTD_ROOT or run 'python3 -m pip install -e .'"
     fi
-    for cli in claude codex kimi; do
+    for cli in claude codex; do
       if command -v "$cli" >/dev/null 2>&1; then
         printf '%s: %s\n' "$cli" "$(command -v "$cli")"
       else
         printf '%s: missing\n' "$cli"
       fi
     done
+    if command -v kimi >/dev/null 2>&1; then
+      printf 'kimi: %s\n' "$(command -v kimi)"
+    elif [ -d "${HTD_ROOT:-$(pwd)}/kimi-code/apps/kimi-code" ]; then
+      printf 'kimi: local source at %s\n' "${HTD_ROOT:-$(pwd)}/kimi-code/apps/kimi-code"
+    else
+      echo "kimi: missing"
+    fi
     for env_name in SEED_CODING_PLAN_BASE_URL SEED_CODING_PLAN_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_API_KEY; do
       if [ -n "${!env_name:-}" ]; then
         printf '%s: present\n' "$env_name"

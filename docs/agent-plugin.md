@@ -86,6 +86,27 @@ plugins/harness-trajdebug-agent/.codex-plugin/plugin.json
 The plugin is skill-only for now. It does not start an MCP server during
 session startup.
 
+For long Harbor runs launched from Codex, use the detached launcher. Codex's
+shell tool may clean up plain `nohup ... &` children after the tool call
+returns, while the launcher starts the runner in a new session:
+
+```bash
+python3 scripts/launch_query_optimize_sdk_live_repro.py \
+  runs/harbor_icl_repro_codex_launch
+```
+
+The tested Codex path is:
+
+```text
+Codex skill -> detached launcher -> Harness wrapper -> Claude Code SDK sdk_live
+-> kimi-k2.6 through the SEED Anthropic-compatible endpoint
+```
+
+Direct `codex exec -m kimi-k2.6` against the SEED endpoint is not treated as
+the supported path unless an OpenAI Responses-compatible adapter is available.
+In local smoke testing, Codex accepted the custom provider config but the stream
+failed before completion, which is consistent with a wire-API mismatch.
+
 ## Kimi Code
 
 Kimi Code scans project-local `.agents/skills/` and `.kimi-code/skills/`.
@@ -96,6 +117,27 @@ It can also install the plugin directly:
 ```
 
 After installation, restart or run `/reload`.
+
+For headless Kimi Code smoke tests with the SEED endpoint, prefer the repository
+wrapper so secrets stay in the environment and project skills are loaded from
+the Harness-TrajecDebug root:
+
+```bash
+scripts/run_kimicode_skill_smoke.sh
+```
+
+The wrapper maps `SEED_CODING_PLAN_BASE_URL` and
+`SEED_CODING_PLAN_API_KEY` into Kimi Code's `KIMI_MODEL_BASE_URL` and
+`KIMI_MODEL_API_KEY`, uses `KIMI_MODEL_PROVIDER_TYPE=anthropic`, and runs
+`kimi-k2.6` through the local Kimi Code dev CLI.
+
+For the full `query-optimize` runtime Debug-Action reproduction, use:
+
+```bash
+scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed
+```
+
+From Codex, prefer the detached form shown above for the same reproduction.
 
 ## Smoke check
 
@@ -122,6 +164,11 @@ evidence, check these separately:
   starts, or the task image is prebuilt with Python/pip.
 - SDK dependency layer: use `claude-agent-sdk==0.1.43`, `mcp>=1.27.2`,
   `httpx==0.28.1`, and `httpcore==1.0.9`.
+
+For cold Harbor task images, run `sdk_live` with enough setup budget, for
+example `--sdk-live-install-timeout 900 --agent-timeout 1800`. If the task image
+needs to install Python/pip first, that time is separate from the SDK install
+timeout but still counts against the overall agent timeout.
 
 If the task image lacks Python/pip or PyPI access is flaky, prebuild a runtime
 image or wheelhouse first. Treat missing Python, old `mcp` imports such as

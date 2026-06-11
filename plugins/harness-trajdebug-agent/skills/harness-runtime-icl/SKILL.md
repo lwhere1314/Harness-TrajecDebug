@@ -85,6 +85,28 @@ Use `sdk_live` or `hooks_live` for runtime repair evidence. A good live trigger
 is the earliest boundary after the agent has enough task context and before it
 commits to an expensive or wrong route.
 
+For the `query-optimize` runtime Debug-Action case study, use the one-command
+wrapper:
+
+```bash
+scripts/run_query_optimize_sdk_live_repro.sh runs/harbor_icl_repro_seed
+```
+
+It fixes the task, model, context variant, injection mode, SEED endpoint profile,
+`PreToolUse:Bash` trigger, and live SDK timeouts used by the reproducible
+canary.
+
+When launching that long run from Codex CLI, prefer the detached launcher:
+
+```bash
+python3 scripts/launch_query_optimize_sdk_live_repro.py \
+  runs/harbor_icl_repro_codex_launch
+```
+
+Codex's shell tool may clean up plain `nohup ... &` children after the tool call
+returns. The detached launcher starts the Harbor runner in a new session and
+writes a PID file plus a combined log path for monitoring.
+
 ## Runtime Environment Contract
 
 Before claiming an `sdk_live` result, verify the runtime path separately from
@@ -99,6 +121,27 @@ bash -lc 'source ~/.bashrc; python3 scripts/check_model_endpoint.py \
   --model kimi-k2.6 \
   --timeout-sec 20'
 ```
+
+For Kimi Code prompt-mode smoke tests against the same SEED endpoint, use the
+env-model bridge rather than editing `~/.kimi-code/config.toml`:
+
+```bash
+scripts/run_kimicode_skill_smoke.sh
+```
+
+That script maps `SEED_CODING_PLAN_BASE_URL` and `SEED_CODING_PLAN_API_KEY` to
+Kimi Code's `KIMI_MODEL_BASE_URL` and `KIMI_MODEL_API_KEY`, sets
+`KIMI_MODEL_PROVIDER_TYPE=anthropic`, and runs `kimi-k2.6` through the local
+Kimi Code dev CLI from the repository root so project skills are discoverable.
+
+For Codex prompt-mode runs, keep the compatibility boundary explicit:
+
+- Supported tested path: Codex skill -> detached launcher -> Harness wrapper ->
+  Claude Code SDK `sdk_live` -> `kimi-k2.6` through the SEED
+  Anthropic-compatible endpoint.
+- Do not treat direct `codex exec -m kimi-k2.6` as supported unless the endpoint
+  exposes an OpenAI Responses-compatible wire API. A local smoke test accepted
+  the custom provider config but failed during streaming before completion.
 
 2. Treat `sdk_live` as requiring a Python-capable target container. The live
    SDK runner must be able to execute `python3 -m pip --version` before it
@@ -115,11 +158,15 @@ httpx==0.28.1
 httpcore==1.0.9
 ```
 
-4. If the target container has flaky PyPI access, use a prebuilt wheelhouse or
+4. For cold task images, pass a long enough SDK install timeout and agent
+   timeout, for example `--sdk-live-install-timeout 900 --agent-timeout 1800`.
+   The install timeout covers the in-container `claude-agent-sdk` install; the
+   agent timeout must still leave room for Claude Code and verifier setup.
+5. If the target container has flaky PyPI access, use a prebuilt wheelhouse or
    image layer rather than relying on live `pip install`. Do not classify
    failures such as missing Python, pip resolver backtracking, old `mcp`
    imports, or package download timeouts as TD algorithm failures.
-5. For `sdk_live` evidence, preserve `sdk-live-events.jsonl`,
+6. For `sdk_live` evidence, preserve `sdk-live-events.jsonl`,
    `sdk-install.log`, `agent/command-*/stdout.txt`, and the Harbor runner log.
    A valid live run should show SDK setup, Claude Code init, at least one
    injection event, and verifier output in the same trial directory.

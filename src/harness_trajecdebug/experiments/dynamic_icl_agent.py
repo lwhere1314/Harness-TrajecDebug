@@ -32,6 +32,7 @@ class DynamicIclClaudeCode(ClaudeCode):
         context_budget_chars: int = 12000,
         inject_mode: str = "tool",
         first_turn_timeout_sec: int = 75,
+        sdk_live_install_timeout_sec: int = 900,
         sdk_live_intercept_tools: list[str] | None = None,
         *args,
         **kwargs,
@@ -45,6 +46,7 @@ class DynamicIclClaudeCode(ClaudeCode):
             raise ValueError("inject_mode must be 'tool', 'prelude', 'continue_after', 'sdk_live', or 'hooks_live'")
         self._inject_mode = inject_mode
         self._first_turn_timeout_sec = first_turn_timeout_sec
+        self._sdk_live_install_timeout_sec = sdk_live_install_timeout_sec
         self._sdk_live_intercept_tools = sdk_live_intercept_tools or []
 
     async def setup(self, environment: BaseEnvironment) -> None:
@@ -339,6 +341,7 @@ fi""",
                     "--context-path /opt/harness-trajecdebug/context.md "
                     "--output-log /logs/agent/claude-code.txt "
                     "--event-log /logs/agent/sdk-live-events.jsonl "
+                    f"--sdk-install-timeout-sec {int(self._sdk_live_install_timeout_sec)} "
                     "--cwd /app "
                     '--cli-path "$HTD_CLAUDE_CLI" '
                     "${ANTHROPIC_MODEL:+--model \"$ANTHROPIC_MODEL\"} "
