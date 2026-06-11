@@ -10,6 +10,11 @@ claim. It shows that the runtime injection path works and that a
 Debug-Trajectory-derived action card can be more useful than outcome-only
 context on the same failing task.
 
+The raw logs and evidence files for this canary are preserved under
+[`raw_logs/blog_raw_logs/`](raw_logs/blog_raw_logs/README.md), including the
+three Harbor trial directories, Claude Code SDK event streams, structured
+trajectories, verifier outputs, and the injected Debug-Action card.
+
 ## Task
 
 `query-optimize` gives the agent an Open English Wordnet SQLite database at

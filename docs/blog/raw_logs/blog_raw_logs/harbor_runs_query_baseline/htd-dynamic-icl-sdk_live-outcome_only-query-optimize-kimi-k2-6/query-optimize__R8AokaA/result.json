@@ -1,0 +1,99 @@
+{
+    "id": "d0912911-b4ea-4e48-b5df-faa96006840b",
+    "task_name": "query-optimize",
+    "trial_name": "query-optimize__R8AokaA",
+    "trial_uri": "file:///Users/hugo/Documents/Harness-TrajecDebug/runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-outcome_only-query-optimize-kimi-k2-6/query-optimize__R8AokaA",
+    "task_id": {
+        "path": "runs/harbor_icl_baseline/task_variants/no_icl/query-optimize"
+    },
+    "source": null,
+    "task_checksum": "475405d42bf7aa048dc8e8f0d65bde19f620555e9e265318a062752f708873d6",
+    "config": {
+        "task": {
+            "path": "runs/harbor_icl_baseline/task_variants/no_icl/query-optimize",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "query-optimize__R8AokaA",
+        "trials_dir": "runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-outcome_only-query-optimize-kimi-k2-6",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "harness_trajecdebug.experiments.dynamic_icl_agent:DynamicIclClaudeCode",
+            "model_name": "kimi-k2.6",
+            "override_timeout_sec": 900.0,
+            "override_setup_timeout_sec": 1200.0,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "context_path": "/Users/hugo/Documents/Harness-TrajecDebug/runs/harbor_icl_baseline/teacher_cards/query-optimize/outcome_only.md",
+                "force_context_call": true,
+                "inject_mode": "sdk_live",
+                "endpoint_profile": "ark",
+                "first_turn_timeout_sec": 75,
+                "sdk_live_intercept_tools": [
+                    "Bash",
+                    "WebSearch",
+                    "WebFetch"
+                ]
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": 600.0,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "9a15de0c-046f-4b18-bf2e-2c12590ccee0"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 604688,
+        "n_cache_tokens": 0,
+        "n_output_tokens": 7154,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-09T23:01:45.126366Z",
+    "finished_at": "2026-06-09T23:14:48.096430Z",
+    "environment_setup": {
+        "started_at": "2026-06-09T23:01:45.127519Z",
+        "finished_at": "2026-06-09T23:01:45.909466Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-09T23:01:45.909597Z",
+        "finished_at": "2026-06-09T23:01:47.942865Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-09T23:01:47.943012Z",
+        "finished_at": "2026-06-09T23:11:41.079158Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-09T23:11:41.079382Z",
+        "finished_at": "2026-06-09T23:14:37.439594Z"
+    }
+}

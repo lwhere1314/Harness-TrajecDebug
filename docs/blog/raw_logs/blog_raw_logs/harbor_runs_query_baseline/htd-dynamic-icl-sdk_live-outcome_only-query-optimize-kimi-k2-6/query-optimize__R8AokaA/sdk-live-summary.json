@@ -1,0 +1,24 @@
+{
+  "trial_dir": "runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-dynamic-icl-sdk_live-outcome_only-query-optimize-kimi-k2-6/query-optimize__R8AokaA",
+  "status": "injected_but_failed_verifier",
+  "reward": 0.0,
+  "agent_return_code": "0",
+  "sdk_install_statuses": [
+    "missing",
+    "starting",
+    "finished"
+  ],
+  "claude_init": true,
+  "api_retry_count": 0,
+  "tool_event_count": 4,
+  "injection_count": 1,
+  "injection_reasons": [
+    "Bash"
+  ],
+  "exception_info": null,
+  "verifier_result": {
+    "rewards": {
+      "reward": 0.0
+    }
+  }
+}

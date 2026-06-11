@@ -1,0 +1,22 @@
+Harbor: /opt/miniconda3/envs/terminal-bench/bin/harbor
+Task: runs/harbor_icl_baseline/task_variants/no_icl/query-optimize
+Job: htd-icl-no_icl-query-optimize-kimi-k2-6
+Config: /private/tmp/htd-icl-no_icl-query-optimize-kimi-k2-6.json
+Runner log: runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-icl-no_icl-query-optimize-kimi-k2-6/runner.log
+Wrote Claude Code trajectory to runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-icl-no_icl-query-optimize-kimi-k2-6/query-optimize__cTzLSZp/agent/trajectory.json
+  1/1 Mean: 0.000 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0:10:49 0:00:00Results written to runs/harbor_icl_baseline/harbor_runs_query_baseline/htd-icl-no_icl-query-optimize-kimi-k2-6/result.json
+        claude-code on adhoc         
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric              ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ Agent               │ claude-code │
+│ Dataset             │ adhoc       │
+│ Trials              │ 1           │
+│ Errors              │ 0           │
+│                     │             │
+│ Mean                │ 0.000       │
+│                     │             │
+│ Reward Distribution │             │
+│   reward = 0.0      │ 1           │
+└─────────────────────┴─────────────┘
+

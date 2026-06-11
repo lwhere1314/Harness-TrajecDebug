@@ -1,0 +1,26 @@
+{
+  "PreToolUse": [
+    {
+      "matcher": "AskUserQuestion|Bash|WebSearch|WebFetch",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 /opt/harness-trajecdebug/live_icl_hook.py --context-path /opt/harness-trajecdebug/context.md --state-path /logs/agent/live-hook-state.json --event-log /logs/agent/live-controller-events.jsonl --intercept-tool Bash --intercept-tool WebSearch --intercept-tool WebFetch",
+          "timeout": 30
+        }
+      ]
+    }
+  ],
+  "SessionStart": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 /opt/harness-trajecdebug/live_icl_hook.py --context-path /opt/harness-trajecdebug/context.md --state-path /logs/agent/live-hook-state.json --event-log /logs/agent/live-controller-events.jsonl --intercept-tool Bash --intercept-tool WebSearch --intercept-tool WebFetch --session-start",
+          "timeout": 30
+        }
+      ]
+    }
+  ]
+}

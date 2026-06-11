@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mkdir -p /logs/agent
+PYTHON_BIN="$(command -v python3 || command -v python || true)"
+if [ -n "$PYTHON_BIN" ]; then
+  "$PYTHON_BIN" - "$@" <<'PY'
+import datetime as _dt
+import json as _json
+import pathlib as _pathlib
+import sys as _sys
+
+entry = {
+    "timestamp": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+    "args": _sys.argv[1:],
+}
+log = _pathlib.Path("/logs/agent/htd-context-uses.jsonl")
+with log.open("a", encoding="utf-8") as handle:
+    handle.write(_json.dumps(entry, ensure_ascii=False) + "\n")
+PY
+fi
+
+cat /opt/harness-trajecdebug/context.md
