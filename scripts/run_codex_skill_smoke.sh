@@ -6,7 +6,11 @@ MODE="echo"
 PROMPT=""
 OUT_DIR="${HTD_CODEX_SMOKE_OUT_DIR:-$REPO_ROOT/runs/codex_cli_smoke}"
 MODEL="${HTD_CODEX_MODEL:-gpt-5.5}"
-CODEX_BIN="${HTD_CODEX_BIN:-codex}"
+DEFAULT_CODEX_BIN="codex"
+if [[ -x "/Applications/Codex.app/Contents/Resources/codex" ]]; then
+  DEFAULT_CODEX_BIN="/Applications/Codex.app/Contents/Resources/codex"
+fi
+CODEX_BIN="${HTD_CODEX_BIN:-$DEFAULT_CODEX_BIN}"
 TIMEOUT_SEC="${HTD_CODEX_SMOKE_TIMEOUT_SEC:-}"
 PROGRESS_SEC="${HTD_CODEX_SMOKE_PROGRESS_SEC:-2}"
 CLEAN_HOME="${HTD_CODEX_SMOKE_CLEAN_HOME:-0}"
