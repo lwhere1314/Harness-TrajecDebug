@@ -1,0 +1,252 @@
+.gitignore:217:secrets.env
+training/dataset_reference.py:21:    tokenized: bool
+training/dataset_reference.py:22:    num_tokens: int
+training/dataset_reference.py:32:    tokenizer: str = "EleutherAI/gpt-neox-20b"
+training/dataset_reference.py:61:#         "s3://***REMOVED***/rpj_tokenized_upsampled_eleutherai/manifest.jsonl",
+training/dataset_reference.py:62:#         "s3://***REMOVED***/2T_no_rpj_tokenized_upsampled_25k_shards/manifest.jsonl",
+training/dataset_reference.py:80:#         "s3://***REMOVED***/rpj_tokenized_upsampled_eleutherai/manifest.jsonl",
+training/dataset_reference.py:81:#         "s3://***REMOVED***/2T_no_rpj_tokenized_upsampled_25k_shards/manifest.jsonl",
+training/file_utils.py:157:                    "url": "https://huggingface.co/datasets/mlfoundations/open_lm_example_data/resolve/main/validation_data/shard_00000000.tar",
+training/file_utils.py:166:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000000.tar",
+training/file_utils.py:170:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000001.tar",
+training/file_utils.py:174:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000002.tar",
+training/file_utils.py:178:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000003.tar",
+training/file_utils.py:182:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000004.tar",
+training/file_utils.py:186:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000005.tar",
+training/file_utils.py:190:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000006.tar",
+training/file_utils.py:194:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000007.tar",
+training/file_utils.py:198:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000008.tar",
+training/file_utils.py:202:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000009.tar",
+training/file_utils.py:206:                    "url": "https://huggingface.co/datasets/mlfoundations/c4_validation/resolve/main/shard-0000010.tar",
+training/file_utils.py:215:                    "url": "https://huggingface.co/datasets/mlfoundations/paloma_validation/resolve/main/00000001.tar",
+training/file_utils.py:219:                    "url": "https://huggingface.co/datasets/mlfoundations/paloma_validation/resolve/main/00000002.tar",
+training/file_utils.py:223:                    "url": "https://huggingface.co/datasets/mlfoundations/paloma_validation/resolve/main/00000003.tar",
+training/file_utils.py:227:                    "url": "https://huggingface.co/datasets/mlfoundations/paloma_validation/resolve/main/00000004.tar",
+training/file_utils.py:244:                    "url": f"https://huggingface.co/datasets/mlfoundations/downstream_validation/resolve/main/{category}/{name}/shard-0000000.tar",
+training/configs/1b_1x_fast.json:5:    "tokens": 28795904000,
+training/configs/411m_1x.json:5:    "tokens": 8232325120,
+training/configs/7b_2x_fast_2e-3_lr_5e-6_zloss.json:5:    "tokens": 137788211200,
+training/configs/7b_1x_fast_2e-3_lr_5e-6_zloss.json:5:    "tokens": 137788211200,
+training/params.py:97:        help="Support token multiplier.",
+training/params.py:203:        help="This is the percentage of expected tokens above which the checkpoint is considered failed because of not having seen enough data.",
+training/params.py:209:        help="This is the maximum number of failed checkpoints (due to not having seen enough tokens) that are allowed",
+training/params.py:225:        args.data_config = f"exp_data/datasets/tokenized/{model_json['dataset_name']}.json"
+training/params.py:322:                f"{hparams.tokens // args.num_checkpoints}",
+training/train.py:37:    # modify num tokens by multiplier
+training/hyperparameters.py:15:    tokens: int
+training/hyperparameters.py:55:        self.tokens = int(self.tokens * self.chinchilla_multiplier)
+training/hyperparameters.py:68:        tokens_n = f"tokens={sanitize_for_fs(self.tokens)}"
+training/hyperparameters.py:70:        name = f"{data_n}-{model_n}-{w_n}-{lr_n}-{wd_n}-{cd_n}-{bs_n}-{cc_n}-{seed_n}-{tokens_n}"
+setup.py:113:            "fasttext_oh_eli5.bin": "https://huggingface.co/mlfoundations/fasttext-oh-eli5/resolve/main/openhermes_reddit_eli5_vs_rw_v2_bigram_200k_train.bin",
+setup.py:114:            "en.arpa.bin": "https://huggingface.co/edugp/kenlm/resolve/main/wikipedia/en.arpa.bin",
+setup.py:115:            "en.sp.model": "https://huggingface.co/edugp/kenlm/resolve/main/wikipedia/en.sp.model",
+setup.py:131:        CURATED_BANLIST_URL = "https://huggingface.co/datasets/mlfoundations/refinedweb_banned_domains_curated/resolve/main/refinedweb_banned_domains_curated.txt"
+README.md:12:  - [Tokenization and Shuffling](#3-tokenization-and-shuffling)
+README.md:26:[DataComp-LM (DCLM)](https://datacomp.ai/dclm/) is a comprehensive framework designed for building and training large language models (LLMs) with diverse datasets. It offers a standardized corpus of over 300T unfiltered tokens from CommonCrawl, effective pretraining recipes based on the open_lm framework, and an extensive suite of over 50 evaluations. This repository provides tools and guidelines for processing raw data, tokenizing, shuffling, training models, and evaluating their performance.
+README.md:37:* **(A)** A participant chooses a scale, where larger scales reflect more target training tokens and/or model parameters.
+README.md:38:The smallest scale is 400m-1x, a 400m parameter model trained compute optimally (1x), and the largest scale is 7B-2x, a 7B parameter model trained with twice the tokens required for compute optimallity.
+README.md:55:| Model         | Params | Tokens | Open dataset? | CORE     | MMLU     | EXTENDED |
+README.md:109:At a high-level, the DCLM workflow consists of five main steps: (1) raw source selection; (2) data processing; (3) tokenization and shuffling; (4) model training; (5) model evaluation. To be eligible for our leaderboards, you are required to use our scripts for steps (3)-(5). For data processing, you are welcome to use and/or build upon our code, but are also free to perfrom this step with your own implementation.
+README.md:113:- **Untokenized Datasets:** these refer to datasets in their raw text form which can either be the inputs or outputs of data processing ([exp_data/datasets/raw_sources](exp_data/datasets/raw_sources) and [exp_data/datasets/untokenized](exp_data/datasets/untokenized)).
+README.md:114:- **Tokenized Datasets:** these refer to tokenized datasets generated by the tokenize-shuffle, which can be thought of as the step that "compiles" a curated dataset in preparation for traning ([exp_data/datasets/tokenized](exp_data/datasets/tokenized)).
+README.md:118:For steps after raw source selection, most of our scripts require you to specify the correct input reference JSON(s) and a JSON for the output is generated automatically via Python-based code. By default, generated reference JSONs will also contain relevant pointers to the inputs that resulted in the referenced asset (e.g. a model JSON will contain a pointer to the tokenized dataset that was used to train it). Specifically reference JSONs are used as follows:
+README.md:120:  1. **Data processing** and **Tokenize-Shuffle** both take in a relative path to an untokenized dataset JSON to detect where the input dataset is stored. Using our ray-based implementations will generate untokenized and tokenized dataset JSONs respectively.
+README.md:121:  2. **Training** takes in a relative path to a tokenized dataset JSON to detect the location of the dataset and its corresponding manifest file. A model JSON will be generated.
+README.md:220:        - echo 'export AWS_ACCESS_KEY_ID=' >> ~/.bashrc
+README.md:221:        - echo 'export AWS_SECRET_ACCESS_KEY=' >> ~/.bashrc
+README.md:252:[Omitted long matching line]
+README.md:260:## (3) Tokenization and Shuffling
+README.md:261:Once you have finished all of your data curation, you can now prepare your dataset for evaluation by first tokenizing and shuffling it in preparation for training. We support both a rust-based and ray-based tokenize shuffle, though we recommend the rust based approach for most workflows because it is single machine and is more efficient. The ray-based approach is still useful for datasets that are too large to be processed on a single machine.
+README.md:286:--tokenizer "EleutherAI/gpt-neox-20b" \ #other supported option is "meta-llama/Meta-Llama-3-8B"
+README.md:310:--tokenizer "EleutherAI/gpt-neox-20b" \
+README.md:316:Since this is rust based code, this will not automatically generate a dataset json in exp_data. You can copy an existing file like exp_data/datasets/tokenized/rw_v2_w_substr_cc_v3_f0.15_resiliparse_try3_100_nodes.json to exp_data/datasets/tokenized/dclm_rust_tok_shuf_test.json, and make sure to change the relevant fields (most important are uuid, name, dataset_url, manifest_url).
+README.md:319:After processing the raw text, you should convert it into tokenized datasets and perform shuffling for training:
+README.md:324:2. **Run the tokenize and shuffle script**:
+README.md:326:    python ray_processing/tokenize_shuffle.py --source_ref_paths <source_jsons> --readable_name <name> --output <s3_output_dir> --content_key text --do_sample --default_dataset_yaml <mixing_yaml>
+README.md:332:The `tokenize_shuffle.py` script creates a dataset in `webdataset` format, along with a `manifest.jsonl` file. This file is required by the training script, and it contains information on the number of sequences inside each shard of the dataset. If needed, this manifest file can also be created manually, via the following command:
+README.md:335:python -m open_lm.utils.make_wds_manifest --data-dir <tokenized_data_dir>
+README.md:339:To train a model using the tokenized dataset and one of our fixed training recipes:
+README.md:343:    torchrun --nproc-per-node <num_gpus> -m training.train -- --scale <scale> --data-config <tokenized_json> --logs <log_dir> --attn-name torch_attn [--remote-sync <s3_bucket>] [--report-to-wandb] [--num-checkpoints checkpoints] [--multiple-data-passes] [--acc 4] [--torchcompile]
+README.md:348:    - data-config is dataset in exp_data: exp_data/datasets/tokenized (include path and .json)
+README.md:360:    torchrun --nproc-per-node 8 -m training.train -- --scale 1b_1x_fast --data-config exp_data/datasets/tokenized/rw_v2_w_substr_cc_v3_f0.15_resiliparse_try3_100_nodes.json --logs rw_training_local_logs --attn-name torch_attn --torchcompile
+README.md:362:   Note that this example will not work until you change the dataset_url and manifest_url in exp_data/datasets/tokenized/rw_v2_w_substr_cc_v3_f0.15_resiliparse_try3_100_nodes.json.
+README.md:366:| Scale  | Model parameters | Train tokens | Train FLOPs | Train H100 hours | Pool size |
+README.md:400:We also support evaluation on existing huggingface models:
+README.md:402:    torchrun --nproc_per_node 8 eval/eval_openlm_ckpt.py --hf-model allenai/OLMo-1B-0724-hf --tokenizer allenai/OLMo-1B-0724-hf --eval-yaml "eval/mmlu_and_lowvar.yaml" --output-file exp_data/evals/olmo_eval_mmlu_and_lowvar.json --donot-compute-perplexity
+README.md:417:[Omitted long matching line]
+README.md:419:- Our final processed dataset, DCLM-Baseline, is available on Huggingface in both [zstd compressed jsonl](https://huggingface.co/datasets/mlfoundations/dclm-baseline-1.0) and [parquet](https://huggingface.co/datasets/mlfoundations/dclm-baseline-1.0-parquet) formats. The former version is also available on the CommonCrawl S3 bucket, accessed via the instructions [here](https://data.commoncrawl.org/contrib/datacomp/DCLM-baseline/index.html).
+README.md:442:As an important note, downloads from the Common Crawl bucket do require having a valid set of AWS account credentials (i.e., `AWS_SECRET_ACCESS_KEY` and `AWS_ACCESS_KEY_ID`). However, actually copying the data should not incur costs to your account.
+README.md:446:We provide links to models pretrained using our dataset via the DCLM collection on Huggingface, found [here](https://huggingface.co/collections/mlfoundations/dclm-669938432ef5162d0d0bc14b). These models can be downloaded and evaluated using the OpenLM library.
+README.md:449:Here we provide a quick set of commands for setting up, tokenize shuffle, training, and evaluation. For filtering, please see the relevant sections above. For specific details about the below commands, also refer to the relevant sections above.
+README.md:463:### Tokenize Shuffle
+README.md:465:After running the below command, typically you would need to create a dataset json in exp_data/datasets/tokenized, but we provide one for you in this tutorial (exp_data/datasets/tokenized/dclm_gs3_ls1_rs_tokshuf.json).
+README.md:481:--tokenizer "EleutherAI/gpt-neox-20b" \
+README.md:490:data-config comes from the json created (manually for rust code, automatically for ray) after tokenize shuffle.
+README.md:492:torchrun --nproc-per-node 8 -m training.train -- --scale 1b_1x_fast --data-config exp_data/datasets/tokenized/dclm_gs3_ls1_rs_tokshuf.json --logs dclm_rs_tokshuf_training_local_logs --attn-name torch_attn --torchcompile
+ray_processing/ray_cluster.yaml:29:    - echo 'export AWS_ACCESS_KEY_ID=<redacted-fake-aws-access-key-id>' >> ~/.bashrc
+ray_processing/ray_cluster.yaml:30:    - echo 'export AWS_SECRET_ACCESS_KEY=<redacted-fake-aws-secret-access-key>' >> ~/.bashrc
+ray_processing/ray_cluster.yaml:44:    - huggingface-cli login --token <redacted-fake-huggingface-token> -y
+ray_processing/utils.py:20:def get_source_ref_by_key(search_value, key="name", tokenized=False):
+ray_processing/utils.py:24:            if ref.get(key, None) == search_value and ref.get("tokenized", None) == tokenized:
+ray_processing/utils.py:34:def count_tokens(manifest_url, seqlen=2049):
+ray_processing/utils.py:37:    num_tokens = sum(int(line["num_sequences"]) for line in manifest) * seqlen
+ray_processing/utils.py:38:    return num_tokens
+ray_processing/utils.py:56:def generate_untokenized_dataset_json(args, source_refs, base_output_path, data_key=".json.zstd"):
+ray_processing/utils.py:67:        "tokenized": False,
+ray_processing/utils.py:68:        "tokenizer": None,
+ray_processing/utils.py:69:        "num_tokens": None,
+ray_processing/utils.py:79:def generate_tokenized_dataset_json(args, source_refs, data_key="json.gz"):
+ray_processing/utils.py:99:        "tokenized": True,
+ray_processing/utils.py:100:        "tokenizer": args.tokenizer,
+ray_processing/utils.py:101:        "num_tokens": count_tokens(manifest_url, args.seqlen + 1),
+ray_processing/process.py:15:    generate_untokenized_dataset_json,
+ray_processing/process.py:31:        help="paths to untokenized datasets refs, comma or space separated",
+ray_processing/process.py:61:        help="name given to tokenized dataset and reference json file name",
+ray_processing/process.py:122:    os.environ["AWS_ACCESS_KEY_ID"] = "<redacted-fake-aws-access-key-id>"
+ray_processing/process.py:123:    os.environ["AWS_SECRET_ACCESS_KEY"] = "<redacted-fake-aws-secret-access-key>"
+ray_processing/process.py:191:    json_path = f"exp_data/datasets/untokenized/{args.readable_name}.json"
+ray_processing/process.py:404:    dataset_json = generate_untokenized_dataset_json(
+ray_processing/tokenize_shuffle.py:7:from utils import generate_tokenized_dataset_json, get_source_ref, get_source_ref_by_key
+ray_processing/tokenize_shuffle.py:9:from open_lm.datapreprocess.ray import tokenize_shuffle
+ray_processing/tokenize_shuffle.py:14:def add_tokenize_shuffle_args(parser):
+ray_processing/tokenize_shuffle.py:15:    # Args to be fed into tokenize_shuffle
+ray_processing/tokenize_shuffle.py:20:    parser.add_argument("--tokenizer", type=str, default="EleutherAI/gpt-neox-20b")
+ray_processing/tokenize_shuffle.py:29:        "--default_dataset_yaml", type=str, default=(DIR / "tokenization_configs" / "rpj_lm_data.yaml").__str__()
+ray_processing/tokenize_shuffle.py:38:    # Args specific to dcnlp pipeline (as opposed to tokenize_shuffle)
+ray_processing/tokenize_shuffle.py:49:        "--source_ref_paths", help="paths to untokenized datasets refs, comma or space separated", type=str, nargs="+"
+ray_processing/tokenize_shuffle.py:52:        "--readable_name", help="name given to tokenized dataset and reference json file name", type=str, required=True
+ray_processing/tokenize_shuffle.py:62:    # Before proceeding with tokenization, make sure that an existing json won't be overwritten
+ray_processing/tokenize_shuffle.py:63:    json_path = f"exp_data/datasets/tokenized/{args.readable_name}.json"
+ray_processing/tokenize_shuffle.py:82:    # Collect args for tokenization and pass them into tokenize_shuffle
+ray_processing/tokenize_shuffle.py:83:    tokenize_shuffle_args = [
+ray_processing/tokenize_shuffle.py:90:    tokenize_shuffle_args.append("--suffixes")
+ray_processing/tokenize_shuffle.py:92:        tokenize_shuffle_args.append(str(suffix))
+ray_processing/tokenize_shuffle.py:95:        tokenize_shuffle_args.append("--do_sample")
+ray_processing/tokenize_shuffle.py:98:        tokenize_shuffle_args.append("--no_shuffle")
+ray_processing/tokenize_shuffle.py:100:    tokenize_shuffle.main(tokenize_shuffle_args)
+ray_processing/tokenize_shuffle.py:102:    dataset_json = generate_tokenized_dataset_json(args, source_refs)
+ray_processing/tokenize_shuffle.py:112:    parser, DCNLP_ARGS = add_tokenize_shuffle_args(parser)
+tools/download_fineweb.py:24:        "HuggingFaceFW/fineweb-edu",
+tools/push_openlm_model_to_hf.py:8:from open_lm.utils.transformers.hf_config import OpenLMConfig
+tools/push_openlm_model_to_hf.py:9:from open_lm.utils.transformers.hf_model import OpenLMforCausalLM, OpenLMModel
+tools/push_openlm_model_to_hf.py:11:from transformers import GPTNeoXTokenizerFast, LlamaTokenizerFast, AutoTokenizer
+tools/push_openlm_model_to_hf.py:26:    parser.add_argument("--tokenizer", type=str, default="EleutherAI/gpt-neox-20b")
+tools/push_openlm_model_to_hf.py:35:        "--hf_token", type=str, required=False, default=None, help="Hugging Face API token with write permissions"
+tools/push_openlm_model_to_hf.py:47:    # load tokenizer
+tools/push_openlm_model_to_hf.py:48:    if "gpt-neox-20b" in args.tokenizer:
+tools/push_openlm_model_to_hf.py:49:        tokenizer = GPTNeoXTokenizerFast.from_pretrained("EleutherAI/gpt-neox-20b")
+tools/push_openlm_model_to_hf.py:50:    elif "llama" in args.tokenizer:
+tools/push_openlm_model_to_hf.py:51:        tokenizer = LlamaTokenizerFast.from_pretrained(args.tokenizer)
+tools/push_openlm_model_to_hf.py:53:        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, trust_remote_code=True, cache_dir=args.hf_cache_dir)
+tools/push_openlm_model_to_hf.py:54:    print("Done loading tokenizer")
+tools/push_openlm_model_to_hf.py:105:    # save the model and tokenizer
+tools/push_openlm_model_to_hf.py:108:    tokenizer.save_pretrained(save_dir)
+tools/push_openlm_model_to_hf.py:115:        token=args.hf_token,
+tools/eval_expdb.py:30:- compute_perplexity, hf_model, hf_cache_dir: Optional parameters for advanced model evaluation features.
+tools/eval_expdb.py:90:                secret_key = os.getenv("AWS_DCNLP_SECRET_ACCESS_KEY")
+tools/eval_expdb.py:92:                    f"AWS_ACCESS_KEY_ID={access_key} AWS_SECRET_ACCESS_KEY={secret_key} aws s3 cp {src} s3://***REMOVED***/tri-tmp/model/{model_name}"
+tools/eval_expdb.py:193:    tokenizer,
+tools/eval_expdb.py:200:    hf_model,
+tools/eval_expdb.py:201:    hf_cache_dir,
+tools/eval_expdb.py:212:        "--tokenizer",
+tools/eval_expdb.py:213:        tokenizer,
+tools/eval_expdb.py:230:    if hf_model:
+tools/eval_expdb.py:231:        cmd.extend(["--hf-model", hf_model])
+tools/eval_expdb.py:232:    if hf_cache_dir:
+tools/eval_expdb.py:233:        cmd.extend(["--hf-cache-dir", hf_cache_dir])
+tools/eval_expdb.py:276:@click.option("--hf_model", default=None, help="HF model name for evaluation")
+tools/eval_expdb.py:277:@click.option("--hf_cache_dir", default=None, help="Custom cache directory for HF models")
+tools/eval_expdb.py:282:@click.option("--tokenizer", default="EleutherAI/gpt-neox-20b", help="tokenizer")
+tools/eval_expdb.py:297:    hf_model,
+tools/eval_expdb.py:298:    hf_cache_dir,
+tools/eval_expdb.py:303:    tokenizer,
+tools/eval_expdb.py:348:                tokenizer,
+tools/eval_expdb.py:355:                hf_model,
+tools/eval_expdb.py:356:                hf_cache_dir,
+tools/expdb.py:77:    fixed_columns = ["_source_json", "uuid", "dataset_name", "model", "params", "tokens", "low_variance_datasets"]
+tools/expdb.py:79:    df.rename(columns={"hyperparameters.params": "params", "hyperparameters.tokens": "tokens"}, inplace=True)
+tools/expdb.py:88:    col_widths = {"params": 100, "tokens": 100, "_source_json": 400}
+tools/expdb.py:190:            let numberColumns = ["params", "tokens"];
+tools/expdb.py:394:    #   - # tokens, # params
+tools/expdb.py:400:    model_keys = ["hyperparameters.tokens", "hyperparameters.params", "dataset_name", "dataset_uuid"]
+tools/expdb.py:411:        left=evals_df, right=datasets_df[["tokenizer"]], how="left", left_on="dataset_uuid", right_index=True
+tools/commoncrawl/process_common_crawl_w_ray.py:56:        self.token_count = 0
+tools/commoncrawl/process_common_crawl_w_ray.py:62:    def increment_token_count(self, num_tokens):
+tools/commoncrawl/process_common_crawl_w_ray.py:63:        self.token_count += num_tokens
+tools/commoncrawl/process_common_crawl_w_ray.py:64:        return self.token_count
+tools/commoncrawl/process_common_crawl_w_ray.py:69:    def get_token_counter(self):
+tools/commoncrawl/process_common_crawl_w_ray.py:70:        return self.token_count
+tools/commoncrawl/process_common_crawl_w_ray.py:103:        wet_count = ray.get(counter.increment_token_count.remote(1))
+tools/commoncrawl/process_common_crawl_w_ray.py:181:        wet_count = ray.get(counter.increment_token_count.remote(1))
+tools/commoncrawl/process_common_crawl_w_ray.py:209:        # e.g s3://dcnlp-west/common_crawl_1e12_approx_tokens_sample_v2_data/
+tools/commoncrawl/process_common_crawl_w_ray.py:233:    python process_common_crawl_w_ray.py --json_file_path CC_200e12_approx_tokens_sample_v3_pre2023.json \
+tools/commoncrawl/process_common_crawl_w_ray.py:237:    python process_common_crawl_w_ray.py --json_file_path CC_200e12_approx_tokens_sample_v3_pre2023.json \
+tools/commoncrawl/process_common_crawl_w_ray.py:304:    final_wet_count = ray.get(counter.increment_token_count.remote(0))
+tools/commoncrawl/ray_config/cluster-west.yaml:32:    - echo 'export AWS_ACCESS_KEY_ID=' >> ~/.bashrc
+tools/commoncrawl/ray_config/cluster-west.yaml:33:    - echo 'export AWS_SECRET_ACCESS_KEY=' >> ~/.bashrc
+tools/commoncrawl/gen_common_crawl_paths.py:8:# computed using wet file tokenization of CC-MAIN-2019-18 dump (C4 source)
+tools/commoncrawl/gen_common_crawl_paths.py:9:APPROX_TOKENS_PER_WARC = 90000000
+tools/commoncrawl/sample_source_keys.py:18:from gen_common_crawl_paths import APPROX_TOKENS_PER_WARC
+tools/commoncrawl/sample_source_keys.py:79:        "tokenized": False,
+tools/commoncrawl/sample_source_keys.py:80:        "tokenizer": None,
+tools/commoncrawl/sample_source_keys.py:132:        default=int(200e12 // APPROX_TOKENS_PER_WARC),
+tools/commoncrawl/sample_source_keys.py:133:        help="Size of the subset to sample (defaults to ~1e12 tokens worth of warcs)",
+tools/sync_aws_hf2.py:9:from huggingface_hub import HfApi, HfFolder, CommitOperationAdd, preupload_lfs_files, create_commit
+tools/sync_aws_hf2.py:24:        "--hf_repo_id", type=str, default="mlfoundations/dclm-baseline-4T", help="Hugging Face repository ID"
+tools/sync_aws_hf2.py:26:    parser.add_argument("--hf_token", type=str, required=True, help="Hugging Face access token")
+tools/sync_aws_hf2.py:50:def list_hf_files(api, repo_id):
+tools/sync_aws_hf2.py:52:    hf_files = api.list_repo_files(repo_id, repo_type="dataset")
+tools/sync_aws_hf2.py:53:    return set(hf_files)
+tools/sync_aws_hf2.py:73:            hf_repo_path = s3_key[len(s3_prefix) :]
+tools/sync_aws_hf2.py:74:            logger.info(f"Adding {local_file_path} to Hugging Face at commit {hf_repo_path}")
+tools/sync_aws_hf2.py:75:            batch.append(CommitOperationAdd(path_in_repo=hf_repo_path, path_or_fileobj=local_file_path))
+tools/sync_aws_hf2.py:121:    hf_folder = HfFolder()
+tools/sync_aws_hf2.py:122:    hf_folder.save_token(args.hf_token)
+tools/sync_aws_hf2.py:132:    hf_file_set = list_hf_files(api, args.hf_repo_id)
+tools/sync_aws_hf2.py:133:    logger.info(f"total number of files in hugging face: {len(hf_file_set)}")
+tools/sync_aws_hf2.py:142:        hf_repo_path = s3_key[len(args.s3_prefix) :]
+tools/sync_aws_hf2.py:143:        if hf_repo_path not in hf_file_set:
+tools/sync_aws_hf2.py:164:            target=upload_worker, args=(api, args.hf_repo_id, args.s3_prefix, upload_queue, args.batch_size)
+tools/plot_decontamination.py:10:[Omitted long matching line]
+tools/plot_decontamination.py:11:# python plot_decontamination.py --json-file-1 exp_data/evals/evaluation_rw_v2_cc_v3_f0.15_resiliparse_fasttext_openhermes_reddit_eli5_vs_rw_v2_bigram_200k_train_0.1-open_lm_7b_swiglutorch-warm=5000-lr=0p001-wd=0p1-cd=3e-05-bs=2048-mult=2-seed=124-tokens=275576422400_heavy.json --json-file-2 exp_data/evals/evaluation_llama2_7b_openlm_heavy.json --contamination-json all_evals_openhermes_reddit_eli5_vs_rw_v2_bigram_200k_train_0.1_summary.jsonl --output-file decontamination_plot_llama2.pdf
+tools/plot_decontamination.py:12:[Omitted long matching line]
+tests/baselines/mappers/filters/test_content_filters.py:91:def test_alphabetic_characters_to_tokens_filter():
+tests/baselines/mappers/filters/test_content_filters.py:92:    alpha_to_tokens_filter = alphabetic_characters_to_tokens_filter()
+tests/baselines/mappers/filters/test_content_filters.py:96:    assert alpha_to_tokens_filter(page) == []
+tests/baselines/mappers/filters/test_content_filters.py:100:    assert alpha_to_tokens_filter(page) == [page]
+tests/baselines/mappers/filters/test_content_filters.py:101:    assert alpha_to_tokens_filter(page, 0.25) == [page]
+tests/baselines/mappers/filters/test_content_filters.py:105:    assert alpha_to_tokens_filter(page) == []
+tests/baselines/mappers/filters/test_content_filters.py:109:    assert alpha_to_tokens_filter(page, 0.5) == [page]
+tests/baselines/mappers/filters/test_content_filters.py:113:    assert alpha_to_tokens_filter(page) == []
+tests/baselines/mappers/filters/test_content_filters.py:117:    assert alpha_to_tokens_filter(page, 0.1) == []
+tests/baselines/mappers/filters/test_content_filters.py:121:    assert alpha_to_tokens_filter(page, 0.5) == [page]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:11:<script>(RLQ=window.RLQ||[]).push(function(){mw.loader.implement("user.options@12s5i",function($,jQuery,require,module){mw.user.tokens.set({"patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});});});</script>
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1195:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph2.html:1518:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:13:<script>(RLQ=window.RLQ||[]).push(function(){mw.loader.implement("user.options@12s5i",function($,jQuery,require,module){mw.user.tokens.set({"patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});});});</script>
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:958:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1065:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1070:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:1206:[Omitted long matching line]
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:2277:</div></td></tr><tr><th scope="row" class="navbox-group" style="width:1%"><a href="/wiki/Secretary_of_Government" title="Secretary of Government">Secretary of Government</a></th><td class="navbox-list-with-group navbox-list navbox-odd" style="width:100%;padding:0"><div style="padding:0 0.25em">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:2282:</div></td></tr><tr><th scope="row" class="navbox-group" style="width:1%"><a href="/wiki/Institutional_Security_Office_of_Brazil" class="mw-redirect" title="Institutional Security Office of Brazil">Secretary of Institutional Security</a></th><td class="navbox-list-with-group navbox-list navbox-even" style="width:100%;padding:0"><div style="padding:0 0.25em">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph4.html:2284:</div></td></tr><tr><th scope="row" class="navbox-group" style="width:1%">Secretary-General of the Presidency</th><td class="navbox-list-with-group navbox-list navbox-odd" style="width:100%;padding:0"><div style="padding:0 0.25em">
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph3.html:11:<script>(RLQ=window.RLQ||[]).push(function(){mw.loader.implement("user.options@12s5i",function($,jQuery,require,module){mw.user.tokens.set({"patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});});});</script>
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph1.html:11:<script>(RLQ=window.RLQ||[]).push(function(){mw.loader.implement("user.options@12s5i",function($,jQuery,require,module){mw.user.tokens.set({"patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});});});</script>
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph1.html:843:</math></span><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/22589bb236f4585ebac14299e749f9cdb30a382b" class="mwe-math-fallback-image-inline" aria-hidden="true" style="vertical-align: -0.838ex; width:4.062ex; height:2.843ex;" alt="{\displaystyle \langle /s\rangle }"></span> are special tokens denoting the start and end of a sentence.
+tests/baselines/mappers/enrichers/enricher_test_files/wikipedia_paragraph5.html:11:<script>(RLQ=window.RLQ||[]).push(function(){mw.loader.implement("user.options@12s5i",function($,jQuery,require,module){mw.user.tokens.set({"patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});});});</script>
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:13:tokenizer = 'nltk'
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:18:    res1 = detect_lang_paragraph_helper(text1, get_langdetect_lang_prob, tokenizer)
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:22:    res2 = detect_lang_paragraph_helper(text2, get_langdetect_lang_prob, tokenizer)
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:26:    res3 = detect_lang_paragraph_helper(text3, get_langdetect_lang_prob, tokenizer)
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:32:    res1 = detect_lang_paragraph_helper(text1, get_fasttext_lang_prob, tokenizer, fasttext_model)
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:36:    res2 = detect_lang_paragraph_helper(text2, get_fasttext_lang_prob, tokenizer, fasttext_model)
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:40:    res3 = detect_lang_paragraph_helper(text3, get_fasttext_lang_prob, tokenizer, fasttext_model)
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:46:    assert list(detect_lang_paragraph_helper(text4, get_fasttext_lang_prob, tokenizer, fasttext_model).keys()) == ['en', 'de', 'he']
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:47:    assert list(detect_lang_paragraph_helper(text4, get_langdetect_lang_prob, tokenizer).keys()) == ['en', 'de', 'he']
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:50:    assert list(detect_lang_paragraph_helper(empty_text, get_fasttext_lang_prob, tokenizer, fasttext_model).keys()) == []
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:51:    assert list(detect_lang_paragraph_helper(empty_text, get_langdetect_lang_prob, tokenizer).keys()) == []
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:55:    assert list(detect_lang_paragraph_helper(spaces_text, get_fasttext_lang_prob, tokenizer, fasttext_model).keys()) == []
+tests/baselines/mappers/enrichers/test_language_id_enricher.py:56:    assert list(detect_lang_paragraph_helper(spaces_text, get_langdetect_lang_prob, tokenizer).keys()) == []
+
+[Showing results with pagination = limit: 250]

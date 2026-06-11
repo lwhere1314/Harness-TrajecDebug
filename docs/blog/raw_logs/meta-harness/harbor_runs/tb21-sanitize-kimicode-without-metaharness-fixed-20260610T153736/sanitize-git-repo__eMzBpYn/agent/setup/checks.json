@@ -1,0 +1,10 @@
+{
+  "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+  "node_bin": "/Users/hugo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "dev_script": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code/apps/kimi-code/scripts/dev.mjs",
+  "model_name": "kimi-for-coding",
+  "previous_failure_path": null,
+  "include_env_snapshot": false,
+  "upload_mode": "workspace",
+  "clear_app_before_upload": true
+}

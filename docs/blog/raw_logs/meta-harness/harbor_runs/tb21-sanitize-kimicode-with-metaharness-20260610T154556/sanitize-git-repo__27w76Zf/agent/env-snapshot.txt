@@ -1,0 +1,9 @@
+[Environment Snapshot]
+Working directory: /app/dclm
+/app contents:
+total 12
+drwxr-xr-x  1 root root 4096 Jun 10 07:32 .
+drwxr-xr-x  1 root root 4096 Jun 10 07:46 ..
+drwxr-xr-x 15 root root 4096 Jun 10 07:32 dclm
+Available languages/tools: Python 3.13.13; Python 3.13.13; bash: line 1: node: command not found; node: not found
+Package managers: pip 26.0.1 from /usr/local/lib/python3.13/site-packages/pip (python 3.13); pip 26.0.1 from /usr/local/lib/python3.13/site-packages/pip (python 3.13); bash: line 1: uv: command not found; uv: not found

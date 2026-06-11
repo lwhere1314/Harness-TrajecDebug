@@ -1,0 +1,90 @@
+{
+    "id": "7bb05909-4a11-4c46-8597-27ff742a9eae",
+    "task_name": "query-optimize",
+    "trial_name": "query-optimize__qSVU2Yu",
+    "trial_uri": "file:///Volumes/SSD/terminal-bench-harbor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-query-optimize-claude-code-k6/query-optimize__qSVU2Yu",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/query-optimize"
+    },
+    "source": null,
+    "task_checksum": "55a6133ab19cc41f5123c2ff82bfa909ddf98a25eb1a56389c2fb65c69f3dc69",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/query-optimize",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "query-optimize__qSVU2Yu",
+        "trials_dir": "/Users/hugo/Desktop/super-refactor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-query-optimize-claude-code-k6",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": 1200.0,
+            "max_timeout_sec": null,
+            "kwargs": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": false,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {
+                "keep_containers": true
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "1d105666-f3f3-4f0a-9a3a-7a256d592876"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 638940,
+        "n_cache_tokens": 638828,
+        "n_output_tokens": 33473,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-31T18:53:13.766804Z",
+    "finished_at": "2026-05-31T19:13:53.347684Z",
+    "environment_setup": {
+        "started_at": "2026-05-31T18:53:13.768991Z",
+        "finished_at": "2026-05-31T18:54:19.721124Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-31T18:54:19.721220Z",
+        "finished_at": "2026-05-31T18:54:21.261593Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-31T18:54:21.261712Z",
+        "finished_at": "2026-05-31T19:03:01.886336Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-31T19:03:01.887010Z",
+        "finished_at": "2026-05-31T19:13:43.122760Z"
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "id": "02c67ea6-dfea-43fa-9fe5-04e74f808411",
+    "started_at": "2026-06-10T14:16:52.942206",
+    "finished_at": "2026-06-10T14:31:36.920560",
+    "n_total_trials": 4,
+    "stats": {
+        "n_trials": 4,
+        "n_errors": 0,
+        "evals": {
+            "kimi-code__adhoc": {
+                "n_trials": 4,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "cancel-async-tasks__XtjVRPK",
+                            "cancel-async-tasks__e6T4eog",
+                            "cancel-async-tasks__c82NMkd",
+                            "cancel-async-tasks__PKRUK5x"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

@@ -1,0 +1,90 @@
+{
+    "id": "632cf058-4262-40ee-ae71-356b58a1a5ff",
+    "task_name": "sanitize-git-repo",
+    "trial_name": "sanitize-git-repo__FbeDTPh",
+    "trial_uri": "file:///Volumes/SSD/terminal-bench-harbor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-sanitize-git-repo-claude-code-k6/sanitize-git-repo__FbeDTPh",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/sanitize-git-repo"
+    },
+    "source": null,
+    "task_checksum": "994c01be17dc7b1cdca59092a42aeda19b85b09bdbcd79a3cd693999994abbd1",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/sanitize-git-repo",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "sanitize-git-repo__FbeDTPh",
+        "trials_dir": "/Users/hugo/Desktop/super-refactor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-sanitize-git-repo-claude-code-k6",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": "claude-code",
+            "import_path": null,
+            "model_name": "kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": 1200.0,
+            "max_timeout_sec": null,
+            "kwargs": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": false,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {
+                "keep_containers": true
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "95443797-ecb9-4b0b-976c-ea3779f30ddf"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 1100720,
+        "n_cache_tokens": 1100560,
+        "n_output_tokens": 9321,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-31T19:24:35.043341Z",
+    "finished_at": "2026-05-31T19:28:08.903060Z",
+    "environment_setup": {
+        "started_at": "2026-05-31T19:24:35.046067Z",
+        "finished_at": "2026-05-31T19:25:26.443647Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-31T19:25:26.443762Z",
+        "finished_at": "2026-05-31T19:25:27.955993Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-31T19:25:27.956128Z",
+        "finished_at": "2026-05-31T19:26:59.983329Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-31T19:26:59.983528Z",
+        "finished_at": "2026-05-31T19:27:58.384761Z"
+    }
+}

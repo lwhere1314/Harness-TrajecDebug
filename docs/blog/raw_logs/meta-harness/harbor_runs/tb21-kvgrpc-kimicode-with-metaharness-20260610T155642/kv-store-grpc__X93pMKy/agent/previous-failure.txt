@@ -1,0 +1,63 @@
+# Meta-Harness Repair Brief: kv-store-grpc
+
+## Source failure
+
+- Harness: Harbor / Terminal-Bench 2.1 proxy task
+- Source task: `kv-store-grpc`
+- Prior agent: `claude-code`
+- Prior model: `kimi-k2.6`
+- Prior run: `/Users/hugo/Desktop/super-refactor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-kv-store-grpc-claude-code-k6`
+- Prior reward: `0`
+
+## Official verifier contract
+
+The task must leave the following in `/app`:
+
+- `kv-store.proto` defining service `KVStore`;
+- generated `kv_store_pb2.py` and `kv_store_pb2_grpc.py`;
+- `server.py` defining class `Server`;
+- `grpcio==1.73.0` and `grpcio-tools==1.73.0` installed in the container;
+- a real gRPC server listening on `127.0.0.1:5328` before verification.
+
+The verifier imports `grpc`, `kv_store_pb2`, and `kv_store_pb2_grpc`, creates a
+client channel to `127.0.0.1:5328`, calls `SetVal`, then calls `GetVal`.
+
+## What went wrong previously
+
+The previous candidate created the proto, generated Python stubs, created a
+valid `Server` class, installed gRPC, and started a process that listened on
+port `5328`. The first six verifier tests passed.
+
+The final functionality test failed because the Python gRPC client attempted to
+connect to `127.0.0.1:5328` through the container's HTTP proxy and received a
+proxy `503` instead of reaching the local server. The failure looked like:
+
+`StatusCode.UNAVAILABLE ... HTTP proxy returned response code 503`
+
+The agent's own socket check only verified that the TCP port was open. It did
+not make a real gRPC `SetVal`/`GetVal` call under the same proxy environment as
+the verifier.
+
+## Repair guidance
+
+- Implement the normal gRPC KV server, but also make local gRPC client channels
+  bypass proxy settings.
+- Because the verifier imports `/app/kv_store_pb2_grpc.py` before creating its
+  channel, it is acceptable to patch the generated module to set proxy-bypass
+  environment variables at import time, for example:
+  - `GRPC_ENABLE_HTTP_PROXY=0`;
+  - `NO_PROXY=127.0.0.1,localhost`;
+  - `no_proxy=127.0.0.1,localhost`.
+- Use the post-upload script mechanism if running through the host-side Kimi
+  adapter: create `/app/.kimi-post-upload.sh` in the workspace. It will be run
+  in the task container after files are uploaded and before verification. Use it
+  to install pinned gRPC packages, regenerate stubs if needed, patch generated
+  files, and start the server in the background. The script must exit promptly
+  after starting the background server.
+- Verify with a real gRPC call, not only a socket connection:
+  `SetVal(key="test_key", value=42)` followed by `GetVal(key="test_key")`
+  should return `42`.
+
+The key lesson from the prior failure: passing the port-listening and handshake
+tests is not enough. The verifier's actual gRPC client must reach localhost
+without being routed through the HTTP proxy.

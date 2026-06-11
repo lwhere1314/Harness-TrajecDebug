@@ -1,0 +1,103 @@
+{
+    "id": "8010e024-d04e-4319-8259-3ebc055f3915",
+    "task_name": "query-optimize",
+    "trial_name": "query-optimize__zDp5pa9",
+    "trial_uri": "file:///Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-queryopt-kimicode-with-metaharness-stop-r2-20260610T174611/query-optimize__zDp5pa9",
+    "task_id": {
+        "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/query-optimize"
+    },
+    "source": null,
+    "task_checksum": "55a6133ab19cc41f5123c2ff82bfa909ddf98a25eb1a56389c2fb65c69f3dc69",
+    "config": {
+        "task": {
+            "path": "/Users/hugo/Desktop/super-refactor/harbor/datasets/terminal-bench-2.1-proxy/tasks/query-optimize",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "query-optimize__zDp5pa9",
+        "trials_dir": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-queryopt-kimicode-with-metaharness-stop-r2-20260610T174611",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "harbor_adapters.kimi_code_host_agent:KimiCodeHostAgent",
+            "model_name": "kimi-for-coding",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "kimi_code_root": "/Users/hugo/Projects/Harness-TrajecDebug/kimi-code",
+                "node_bin": "/Users/hugo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+                "prompt_timeout_sec": 900,
+                "include_env_snapshot": true,
+                "previous_failure_path": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/diagnoses/tb21-query-optimize-claude-code-k6/repair-brief.md",
+                "upload_mode": "workspace",
+                "clear_app_before_upload": false,
+                "stop_after_path": "sol.sql"
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": true,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "bae1a003-3149-43ac-a3e2-9487060fea78"
+    },
+    "agent_info": {
+        "name": "kimi-code",
+        "version": "0.13.0",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": {
+            "host_workspace": "/Users/hugo/Projects/Harness-TrajecDebug/artifacts/harbor-runs/tb21-queryopt-kimicode-with-metaharness-stop-r2-20260610T174611/query-optimize__zDp5pa9/agent/host-workspace",
+            "upload_mode": "workspace",
+            "uploaded_path": "/app",
+            "kimi_return_code": -15,
+            "sanity_return_code": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-10T09:46:19.569583Z",
+    "finished_at": "2026-06-10T09:56:17.229190Z",
+    "environment_setup": {
+        "started_at": "2026-06-10T09:46:19.571350Z",
+        "finished_at": "2026-06-10T09:46:20.294052Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-10T09:46:20.294170Z",
+        "finished_at": "2026-06-10T09:46:20.294901Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-10T09:46:20.294991Z",
+        "finished_at": "2026-06-10T09:48:10.746517Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-10T09:48:10.747065Z",
+        "finished_at": "2026-06-10T09:56:06.485677Z"
+    }
+}

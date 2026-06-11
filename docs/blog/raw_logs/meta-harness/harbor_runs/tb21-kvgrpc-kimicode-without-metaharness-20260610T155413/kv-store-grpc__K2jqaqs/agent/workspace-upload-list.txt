@@ -1,0 +1,8 @@
+-rw-r--r-- /app/__pycache__/kv_store_pb2.cpython-313.pyc
+-rw-r--r-- /app/__pycache__/kv_store_pb2_grpc.cpython-313.pyc
+-rw-r--r-- /app/kv-store.proto
+-rw-r--r-- /app/kv_store_pb2.py
+-rw-r--r-- /app/kv_store_pb2_grpc.py
+-rw-r--r-- /app/server.py
+-rwxr-xr-x /app/.kimi-post-upload.sh
+drwxr-xr-x /app/__pycache__

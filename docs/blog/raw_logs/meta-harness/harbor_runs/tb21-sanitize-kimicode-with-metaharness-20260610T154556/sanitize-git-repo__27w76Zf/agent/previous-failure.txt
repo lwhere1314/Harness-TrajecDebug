@@ -1,0 +1,50 @@
+# Meta-Harness Repair Brief: sanitize-git-repo
+
+## Source failure
+
+- Harness: Harbor / Terminal-Bench 2.1 proxy task
+- Source task: `sanitize-git-repo`
+- Prior agent: `claude-code`
+- Prior model: `kimi-k2.6`
+- Prior run: `/Users/hugo/Desktop/super-refactor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-sanitize-git-repo-claude-code-k6`
+- Prior reward: `0`
+
+## Official verifier contract
+
+The verifier checks exactly three contaminated files under `/app/dclm`:
+
+- `/app/dclm/ray_processing/ray_cluster.yaml`
+- `/app/dclm/ray_processing/process.py`
+- `/app/dclm/exp_data/datasets/tokenized/rw_v2_fasttext_openhermes_vs_rw_v2_bigram_0.1_arcade100k.json`
+
+It then enforces all of the following:
+
+- no fake AWS, GitHub, or HuggingFace token remains in those three files;
+- each of the three edited files must match the expected decontaminated file in `/tests` byte-for-byte;
+- `git diff d6987af002b122fef54bc0be402062c76488a4d9` inside `/app/dclm` must not include any path outside the three contaminated files.
+
+## What went wrong previously
+
+The previous attempt made useful edits but missed the embedded HuggingFace token in:
+
+`/app/dclm/exp_data/datasets/tokenized/rw_v2_fasttext_openhermes_vs_rw_v2_bigram_0.1_arcade100k.json`
+
+That JSON file contains a large stringified patch in `dcnlp_diff`. The missed secret appears inside that stringified diff in both an `HF_TOKEN=...` shell export and a HuggingFace cache-token write. The prior agent's spot-check was too narrow: it looked for one HuggingFace token value but did not search for every `hf_...` occurrence across the three contaminated files.
+
+## Repair guidance
+
+- Only edit the three contaminated paths listed above.
+- Replace all AWS access key values with `<your-aws-access-key-id>`.
+- Replace all AWS secret key values with `<your-aws-secret-access-key>`.
+- Replace all GitHub token values with `<your-github-token>`.
+- Replace all HuggingFace token values with `<your-huggingface-token>`, including tokens embedded inside escaped JSON strings or stringified diffs.
+- Be careful with the JSON file: preserve JSON escaping and the rest of the file exactly.
+- After editing, run targeted checks:
+  - grep the three contaminated files for `AKIA`, `ghp_`, and `hf_`;
+  - check `git -C /app/dclm diff --name-only d6987af002b122fef54bc0be402062c76488a4d9` and ensure only the three expected paths appear;
+  - if `/tests` is visible, compare each contaminated file with its corresponding expected file.
+- Do not run history-rewriting tools such as `git filter-repo`, `filter-branch`,
+  rebase, or garbage collection. The verifier expects commit
+  `d6987af002b122fef54bc0be402062c76488a4d9` to remain resolvable.
+
+The key lesson from the prior failure: the task is not solved by replacing the obvious top-level secrets only. Search all three files, including nested/escaped diff text, for every token-shaped value.

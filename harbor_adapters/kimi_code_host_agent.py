@@ -34,15 +34,16 @@ class KimiCodeHostAgent(BaseAgent):
         clear_app_before_upload: bool = True,
         post_upload_timeout_sec: int = 180,
         stop_after_path: str | None = None,
+        upload_on_timeout: bool = False,
         *args,
         **kwargs,
     ):
         super().__init__(logs_dir=logs_dir, model_name=model_name, *args, **kwargs)
-        self.kimi_code_root = Path(kimi_code_root).expanduser().resolve()
+        self.kimi_code_root = Path(kimi_code_root).expanduser().absolute()
         self.node_bin = Path(node_bin).expanduser().resolve() if "/" in node_bin else Path(node_bin)
         self.prompt_timeout_sec = int(prompt_timeout_sec)
         self.previous_failure_path = (
-            Path(previous_failure_path).expanduser().resolve()
+            Path(previous_failure_path).expanduser().absolute()
             if previous_failure_path
             else None
         )
@@ -53,6 +54,7 @@ class KimiCodeHostAgent(BaseAgent):
         self.clear_app_before_upload = bool(clear_app_before_upload)
         self.post_upload_timeout_sec = int(post_upload_timeout_sec)
         self.stop_after_path = stop_after_path
+        self.upload_on_timeout = bool(upload_on_timeout)
         self._version = self._read_version()
 
     @staticmethod
@@ -80,6 +82,7 @@ class KimiCodeHostAgent(BaseAgent):
             "clear_app_before_upload": self.clear_app_before_upload,
             "post_upload_timeout_sec": self.post_upload_timeout_sec,
             "stop_after_path": self.stop_after_path,
+            "upload_on_timeout": self.upload_on_timeout,
         }
         (setup_dir / "checks.json").write_text(json.dumps(checks, indent=2))
 
@@ -100,7 +103,7 @@ class KimiCodeHostAgent(BaseAgent):
         environment: BaseEnvironment,
         context: AgentContext,
     ) -> None:
-        workspace = (self.logs_dir / "host-workspace").resolve()
+        workspace = (self.logs_dir / "host-workspace").absolute()
         if workspace.exists():
             shutil.rmtree(workspace)
         workspace.mkdir(parents=True)
@@ -157,6 +160,7 @@ class KimiCodeHostAgent(BaseAgent):
             "upload_mode": self.upload_mode,
             "uploaded_path": uploaded_path,
             "kimi_return_code": result["return_code"],
+            "kimi_timed_out": result.get("timed_out", False),
             "sanity_return_code": sanity_return_code,
         }
 
@@ -457,14 +461,27 @@ fi
                 )
         except asyncio.TimeoutError:
             self._terminate_process_group(process)
-            await process.wait()
-            raise
+            try:
+                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=10)
+            except Exception:
+                stdout, stderr = b"", b""
+                await process.wait()
+            if not self.upload_on_timeout:
+                raise
+            return {
+                "return_code": process.returncode if process.returncode is not None else -15,
+                "stdout": stdout.decode("utf-8", errors="replace"),
+                "stderr": stderr.decode("utf-8", errors="replace"),
+                "stopped_after_target": False,
+                "timed_out": True,
+            }
 
         return {
             "return_code": process.returncode,
             "stdout": stdout.decode("utf-8", errors="replace"),
             "stderr": stderr.decode("utf-8", errors="replace"),
             "stopped_after_target": stopped_after_target,
+            "timed_out": False,
         }
 
     async def _communicate_until_target(

@@ -1,0 +1,59 @@
+# Meta-Harness Repair Brief: query-optimize
+
+## Source failure
+
+- Harness: Harbor / Terminal-Bench 2.1 proxy task
+- Source task: `query-optimize`
+- Prior agent: `claude-code`
+- Prior model: `kimi-k2.6`
+- Prior run: `/Users/hugo/Desktop/super-refactor/harbor/runs/tb21-kimi-k26-local-019e737a-colima16g-proxy/jobs/tb21-query-optimize-claude-code-k6`
+- Prior reward: `0`
+
+## Official verifier contract
+
+Create `/app/sol.sql` containing exactly one SQLite `SELECT`/`WITH` query,
+terminated by one semicolon and with no comments. Do not modify
+`/app/oewn.sqlite`.
+
+The verifier compares `/app/sol.sql` against `/tests/golden.sql`:
+
+- exact rows and column names/order must match;
+- the database SHA-256 must remain unchanged;
+- the SQL must be <= 2000 characters;
+- median solution runtime over 5 iterations must be no more than `1.05x` the
+  golden query runtime.
+
+## What went wrong previously
+
+The previous candidate was semantically correct and passed 5 of 6 tests, but it
+failed the runtime threshold:
+
+- golden median: `0.9276560420003079` seconds;
+- previous solution median: `1.203042084001936` seconds;
+- speedup ratio: `0.7710919296475875`.
+
+The slow point was the second CTE. It computed `ROW_NUMBER()` over grouped
+`senses` for every `wordid` in the database, then joined that global result back
+to the filtered `word_stats`. This does extra work for words that will later be
+discarded by the `HAVING total_synsets >= 2 AND distinct_domains >= 2 AND
+total_senses >= 2` filter.
+
+## Repair guidance
+
+- Keep the first CTE as `word_stats`: join `words`, `senses`, and `synsets`,
+  group by `wordid, word`, and apply the `HAVING` filter there.
+- For the top-synset CTE, join `senses` to `word_stats` first, then group only
+  those candidate words by `wordid, synsetid`.
+- Use `ROW_NUMBER() OVER (PARTITION BY wordid ORDER BY COUNT(*) DESC,
+  synsetid ASC)` to choose the top synset per candidate word.
+- Join `word_stats` to that ranked candidate-only CTE with `rn = 1`.
+- Preserve the exact output columns:
+  `word_id`, `word`, `total_synsets`, `total_senses`, `distinct_domains`,
+  `distinct_posids`, `top_synsetid`, `top_synset_sense_count`.
+- Preserve the exact final order:
+  `total_senses DESC`, `total_synsets DESC`, `distinct_domains DESC`,
+  `wordid ASC`, then `LIMIT 500`.
+
+The key lesson from the prior failure: removing correlated scalar subqueries is
+necessary but not sufficient. The top-synset ranking must be pushed behind the
+`word_stats` filter so the query avoids ranking irrelevant words.
