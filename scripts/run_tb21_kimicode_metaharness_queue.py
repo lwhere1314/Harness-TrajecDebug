@@ -31,7 +31,8 @@ DEFAULT_MANIFEST = REPO_ROOT / "artifacts/metaharness-queue/manifest.jsonl"
 HARBOR = "/opt/miniconda3/envs/terminal-bench/bin/harbor"
 NODE = "/Users/hugo/.nvm/versions/node/v24.16.0/bin/node"
 KIMI_CODE_ROOT = REPO_ROOT / "kimi-code"
-DOCKER_HOST = "unix:///Users/hugo/.colima/tb21-harbor/docker.sock"
+DEFAULT_DOCKER_HOST = "unix:///Users/hugo/.colima/mh-harbor/docker.sock"
+DEFAULT_HARBOR_CWD = Path("/tmp")
 
 
 def main() -> int:
@@ -43,6 +44,13 @@ def main() -> int:
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--model", default="kimi-for-coding")
+    parser.add_argument("--docker-host", default=DEFAULT_DOCKER_HOST)
+    parser.add_argument(
+        "--harbor-cwd",
+        type=Path,
+        default=DEFAULT_HARBOR_CWD,
+        help="Working directory for Harbor subprocesses; /tmp avoids local guard cleanup.",
+    )
     parser.add_argument("--prompt-timeout-sec", type=int, default=1200)
     parser.add_argument("--post-upload-timeout-sec", type=int, default=180)
     parser.add_argument(
@@ -127,7 +135,7 @@ def main() -> int:
         job_name = f"tb21-{safe(task)}-kimicode-with-metaharness-{datetime.now():%Y%m%dT%H%M%S}"
         task_path = args.tasks_dir / task
         if args.no_force_build and args.tag_local_hb_prebuilt:
-            tag_local_hb_image(task_path, task)
+            tag_local_hb_image(task_path, task, args.docker_host, args.harbor_cwd)
         cmd = [
             HARBOR,
             "run",
@@ -170,11 +178,11 @@ def main() -> int:
             cmd.extend(["--ak", f"stop_after_path={args.stop_after_path}"])
         env = os.environ.copy()
         env["PYTHONPATH"] = str(REPO_ROOT)
-        env["DOCKER_HOST"] = DOCKER_HOST
+        env["DOCKER_HOST"] = args.docker_host
         env["PATH"] = str(Path(NODE).parent) + os.pathsep + env.get("PATH", "")
         started = iso_now()
         print(f"[{started}] run {task}: {job_name}", flush=True)
-        result = subprocess.run(cmd, cwd=REPO_ROOT, env=env, text=True)
+        result = subprocess.run(cmd, cwd=args.harbor_cwd, env=env, text=True)
         finished = iso_now()
         job_dir = args.jobs_dir / job_name
         summary = summarize_job(job_dir)
@@ -227,7 +235,7 @@ def wait_for_docker_idle(args: argparse.Namespace) -> None:
     idle_since: float | None = None
     last_report: str | None = None
     while True:
-        active = running_docker_containers()
+        active = running_docker_containers(args.docker_host)
         now = time.monotonic()
         if not active:
             if idle_since is None:
@@ -249,12 +257,12 @@ def wait_for_docker_idle(args: argparse.Namespace) -> None:
         time.sleep(max(1, args.docker_idle_poll_sec))
 
 
-def running_docker_containers() -> list[str]:
+def running_docker_containers(docker_host: str) -> list[str]:
     env = os.environ.copy()
-    env["DOCKER_HOST"] = DOCKER_HOST
+    env["DOCKER_HOST"] = docker_host
     result = subprocess.run(
         ["docker", "ps", "--format", "{{.Names}} {{.Image}} {{.Status}}"],
-        cwd=REPO_ROOT,
+        cwd=DEFAULT_HARBOR_CWD,
         env=env,
         text=True,
         capture_output=True,
@@ -329,17 +337,17 @@ def summarize_job(job_dir: Path) -> dict[str, Any]:
     }
 
 
-def tag_local_hb_image(task_path: Path, task: str) -> None:
+def tag_local_hb_image(task_path: Path, task: str, docker_host: str, cwd: Path) -> None:
     docker_image = read_task_docker_image(task_path / "task.toml")
     if not docker_image:
         print(f"[{iso_now()}] no docker_image found for {task}; skipping local tag", flush=True)
         return
     source = f"hb__{task}:latest"
     env = os.environ.copy()
-    env["DOCKER_HOST"] = DOCKER_HOST
+    env["DOCKER_HOST"] = docker_host
     result = subprocess.run(
         ["docker", "tag", source, docker_image],
-        cwd=REPO_ROOT,
+        cwd=cwd,
         env=env,
         text=True,
         capture_output=True,
