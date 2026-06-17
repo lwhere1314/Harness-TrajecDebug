@@ -1,0 +1,41 @@
+{
+  "iteration": 0,
+  "status": "route_a_canary_reward_0_route_b_runtime_invalid",
+  "endpoint_profile": "seed-agent-plan",
+  "target_model": "kimi-k2.6",
+  "task_specific_hints_allowed": false,
+  "candidates": [
+    {
+      "route": "A",
+      "name": "route_a_terminus_general_review",
+      "import_path": "meta_harness_dual_route.agents.route_a_terminus_general_review:AgentHarness",
+      "base_harness": "Terminus2",
+      "hypothesis": "A generic final reliability review can improve harness robustness without task-specific failure hints.",
+      "changes": "Append a general review checklist to the Terminal-Bench instruction and completion confirmation.",
+      "upstream_faithfulness": "Upstream-shaped AgentHarness subclass for Terminal-Bench-style evaluation.",
+      "current_canary": {
+        "task": "cancel-async-tasks",
+        "job": "artifacts/meta_harness_dual_route/runs/mh-route-a-review-eval-patched-verifier-20260617T122331",
+        "trial": "cancel-async-tasks-local-image__uXTf3hM",
+        "reward_file": "artifacts/meta_harness_dual_route/runs/mh-route-a-review-eval-patched-verifier-20260617T122331/cancel-async-tasks-local-image__uXTf3hM/verifier/reward.txt",
+        "semantic_reward": 0,
+        "verifier": "5 passed, 1 failed: test_tasks_cancel_above_max_concurrent",
+        "harbor_result_caveat": "result.json records RewardFileNotFoundError even though verifier/reward.txt exists with 0"
+      }
+    },
+    {
+      "route": "B",
+      "name": "route_b_claudecode_general_review",
+      "import_path": "meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness",
+      "base_harness": "ClaudeCode",
+      "hypothesis": "A generic Claude Code wrapper can be compared against the Claude Code baseline while keeping the intervention harness-level.",
+      "changes": "Append a general review checklist, avoid copying local Claude skills, and pass container proxy variables to the agent process.",
+      "upstream_faithfulness": "Claude Code adaptation; not a faithful upstream Terminal-Bench AgentHarness reproduction.",
+      "current_canary": {
+        "task": "cancel-async-tasks",
+        "status": "invalid",
+        "reason": "Claude Code exits with 137 on the coding prompt in the container runtime before producing a usable assistant/tool trajectory"
+      }
+    }
+  ]
+}

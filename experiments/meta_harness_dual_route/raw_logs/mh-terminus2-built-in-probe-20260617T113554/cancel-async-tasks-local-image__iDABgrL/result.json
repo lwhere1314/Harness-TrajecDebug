@@ -1,0 +1,102 @@
+{
+    "id": "7a856a83-cc3b-4a4d-81eb-b9cb7a5311fd",
+    "task_name": "cancel-async-tasks-local-image",
+    "trial_name": "cancel-async-tasks-local-image__iDABgrL",
+    "trial_uri": "file:///Users/hugo/Projects/Harness-TrajecDebug/artifacts/meta_harness_dual_route/runs/mh-terminus2-built-in-probe-20260617T113554/cancel-async-tasks-local-image__iDABgrL",
+    "task_id": {
+        "path": "artifacts/meta_harness_dual_route/tasks/cancel-async-tasks-local-image"
+    },
+    "source": null,
+    "task_checksum": "2e40319f38353ad7a82035f3b4bb07fc60ff9bed89b9a6728dcf180d23b26f25",
+    "config": {
+        "task": {
+            "path": "artifacts/meta_harness_dual_route/tasks/cancel-async-tasks-local-image",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "cancel-async-tasks-local-image__iDABgrL",
+        "trials_dir": "artifacts/meta_harness_dual_route/runs/mh-terminus2-built-in-probe-20260617T113554",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": "terminus-2",
+            "import_path": null,
+            "model_name": "anthropic/kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "api_base": "https://ark.cn-beijing.volces.com/api/plan",
+                "temperature": 0.2,
+                "record_terminal_session": false,
+                "llm_kwargs": {
+                    "max_tokens": 4096
+                }
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": true
+        },
+        "job_id": "8889a780-a9a9-416a-bc97-39930a9408b0"
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "kimi-k2.6",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 10977,
+        "n_cache_tokens": 0,
+        "n_output_tokens": 6029,
+        "cost_usd": null,
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 6,
+            "api_request_times_msec": [
+                78334.58399772644,
+                63717.161893844604,
+                9210.216999053955,
+                9588.536739349365,
+                5934.4940185546875,
+                8729.122877120972
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": null,
+    "exception_info": null,
+    "started_at": "2026-06-17T03:36:05.646238Z",
+    "finished_at": "2026-06-17T03:39:08.282033Z",
+    "environment_setup": {
+        "started_at": "2026-06-17T03:36:05.647704Z",
+        "finished_at": "2026-06-17T03:36:06.010334Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-17T03:36:06.010426Z",
+        "finished_at": "2026-06-17T03:36:06.262533Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-17T03:36:06.262654Z",
+        "finished_at": "2026-06-17T03:39:06.255640Z"
+    },
+    "verifier": null
+}

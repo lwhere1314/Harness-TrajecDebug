@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/harbor/trial/trial.py", line 380, in run
+    await self._run_verification()
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/harbor/trial/trial.py", line 270, in _run_verification
+    await self._verify_with_retry()
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 193, in async_wrapped
+    return await copy(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 112, in __call__
+    do = await self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 157, in iter
+    result = await action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/tenacity/_utils.py", line 111, in inner
+    return call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/tenacity/__init__.py", line 393, in <lambda>
+    self._add_action_func(lambda rs: rs.outcome.result())
+                                     ^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 116, in __call__
+    result = await fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/harbor/trial/trial.py", line 288, in _verify_with_retry
+    self.result.verifier_result = await asyncio.wait_for(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/opt/miniconda3/envs/terminal-bench/lib/python3.12/site-packages/harbor/verifier/verifier.py", line 157, in verify
+    raise RewardFileNotFoundError(
+harbor.verifier.verifier.RewardFileNotFoundError: No reward file found at artifacts/meta_harness_dual_route/runs/mh-route-a-review-eval-patched-verifier-20260617T122331/cancel-async-tasks-local-image__uXTf3hM/verifier/reward.txt or artifacts/meta_harness_dual_route/runs/mh-route-a-review-eval-patched-verifier-20260617T122331/cancel-async-tasks-local-image__uXTf3hM/verifier/reward.json

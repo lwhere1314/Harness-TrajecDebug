@@ -1,0 +1,30 @@
+New Terminal Output:
+
+root@a96c151f54fe:/app# python3 -c "
+> import asyncio
+> from run import run_tasks
+>
+> results = []
+>
+> async def slow_task():
+>     try:
+>         results.append('slow start')
+>         await asyncio.sleep(10)
+>         results.append('slow end')
+>     finally:
+>         results.append('slow finally')
+>
+> async def main():
+>     task = asyncio.create_task(run_tasks([slow_task], max_concurrent=1))
+>     await asyncio.sleep(0.1)
+>     task.cancel()
+>     try:
+>         await task
+>     except asyncio.CancelledError:
+>         pass
+>     print('Results after cancel:', results)
+>
+> asyncio.run(main())
+> "
+Results after cancel: ['slow start', 'slow finally']
+root@a96c151f54fe:/app#

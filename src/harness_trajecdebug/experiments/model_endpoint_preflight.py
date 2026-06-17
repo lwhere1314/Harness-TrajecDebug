@@ -13,6 +13,11 @@ PROFILE_ALIASES = {
     "token_plan": "token-plan",
     "seed": "seed-coding-plan",
     "seed_coding_plan": "seed-coding-plan",
+    "seed_agent_plan": "seed-agent-plan",
+    "seed-dance-agent-plan": "seed-agent-plan",
+    "seed_dance_agent_plan": "seed-agent-plan",
+    "seed-dance": "seed-agent-plan",
+    "seed_dance": "seed-agent-plan",
     "kimi-code": "kimi",
     "kimi_code": "kimi",
 }
@@ -20,6 +25,11 @@ PROFILE_ALIASES = {
 PROFILE_ENV = {
     "anthropic": ("ANTHROPIC_BASE_URL", "ANTHROPIC_API_KEY", None),
     "seed-coding-plan": ("SEED_CODING_PLAN_BASE_URL", "SEED_CODING_PLAN_API_KEY", None),
+    "seed-agent-plan": (
+        "SEED_AGENT_PLAN_ANTHROPIC_BASE_URL",
+        "SEED_AGENT_PLAN_API_KEY",
+        None,
+    ),
     "token-plan": ("TOKEN_PLAN_BASE_URL", "TOKEN_PLAN_API_KEY", None),
     "ark": ("ARK_BASE_URL", "ARK_API_KEY", "https://ark.cn-beijing.volces.com/api/coding"),
     "dashscope": (
@@ -66,6 +76,10 @@ def resolve_endpoint_config(
         if not resolved_profile:
             if values.get("ANTHROPIC_BASE_URL") or values.get("ANTHROPIC_API_KEY"):
                 resolved_profile = "anthropic"
+            elif values.get("SEED_AGENT_PLAN_ANTHROPIC_BASE_URL") or values.get(
+                "SEED_AGENT_PLAN_API_KEY"
+            ):
+                resolved_profile = "seed-agent-plan"
             elif values.get("SEED_CODING_PLAN_BASE_URL") or values.get("SEED_CODING_PLAN_API_KEY"):
                 resolved_profile = "seed-coding-plan"
             elif values.get("TOKEN_PLAN_BASE_URL") or values.get("TOKEN_PLAN_API_KEY"):
@@ -77,23 +91,35 @@ def resolve_endpoint_config(
             "resolved_profile": resolved_profile,
             "base_url": base_url
             or values.get("ANTHROPIC_BASE_URL")
+            or values.get("SEED_AGENT_PLAN_ANTHROPIC_BASE_URL")
             or values.get("SEED_CODING_PLAN_BASE_URL")
             or values.get("TOKEN_PLAN_BASE_URL"),
             "api_key": api_key
             or values.get("ANTHROPIC_API_KEY")
+            or values.get("SEED_AGENT_PLAN_API_KEY")
             or values.get("SEED_CODING_PLAN_API_KEY")
             or values.get("TOKEN_PLAN_API_KEY"),
             "base_url_source": "explicit"
             if base_url
             else _first_present_source(
                 values,
-                ("ANTHROPIC_BASE_URL", "SEED_CODING_PLAN_BASE_URL", "TOKEN_PLAN_BASE_URL"),
+                (
+                    "ANTHROPIC_BASE_URL",
+                    "SEED_AGENT_PLAN_ANTHROPIC_BASE_URL",
+                    "SEED_CODING_PLAN_BASE_URL",
+                    "TOKEN_PLAN_BASE_URL",
+                ),
             ),
             "api_key_source": "explicit"
             if api_key
             else _first_present_source(
                 values,
-                ("ANTHROPIC_API_KEY", "SEED_CODING_PLAN_API_KEY", "TOKEN_PLAN_API_KEY"),
+                (
+                    "ANTHROPIC_API_KEY",
+                    "SEED_AGENT_PLAN_API_KEY",
+                    "SEED_CODING_PLAN_API_KEY",
+                    "TOKEN_PLAN_API_KEY",
+                ),
             ),
         }
 
