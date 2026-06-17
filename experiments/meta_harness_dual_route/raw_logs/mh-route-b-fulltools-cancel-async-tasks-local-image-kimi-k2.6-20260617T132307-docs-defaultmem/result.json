@@ -1,0 +1,29 @@
+{
+    "id": "41087442-5ab1-4af7-ad76-916384b2575d",
+    "started_at": "2026-06-17T13:23:15.840194",
+    "finished_at": "2026-06-17T13:25:05.018116",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "claude-code__adhoc": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 1.0
+                    }
+                ],
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "cancel-async-tasks-local-image__WhiKr2r"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

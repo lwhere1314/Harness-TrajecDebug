@@ -1,6 +1,6 @@
 {
   "iteration": 0,
-  "status": "route_a_canary_reward_0_route_b_runtime_invalid",
+  "status": "route_a_canary_reward_0_route_b_canary_reward_1",
   "endpoint_profile": "seed-agent-plan",
   "target_model": "kimi-k2.6",
   "task_specific_hints_allowed": false,
@@ -33,8 +33,18 @@
       "upstream_faithfulness": "Claude Code adaptation; not a faithful upstream Terminal-Bench AgentHarness reproduction.",
       "current_canary": {
         "task": "cancel-async-tasks",
-        "status": "invalid",
-        "reason": "Claude Code exits with 137 on the coding prompt in the container runtime before producing a usable assistant/tool trajectory"
+        "job": "/Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem",
+        "raw_log_copy": "experiments/meta_harness_dual_route/raw_logs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem",
+        "trial": "cancel-async-tasks-local-image__WhiKr2r",
+        "reward_file": "experiments/meta_harness_dual_route/raw_logs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem/cancel-async-tasks-local-image__WhiKr2r/verifier/reward.txt",
+        "semantic_reward": 1,
+        "verifier": "6 passed, 0 failed",
+        "agent_execution_sec": 81.531815,
+        "verifier_sec": 15.585212,
+        "input_tokens": 272222,
+        "output_tokens": 10556,
+        "cache_tokens": 0,
+        "runtime_caveat": "Earlier Route B 137 failures were caused by a local background guard killing docker processes whose cwd was /Users/hugo/Projects/Harness-TrajecDebug; clean runs must use a non-guarded shared path such as /Users/hugo/Documents/meta-harness-routeb-run."
       }
     }
   ]
