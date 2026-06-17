@@ -39,5 +39,6 @@ Current status is tracked in `status_20260617.md`. In short:
 
 The follow-up `query-optimize` ARM64 canary is documented in
 `query_optimize_arm64_20260617.md`. It compares the matched Claude Code
-baseline, Route B, and Route A on the same native ARM64 task copy, including
-reward, token usage, latency, raw-log locations, and trajectory diffs.
+baseline, Route B, pure Terminus2, and Route A on the same native ARM64 task
+copy, including reward, token usage, latency, raw-log locations, and trajectory
+diffs.

@@ -1,0 +1,10 @@
+New Terminal Output:
+
+root@9e5a53ad6d54:/app# tail -c 5 /app/sol.sql | od -c
+0000000   5   0   0   ;  \n
+0000005
+root@9e5a53ad6d54:/app# grep -cE '--|/\*' /app/sol.sql
+grep: unrecognized option '--|/\*'
+Usage: grep [OPTION]... PATTERNS [FILE]...
+Try 'grep --help' for more information.
+root@9e5a53ad6d54:/app#

@@ -25,7 +25,7 @@ machine instead of under QEMU:
 QEMU attempts against the original `linux/amd64` image are excluded from the
 main table because they mixed task behavior with emulation and binary-arch
 confounds. The valid comparison below uses the local ARM64 task image for all
-three runs.
+four runs.
 
 ## Routes
 
@@ -47,6 +47,12 @@ Route B: Claude Code adaptation.
 - Model: `kimi-k2.6`.
 - Adds only the generic reliability review prompt. It does not include the task
   name, verifier test names, prior failure diagnoses, or task-specific hints.
+
+Pure Terminus2 baseline: direct Terminus2 control.
+
+- Harbor agent: `terminus-2`.
+- Model passed to Terminus2: `anthropic/kimi-k2.6`.
+- No generic Meta-Harness review prompt or wrapper.
 
 Route A: upstream-shaped Terminal-Bench route.
 
@@ -78,13 +84,15 @@ All valid ARM64 run logs are copied under
   `mh-baseline-claudecode-infra-query-optimize-arm64-kimi-k2.6-20260617T151244-samecc-arm64`
 - Route B:
   `mh-route-b-claudecode-query-optimize-arm64-kimi-k2.6-20260617T161528-samecc-arm64`
+- Pure Terminus2 baseline:
+  `mh-baseline-terminus2-query-optimize-arm64-kimi-k2.6-20260617T185528`
 - Route A:
   `mh-route-a-terminus2-query-optimize-arm64-kimi-k2.6-20260617T163609`
 
 Each directory includes the Harbor `config.json`, `result.json`, `job.log`,
 trial `result.json`, `agent/trajectory.json`, verifier stdout, CTRF output, and
 `verifier/reward.txt`. Claude Code runs also include `agent/claude-code.txt`;
-the Terminus2 run includes per-episode prompts/responses and
+the Terminus2 runs include per-episode prompts/responses and
 `agent/terminus_2.pane`.
 
 Secret hygiene: no API keys are committed. Terminus2 `api_key_sha256` fields in
@@ -96,6 +104,7 @@ the copied debug logs are redacted to `redacted-sha256`.
 | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | Baseline Claude Code infra control | 1.0 | 6/6 | 9m04.8s | 17m11.5s | 7m54.4s | 696058 | 13866 | golden 0.9017s, sol 0.9161s |
 | Route B Claude Code + generic review | 0.0 | 5/6 | 10m07.3s | 17m39.1s | 7m19.4s | 1134890 | 20698 | golden 0.8958s, sol 1.1890s |
+| Pure Terminus2 baseline | 0.0 | 5/6 | 13m22.0s | 21m38.1s | 7m31.3s | 201422 | 21922 | golden 0.9099s, sol 1.3648s |
 | Route A Terminus2 + generic review | 1.0 | 6/6 | 10m08.5s | 18m38.2s | 8m02.3s | 84951 | 8239 | golden 0.9064s, sol 0.9052s |
 
 Notes:
@@ -108,10 +117,15 @@ Notes:
   the Claude Code baseline. Agent wall time increased by about 62.5 seconds
   (+11.5%). The task reward regressed from 1.0 to 0.0 because the selected SQL
   was correct but missed the runtime threshold.
+- Pure Terminus2 failed the same runtime gate that Route B failed, while still
+  passing all correctness and format checks. Its reported token use was also
+  higher than Route A Terminus2 + generic review: 201k vs 85k input tokens and
+  21.9k vs 8.2k output tokens.
 - Route A passed, but its token accounting is not directly comparable with
-  Claude Code because Terminus2 reports model-call tokens differently. Its
-  agent wall time was similar to Route B, driven by 16 model episodes and
-  repeated self-checks.
+  Claude Code because Terminus2 reports model-call tokens differently. Compared
+  with pure Terminus2, Route A used fewer reported tokens and less agent wall
+  time in this run, but this is still a single canary and should not be treated
+  as a stable aggregate result.
 
 ## Trajectory Diff
 
@@ -141,6 +155,19 @@ Route B trajectory:
 - Main effect: more validation and higher token/latency, but no task reward
   improvement on this SQL-performance task.
 
+Pure Terminus2 baseline trajectory:
+
+- Uses Terminus2 directly with `anthropic/kimi-k2.6` and no generic review
+  wrapper.
+- Starts the original query, interrupts it with `C-c`, then continues with
+  schema inspection, cardinality checks, and sampled correctness checks.
+- Chooses a shared materialized CTE shape:
+  `word_sense_stats -> word_stats + ranked_synsets`.
+- Runs sampled diffs, output checks, semicolon/comment checks, and solution file
+  inspection.
+- The official verifier confirms correctness and format, but the runtime median
+  is too slow: solution `1.3648s` versus golden `0.9099s`.
+
 Route A trajectory:
 
 - Uses Terminus2 rather than Claude Code.
@@ -156,13 +183,18 @@ Route A trajectory:
 ## Conclusion
 
 This canary does not support a blanket claim that Meta-Harness improves
-`query-optimize`. With the same Claude Code version and `kimi-k2.6`, the
-baseline already solves the task, while Route B's generic review increases token
-usage and fails the runtime threshold by choosing a slower correct SQL rewrite.
+`query-optimize`. The result is route-specific:
 
-Route A passes with Terminus2 and the same generic review, but it is a different
-inner harness, so it should be reported separately from the Claude Code
-baseline. The useful takeaway is narrower: the generic review can improve
-coverage on reliability tasks such as `cancel-async-tasks`, but for tight
-performance tasks it can increase checking overhead and still miss the fastest
-acceptable implementation.
+- Claude Code control vs Route B: the matched Claude Code baseline already
+  solves the task, while Route B's generic review increases token usage and
+  fails the runtime threshold by choosing a slower correct SQL rewrite.
+- Pure Terminus2 vs Route A: pure Terminus2 also fails the runtime threshold,
+  while Terminus2 + the same generic review passes. In this single canary, the
+  wrapper appears to move Terminus2 from the slower shared-materialization
+  rewrite to the faster filtered `synset_counts` rewrite.
+
+The interview-safe takeaway is narrow: this query-optimize example is not
+evidence that Meta-Harness universally improves task success. It shows that the
+same generic review can hurt the Claude Code trajectory but help the Terminus2
+trajectory on a tight SQL-performance task, so harness changes must be evaluated
+with reward, token cost, latency, raw logs, and trajectory diffs together.

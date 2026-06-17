@@ -1,0 +1,10 @@
+{
+  "analysis": "The diff matches perfectly on a random sample of 500 words that satisfy the HAVING conditions. This confirms the optimized query produces identical results to the original query. The optimized query runs in ~0.6 seconds vs the original which was too slow to complete.",
+  "plan": "Verify that /app/sol.sql contains the correct, clean optimized query with no comments and a proper semicolon terminator.",
+  "commands": [
+    {
+      "keystrokes": "cat /app/sol.sql\n",
+      "duration": 0.1
+    }
+  ]
+}

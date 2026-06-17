@@ -1,0 +1,10 @@
+{
+  "analysis": "synsetid is unique in the synsets table (120569 total = 120569 distinct). This confirms my optimization is safe. The CTE-based query correctly computes per-(word, synset) aggregates since synsetid uniquely determines domainid and posid.",
+  "plan": "Let me do one final comprehensive test: run the original query on a larger random subset of words that satisfy the HAVING conditions, and compare with my optimized query. Then confirm sol.sql is clean and correct.",
+  "commands": [
+    {
+      "keystrokes": "sqlite3 /app/oewn.sqlite << 'EOF'\nWITH candidate_words AS (\n  SELECT w.wordid\n  FROM words w\n  JOIN senses s ON w.wordid = s.wordid\n  JOIN synsets syn ON s.synsetid = syn.synsetid\n  GROUP BY w.wordid, w.word\n  HAVING COUNT(DISTINCT s.synsetid) >= 2\n    AND COUNT(DISTINCT syn.domainid) >= 2\n    AND COUNT(*) >= 2\n  ORDER BY RANDOM()\n  LIMIT 500\n)\nSELECT GROUP_CONCAT(wordid) FROM candidate_words;\nEOF\n",
+      "duration": 5.0
+    }
+  ]
+}

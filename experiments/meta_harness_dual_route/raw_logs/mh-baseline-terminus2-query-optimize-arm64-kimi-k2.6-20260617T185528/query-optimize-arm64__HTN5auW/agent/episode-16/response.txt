@@ -1,0 +1,10 @@
+{
+  "analysis": "The file ends correctly with `;\\n`. Let me check for comments with a simpler grep pattern.",
+  "plan": "Check for comments with a simpler grep command, then mark complete.",
+  "commands": [
+    {
+      "keystrokes": "grep -n '^\\s*--' /app/sol.sql; grep -n '/\\*' /app/sol.sql; echo \"Comment check done\"\n",
+      "duration": 0.1
+    }
+  ]
+}

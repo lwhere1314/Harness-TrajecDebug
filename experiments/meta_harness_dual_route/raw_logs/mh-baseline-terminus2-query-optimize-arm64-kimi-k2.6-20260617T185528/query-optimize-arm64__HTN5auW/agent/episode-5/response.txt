@@ -1,0 +1,14 @@
+{
+  "analysis": "SQLite 3.45.1 supports window functions. The database is substantial (~152K words, ~212K senses). The original query's slowness comes from correlated subqueries that scan senses repeatedly for each qualifying word. I can optimize using CTEs with window functions to compute everything in a few passes.",
+  "plan": "Write an optimized query using CTEs: first compute per-(word, synset) aggregates, then compute word-level aggregates and apply HAVING filters, then use ROW_NUMBER() to find the top synset per word. This avoids correlated subqueries entirely. I'll test it for correctness and speed.",
+  "commands": [
+    {
+      "keystrokes": "cat > /app/sol.sql << 'EOF'\nWITH word_sense_stats AS (\n  SELECT\n    w.wordid,\n    w.word,\n    s.synsetid,\n    syn.domainid,\n    syn.posid,\n    COUNT(*) AS sense_count_per_synset\n  FROM words w\n  JOIN senses s ON w.wordid = s.wordid\n  JOIN synsets syn ON s.synsetid = syn.synsetid\n  GROUP BY w.wordid, w.word, s.synsetid, syn.domainid, syn.posid\n),\nword_stats AS (\n  SELECT\n    wordid,\n    word,\n    COUNT(DISTINCT synsetid) AS total_synsets,\n    SUM(sense_count_per_synset) AS total_senses,\n    COUNT(DISTINCT domainid) AS distinct_domains,\n    COUNT(DISTINCT posid) AS distinct_posids\n  FROM word_sense_stats\n  GROUP BY wordid, word\n  HAVING total_synsets >= 2\n    AND distinct_domains >= 2\n    AND total_senses >= 2\n),\nranked_synsets AS (\n  SELECT\n    wordid,\n    synsetid,\n    sense_count_per_synset,\n    ROW_NUMBER() OVER (PARTITION BY wordid ORDER BY sense_count_per_synset DESC, synsetid ASC) AS rn\n  FROM word_sense_stats\n)\nSELECT\n  ws.wordid AS word_id,\n  ws.word AS word,\n  ws.total_synsets,\n  ws.total_senses,\n  ws.distinct_domains,\n  ws.distinct_posids,\n  rs.synsetid AS top_synsetid,\n  rs.sense_count_per_synset AS top_synset_sense_count\nFROM word_stats ws\nJOIN ranked_synsets rs ON ws.wordid = rs.wordid AND rs.rn = 1\nORDER BY\n  ws.total_senses DESC,\n  ws.total_synsets DESC,\n  ws.distinct_domains DESC,\n  ws.wordid ASC\nLIMIT 500;\nEOF\n",
+      "duration": 0.5
+    },
+    {
+      "keystrokes": "time sqlite3 /app/oewn.sqlite < /app/sol.sql > /tmp/optimized_result.txt; echo \"Exit code: $?\"\n",
+      "duration": 15.0
+    }
+  ]
+}

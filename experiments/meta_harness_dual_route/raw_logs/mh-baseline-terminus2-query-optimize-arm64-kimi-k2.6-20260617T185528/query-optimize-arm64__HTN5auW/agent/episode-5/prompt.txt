@@ -1,0 +1,9 @@
+New Terminal Output:
+
+root@9e5a53ad6d54:/app# sqlite3 /app/oewn.sqlite 'SELECT sqlite_version();'
+3.45.1
+root@9e5a53ad6d54:/app# sqlite3 /app/oewn.sqlite 'SELECT COUNT(*) FROM words; SELECT COUNT(*) FROM senses; SELECT COUNT(*) FROM synsets;'
+152332
+212508
+120569
+root@9e5a53ad6d54:/app#
