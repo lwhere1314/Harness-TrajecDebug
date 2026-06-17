@@ -5,6 +5,10 @@
 Task: Terminal-Bench 2.1 `query-optimize`, run from a local ARM64 task copy at
 `experiments/meta_harness_dual_route/tasks/query-optimize-arm64`.
 
+Headline result: this canary reproduces the upstream-shaped Meta-Harness effect
+for the Terminus2 route, but it also shows that the current Claude Code
+adaptation is not a correct Meta-Harness implementation.
+
 Model endpoint: Seed Agent Plan Anthropic-compatible route, configured through
 `SEED_AGENT_PLAN_ANTHROPIC_BASE_URL` / `SEED_AGENT_PLAN_BASE_URL` and
 `SEED_AGENT_PLAN_API_KEY`.
@@ -182,8 +186,12 @@ Route A trajectory:
 
 ## Conclusion
 
-This canary does not support a blanket claim that Meta-Harness improves
-`query-optimize`. The result is route-specific:
+This canary successfully reproduces a positive Meta-Harness effect for the
+upstream-shaped Terminus2 route: pure Terminus2 + `kimi-k2.6` fails the runtime
+gate, while Terminus2 + the generic Meta-Harness review wrapper passes.
+
+It does not support a blanket claim that Meta-Harness improves `query-optimize`.
+The result is route-specific:
 
 - Claude Code control vs Route B: the matched Claude Code baseline already
   solves the task, while Route B's generic review increases token usage and
@@ -198,3 +206,8 @@ evidence that Meta-Harness universally improves task success. It shows that the
 same generic review can hurt the Claude Code trajectory but help the Terminus2
 trajectory on a tight SQL-performance task, so harness changes must be evaluated
 with reward, token cost, latency, raw logs, and trajectory diffs together.
+
+Therefore Route B should be reported as an incorrect or incomplete Claude Code
+adaptation attempt, not as the original Meta-Harness. The next implementation
+step is to correct or rename Route B so the PR does not conflate it with the
+upstream Terminal-Bench Meta-Harness protocol.

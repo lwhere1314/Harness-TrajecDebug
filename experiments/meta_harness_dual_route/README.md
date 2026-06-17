@@ -8,7 +8,8 @@ Route A is the upstream-shaped Terminal-Bench route: Claude Code plus
 
 Route B is a Claude Code adaptation: Claude Code plus `kimi-k2.6` is both the
 proposer family and the evaluated inner agent, but the search object remains a
-general Claude Code wrapper. This is not a faithful upstream reproduction.
+general Claude Code wrapper. This is not a faithful upstream reproduction and
+should be corrected before being presented as Meta-Harness.
 
 Both routes forbid task-specific hints in candidate code, comments, prompts, or
 wrapper logic. Historical failed trajectories may be inspected by a proposer,
@@ -27,13 +28,17 @@ machine.
 
 Current status is tracked in `status_20260617.md`. In short:
 
-- Route A is implemented with `Terminus2` and can run on the local prewarmed
-  task image. The current canary reward is `0` on `cancel-async-tasks`.
-- Route B is implemented as a Claude Code wrapper. The clean canary reward is
-  `1` on `cancel-async-tasks`.
+- Route A is implemented with `Terminus2`, matching the upstream Terminal-Bench
+  Meta-Harness shape. It did not improve `cancel-async-tasks`, but the
+  follow-up `query-optimize` canary reproduces a positive Meta-Harness effect:
+  pure Terminus2 + `kimi-k2.6` fails the runtime gate, while Route A passes.
+- Route B is implemented as a Claude Code wrapper. It is useful as a diagnostic
+  Claude Code adaptation attempt, but the `query-optimize` canary shows this
+  adaptation is not correct: baseline Claude Code + `kimi-k2.6` passes, while
+  the Route B wrapper fails the runtime gate.
 - The matched Route B infra control uses the same Claude Code version
   (`2.1.157`), model, task image, endpoint, proxy, and Harbor environment, but
-  omits the generic review prompt. It gets reward `0`.
+  omits the generic review prompt.
 - Local task-copy infra patches are documented in the status file; the upstream
   task source was not modified.
 
