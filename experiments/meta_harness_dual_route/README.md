@@ -29,8 +29,10 @@ Current status is tracked in `status_20260617.md`. In short:
 
 - Route A is implemented with `Terminus2` and can run on the local prewarmed
   task image. The current canary reward is `0` on `cancel-async-tasks`.
-- Route B is implemented as a Claude Code wrapper, but it is not yet a valid
-  benchmark sample because Claude Code exits with 137 on the coding prompt in
-  the container runtime.
+- Route B is implemented as a Claude Code wrapper. The clean canary reward is
+  `1` on `cancel-async-tasks`.
+- The matched Route B infra control uses the same Claude Code version
+  (`2.1.157`), model, task image, endpoint, proxy, and Harbor environment, but
+  omits the generic review prompt. It gets reward `0`.
 - Local task-copy infra patches are documented in the status file; the upstream
   task source was not modified.

@@ -1,6 +1,6 @@
 {
   "iteration": 0,
-  "status": "route_a_canary_reward_0_route_b_canary_reward_1",
+  "status": "route_a_canary_reward_0_route_b_canary_reward_1_matched_route_b_control_reward_0",
   "endpoint_profile": "seed-agent-plan",
   "target_model": "kimi-k2.6",
   "task_specific_hints_allowed": false,
@@ -44,7 +44,27 @@
         "input_tokens": 272222,
         "output_tokens": 10556,
         "cache_tokens": 0,
+        "claude_code_version": "2.1.157",
+        "environment": "force_build=false, delete=false",
         "runtime_caveat": "Earlier Route B 137 failures were caused by a local background guard killing docker processes whose cwd was /Users/hugo/Projects/Harness-TrajecDebug; clean runs must use a non-guarded shared path such as /Users/hugo/Documents/meta-harness-routeb-run."
+      },
+      "matched_infra_control": {
+        "task": "cancel-async-tasks",
+        "job": "/Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-control-claudecode-infra-noforce-cancel-async-tasks-local-image-kimi-k2.6-20260617T135955-samecc",
+        "raw_log_copy": "experiments/meta_harness_dual_route/raw_logs/mh-control-claudecode-infra-noforce-cancel-async-tasks-local-image-kimi-k2.6-20260617T135955-samecc",
+        "trial": "cancel-async-tasks-local-image__PABiFip",
+        "reward_file": "experiments/meta_harness_dual_route/raw_logs/mh-control-claudecode-infra-noforce-cancel-async-tasks-local-image-kimi-k2.6-20260617T135955-samecc/cancel-async-tasks-local-image__PABiFip/verifier/reward.txt",
+        "semantic_reward": 0,
+        "verifier": "5 passed, 1 failed: test_tasks_cancel_above_max_concurrent",
+        "agent_execution_sec": 148.996487,
+        "verifier_sec": 15.785449,
+        "input_tokens": 183738,
+        "output_tokens": 8754,
+        "cache_tokens": 0,
+        "claude_code_version": "2.1.157",
+        "environment": "force_build=false, delete=false",
+        "task_checksum": "5cc3ebd1ef601c07cece27fda6ed71bf3af372e447c6ad8cbf989e4391be1348",
+        "control_definition": "same Route B infra proxy/session behavior, no generic review prompt"
       }
     }
   ]
