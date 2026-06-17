@@ -36,3 +36,8 @@ Current status is tracked in `status_20260617.md`. In short:
   omits the generic review prompt. It gets reward `0`.
 - Local task-copy infra patches are documented in the status file; the upstream
   task source was not modified.
+
+The follow-up `query-optimize` ARM64 canary is documented in
+`query_optimize_arm64_20260617.md`. It compares the matched Claude Code
+baseline, Route B, and Route A on the same native ARM64 task copy, including
+reward, token usage, latency, raw-log locations, and trajectory diffs.

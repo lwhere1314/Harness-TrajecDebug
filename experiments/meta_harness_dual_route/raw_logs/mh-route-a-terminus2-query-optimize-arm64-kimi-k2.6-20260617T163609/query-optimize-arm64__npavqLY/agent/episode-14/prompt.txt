@@ -1,0 +1,12 @@
+New Terminal Output:
+
+root@cde43f0fd2a5:/app# head -1 /app/sol.sql && tail -1 /app/sol.sql
+WITH word_stats AS (
+LIMIT 500;
+root@cde43f0fd2a5:/app# grep -c '^--' /app/sol.sql || true
+0
+root@cde43f0fd2a5:/app# sqlite3 /app/oewn.sqlite < /app/sol.sql | head -3
+17710|break|75|75|16|2|483|1
+33833|cut|70|70|17|4|58|1
+117295|run|57|57|16|2|4046|1
+root@cde43f0fd2a5:/app#

@@ -1,0 +1,10 @@
+{
+  "analysis": "The terminal is echoing commands but not showing their output yet. I need to wait for the output.",
+  "plan": "Wait for the command outputs to appear.",
+  "commands": [
+    {
+      "keystrokes": "",
+      "duration": 3.0
+    }
+  ]
+}

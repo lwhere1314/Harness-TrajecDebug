@@ -1,0 +1,29 @@
+{
+    "id": "33592a03-2338-4212-8492-2e2229d8a613",
+    "started_at": "2026-06-17T16:36:18.060845",
+    "finished_at": "2026-06-17T16:54:56.301358",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "terminus-2__kimi-k2.6__adhoc": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 1.0
+                    }
+                ],
+                "reward_stats": {
+                    "reward": {
+                        "1.0": [
+                            "query-optimize-arm64__npavqLY"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

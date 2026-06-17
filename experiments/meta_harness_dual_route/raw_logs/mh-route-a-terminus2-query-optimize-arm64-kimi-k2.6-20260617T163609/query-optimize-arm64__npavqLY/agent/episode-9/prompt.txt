@@ -1,0 +1,6 @@
+New Terminal Output:
+
+wc -l /tmp/opt_out.txt /tmp/orig_out.txt
+ls -la /tmp/opt_out.txt /tmp/orig_out.txt
+diff /tmp/opt_out.txt /tmp/orig_out.txt
+

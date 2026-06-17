@@ -1,0 +1,23 @@
+New Terminal Output:
+
+echo hello
+root@cde43f0fd2a5:/app# diff /tmp/opt_out.txt /tmp/orig_out.txt
+root@cde43f0fd2a5:/app# wc -l /tmp/opt_out.txt /tmp/orig_out.txt
+  500 /tmp/opt_out.txt
+  500 /tmp/orig_out.txt
+ 1000 total
+root@cde43f0fd2a5:/app#
+root@cde43f0fd2a5:/app# diff /tmp/opt_out.txt /tmp/orig_out.txt; echo "EXIT:$?"
+EXIT:0
+root@cde43f0fd2a5:/app# wc -l /tmp/opt_out.txt /tmp/orig_out.txt
+  500 /tmp/opt_out.txt
+  500 /tmp/orig_out.txt
+ 1000 total
+root@cde43f0fd2a5:/app# ls -la /tmp/opt_out.txt /tmp/orig_out.txt
+-rw-r--r-- 1 root root 14816 Jun 17 08:41 /tmp/opt_out.txt
+-rw-r--r-- 1 root root 14816 Jun 17 08:44 /tmp/orig_out.txt
+root@cde43f0fd2a5:/app# diff /tmp/opt_out.txt /tmp/orig_out.txt
+root@cde43f0fd2a5:/app#
+root@cde43f0fd2a5:/app# echo hello
+hello
+root@cde43f0fd2a5:/app#

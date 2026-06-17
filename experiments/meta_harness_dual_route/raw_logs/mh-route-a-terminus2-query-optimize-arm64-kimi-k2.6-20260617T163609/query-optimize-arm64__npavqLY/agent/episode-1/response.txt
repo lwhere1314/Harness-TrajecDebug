@@ -1,0 +1,22 @@
+{
+  "analysis": "I've read the original query and the database schema. The query has expensive correlated subqueries in the SELECT clause that execute once per row. The query finds words with multiple synsets/domains/senses, then finds each word's 'top' synset (by sense count) and how many senses it has in that synset. I need to check the query execution plan and test potential optimizations.",
+  "plan": "1. Check the query execution plan of the original query to understand the performance bottleneck. 2. Check if indexes exist on relevant columns. 3. Write an optimized version using CTEs and window functions to eliminate correlated subqueries. 4. Compare outputs to ensure correctness.",
+  "commands": [
+    {
+      "keystrokes": "sqlite3 /app/oewn.sqlite \"PRAGMA index_list('senses');\"\n",
+      "duration": 0.1
+    },
+    {
+      "keystrokes": "sqlite3 /app/oewn.sqlite \"PRAGMA index_list('words');\"\n",
+      "duration": 0.1
+    },
+    {
+      "keystrokes": "sqlite3 /app/oewn.sqlite \"PRAGMA index_list('synsets');\"\n",
+      "duration": 0.1
+    },
+    {
+      "keystrokes": "sqlite3 /app/oewn.sqlite \"EXPLAIN QUERY PLAN $(cat /app/my-sql-query.sql)\" | head -50\n",
+      "duration": 1.0
+    }
+  ]
+}
