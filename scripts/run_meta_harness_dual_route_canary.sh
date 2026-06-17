@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROUTE="both"
+ROUTE="route-a"
 TASK="cancel-async-tasks"
 MODEL="kimi-k2.6"
 ENDPOINT_PROFILE="seed-agent-plan"
@@ -22,7 +22,7 @@ Usage:
   scripts/run_meta_harness_dual_route_canary.sh [options]
 
 Options:
-  --route NAME              route-a, route-b, or both. Default: both.
+  --route NAME              route-a, claude-adaptation, route-b, or both. Default: route-a.
   --task NAME_OR_PATH       TB2.1 proxy task name or local path. Default: cancel-async-tasks.
   --model NAME              Target model. Default: kimi-k2.6.
   --endpoint-profile NAME   Endpoint profile. Default: seed-agent-plan.
@@ -62,9 +62,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$ROUTE" in
-  route-a|route-b|both) ;;
-  *) echo "--route must be route-a, route-b, or both" >&2; exit 2 ;;
+  route-a|claude-adaptation|route-b|both) ;;
+  *) echo "--route must be route-a, claude-adaptation, route-b, or both" >&2; exit 2 ;;
 esac
+if [[ "$ROUTE" == "route-b" ]]; then
+  echo "warning: --route route-b is a legacy alias for --route claude-adaptation; it is not upstream Meta-Harness" >&2
+  ROUTE="claude-adaptation"
+fi
 
 source ~/.bashrc >/dev/null 2>&1 || true
 source scripts/lib_endpoint_profile.sh
@@ -156,20 +160,21 @@ run_route_a() {
   fi
 }
 
-run_route_b() {
+run_claude_adaptation() {
   local timestamp job_name
   timestamp="$(date +%Y%m%dT%H%M%S)"
-  job_name="mh-route-b-claudecode-${TASK##*/}-${MODEL//\//-}-${timestamp}"
+  job_name="mh-claude-adaptation-${TASK##*/}-${MODEL//\//-}-${timestamp}"
   local cmd=(
     "$HARBOR_BIN" "${COMMON_ARGS[@]}"
     --job-name "$job_name"
-    --agent-import-path meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness
+    --agent-import-path meta_harness_dual_route.agents.claude_code_generic_review_adaptation:AgentHarness
     --model "$MODEL"
   )
-  printf 'route=route-b job=%s import_path=%s model=%s\n' \
+  printf 'route=claude-adaptation job=%s import_path=%s model=%s note=%s\n' \
     "$job_name" \
-    "meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness" \
-    "$MODEL" | tee "$JOBS_DIR/_meta/$job_name.invocation.txt"
+    "meta_harness_dual_route.agents.claude_code_generic_review_adaptation:AgentHarness" \
+    "$MODEL" \
+    "diagnostic-not-upstream-meta-harness" | tee "$JOBS_DIR/_meta/$job_name.invocation.txt"
   printf '%q ' "${cmd[@]}" | tee -a "$JOBS_DIR/_meta/$job_name.invocation.txt"
   printf '\n' | tee -a "$JOBS_DIR/_meta/$job_name.invocation.txt"
   if [[ "$DRY_RUN" != "1" ]]; then
@@ -179,9 +184,9 @@ run_route_b() {
 
 case "$ROUTE" in
   route-a) run_route_a ;;
-  route-b) run_route_b ;;
+  claude-adaptation) run_claude_adaptation ;;
   both)
     run_route_a
-    run_route_b
+    run_claude_adaptation
     ;;
 esac

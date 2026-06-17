@@ -1,6 +1,6 @@
 {
   "iteration": 0,
-  "status": "route_a_canary_reward_0_route_b_canary_reward_1_matched_route_b_control_reward_0",
+  "status": "route_a_cancel_reward_0_claude_adaptation_cancel_reward_1_query_optimize_shows_route_a_positive_and_claude_adaptation_incorrect",
   "endpoint_profile": "seed-agent-plan",
   "target_model": "kimi-k2.6",
   "task_specific_hints_allowed": false,
@@ -24,13 +24,15 @@
       }
     },
     {
-      "route": "B",
-      "name": "route_b_claudecode_general_review",
-      "import_path": "meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness",
+      "route": "claude-adaptation",
+      "name": "claude_code_generic_review_adaptation",
+      "import_path": "meta_harness_dual_route.agents.claude_code_generic_review_adaptation:AgentHarness",
+      "legacy_import_path": "meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness",
       "base_harness": "ClaudeCode",
       "hypothesis": "A generic Claude Code wrapper can be compared against the Claude Code baseline while keeping the intervention harness-level.",
       "changes": "Append a general review checklist, avoid copying local Claude skills, and pass container proxy variables to the agent process.",
-      "upstream_faithfulness": "Claude Code adaptation; not a faithful upstream Terminal-Bench AgentHarness reproduction.",
+      "upstream_faithfulness": "Diagnostic Claude Code adaptation only; not a faithful upstream Terminal-Bench AgentHarness reproduction and not valid to report as original Meta-Harness.",
+      "query_optimize_correction": "Baseline Claude Code + kimi-k2.6 passes query-optimize, while this adaptation fails the runtime gate. Treat as an incorrect or incomplete adaptation until redesigned.",
       "current_canary": {
         "task": "cancel-async-tasks",
         "job": "/Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem",

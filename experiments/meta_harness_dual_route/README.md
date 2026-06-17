@@ -19,8 +19,12 @@ copied into the evaluated agent prompt or harness source.
 The current canary runner is:
 
 ```bash
-scripts/run_meta_harness_dual_route_canary.sh --route both --attempts 1
+scripts/run_meta_harness_dual_route_canary.sh --route route-a --attempts 1
 ```
+
+Use `--route claude-adaptation` only for the diagnostic Claude Code wrapper
+experiment. The legacy `--route route-b` spelling is kept as an alias, but it is
+not the upstream Meta-Harness protocol.
 
 Use `--endpoint-profile seed-agent-plan` for the Seed Agent Plan Anthropic route.
 Host model calls currently require `http://127.0.0.1:1082` as a proxy on this
