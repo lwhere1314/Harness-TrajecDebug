@@ -19,7 +19,9 @@ and full Harbor -> diagnosis -> repair -> viewer workflow. See
 comparison with Meta-Harness. See
 [docs/case-studies/terminal-bench-3-cli-simplex-mcts-critical-step.md](docs/case-studies/terminal-bench-3-cli-simplex-mcts-critical-step.md)
 for a Terminal-Bench 3 case study where verifier-guided MCTS-like search turns
-a broad failed ICL hint into a reward-1 critical-step repair path.
+a broad failed ICL hint into a reward-1 critical-step repair path. The related
+raw trajectory bundle is preserved in
+[docs/blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/](docs/blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/).
 
 ## Project Positioning
 

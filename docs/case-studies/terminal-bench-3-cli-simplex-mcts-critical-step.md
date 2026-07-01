@@ -26,10 +26,10 @@ output.
 
 ## Baseline Runs
 
-| Condition | Job | Reward | Verifier footprint |
-| --- | --- | ---: | --- |
-| No TD | `tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629` | `0.0` | `50 failed, 53 passed` |
-| First interactive TD card | `tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701` | `0.0` | `63 failed, 40 passed` |
+| Condition | Job | Reward | Verifier footprint | Raw evidence |
+| --- | --- | ---: | --- | --- |
+| No TD | `tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629` | `0.0` | `50 failed, 53 passed` | [`trajectory`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629/cli-2ph-simplex__PiTA9w7/agent/trajectory.json), [`transcript`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629/cli-2ph-simplex__PiTA9w7/agent/claude-code.txt), [`verifier`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629/cli-2ph-simplex__PiTA9w7/verifier/test-stdout.txt) |
+| First interactive TD card | `tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701` | `0.0` | `63 failed, 40 passed` | [`trajectory`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/agent/trajectory.json), [`transcript`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/agent/claude-code.txt), [`TD hint`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/agent/interactive_icl_hint.txt), [`verifier`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/verifier/test-stdout.txt) |
 
 The first TD card injected successfully. The trial transcript contained one
 `harness_trajecdebug_interactive_icl_injected` marker, so the failure was not an
@@ -39,6 +39,14 @@ name the first wrong state transition.
 
 This is exactly the boundary between a broad diagnosis and an actionable
 Debug-Action card.
+
+## Raw Evidence Bundle
+
+The sanitized raw trajectory bundle is published at
+[`docs/blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/README.md).
+It includes the original Harbor `trajectory.json` files, Claude Code
+transcripts, verifier output, result/config files, the injected TD hint, and
+checksums for the copied evidence.
 
 ## Search Method
 
@@ -284,6 +292,10 @@ Reward-1 path card:
 ```text
 /data/harbor/td_artifacts/repair_briefs/tb3-cli-2ph-simplex-mcts-reward1-path.md
 ```
+
+Published raw evidence bundle:
+
+[`docs/blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/README.md)
 
 ## Limitations
 

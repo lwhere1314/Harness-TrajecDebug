@@ -1,0 +1,47 @@
+# Harness-TrajecDebug Debug-Action Card: cli-2ph-simplex
+
+Baseline footprint: the prior real run completed but got reward 0 with
+`50 failed, 53 passed`. The failures are not CLI installation; they are solver
+semantics and pivot-log correctness.
+
+Verifier evidence to keep in mind:
+
+- Initial-pivot cases failed both objective/reference checks and replay checks.
+  The logged tableaus must be actual Gauss-Jordan pivot operations, not arbitrary
+  edited tableaus, and all constraint RHS values in logged tableaus must remain
+  nonnegative.
+- Many `bounded_fuzz_*` cases failed against the reference optimum. This points
+  to incorrect handling of mixed `<=`, `>=`, `=`, negative RHS normalization,
+  artificial-variable removal, or Phase 2 objective canonicalization.
+- `test_EC_infeasible_best_effort_after_negative_rhs_normalization` failed.
+- There were also formatting failures around problem reports and exact exception
+  behavior in malformed-input cases.
+
+Critical action:
+
+1. First read `/tests/test_outputs.py`, especially the helper functions that
+   build expected reports, validate candidate primal solutions, replay pivot
+   logs, and compare the final tableau to the reference.
+2. Before tuning pivot counts, make every bounded feasible case solve correctly:
+   normalize each negative RHS row by multiplying the whole row and flipping
+   `<=`/`>=`; keep `=` as `=`.
+3. Build a real two-phase tableau:
+   slack for `<=`, surplus plus artificial for `>=`, artificial for `=`;
+   canonicalize Phase 1 by subtracting/artificial-basic rows as required; remove
+   artificial columns only after Phase 1; then rebuild/canonicalize the original
+   max objective for Phase 2 with the current basis.
+4. For `--initial_pivots`, treat the provided list as mandatory Phase 1 prefix
+   pivots and log each real basis exchange after applying it. For the continuation,
+   search over valid simplex pivots to find the shortest valid path to a Phase 2
+   optimum, because fixed Bland/Dantzig is explicitly insufficient.
+5. Problem report must use original input signs/operators, half-up rounding to
+   two decimals, positive terms then negative terms then zero terms, and no final
+   newline.
+6. On any exception, print the Python traceback to stderr and create no output,
+   report, basic-variable, degeneracy, or pivot-log files.
+
+Closure checks:
+
+- Run `pytest -q /tests/test_outputs.py` after edits.
+- If still failing, inspect the first bounded fuzz failure and one raw pivot
+  replay failure before changing anything else.

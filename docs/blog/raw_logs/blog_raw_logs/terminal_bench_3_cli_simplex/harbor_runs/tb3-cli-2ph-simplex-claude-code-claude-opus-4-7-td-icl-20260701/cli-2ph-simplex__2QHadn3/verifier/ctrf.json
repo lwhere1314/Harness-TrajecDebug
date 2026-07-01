@@ -1,0 +1,464 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 41,
+            "passed": 21,
+            "failed": 20,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1782898135.7570424,
+            "stop": 1782898143.0106835
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_HC_initial_pivots_minimum_count_baseline_cases",
+                "status": "failed",
+                "duration": 0.062221391941420734,
+                "start": 1782898135.9674423,
+                "stop": 1782898136.0839245,
+                "retries": 5,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::row_number::[2, 8, 11, 12, 16, 19]::ids_['raw_row_2', 'raw_row_8', 'raw_row_11', 'raw_row_12', 'raw_row_16', 'raw_row_19']"
+                ],
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_initial_pivots_minimum4')\nrow_number = 16\n\n    @pytest.mark.parametrize(\n        \"row_number\",\n        RAW_MIN_PASS_ROWS,\n        ids=[f\"raw_row_{row}\" for row in RAW_MIN_PASS_ROWS],\n    )\n    def test_HC_initial_pivots_minimum_count_baseline_cases(\n        cli_name,\n        tmp_path: Path,\n        row_number,\n    ):\n        \"\"\"\n        Verifies raw-test rows whose calculated pivot counts are 4, 4, 4, 4, 4,\n        and 5 for rows 2, 8, 11, 12, 16, and 19. Those counts are valid because\n        an independent shortest-path search found Phase 1 prefix-respecting\n        simplex pivot sequences that end at Phase 2 optimal tableaus.\n        \"\"\"\n>       _, _, calculated_min, entries = _run_raw_pivot_case(\n            cli_name,\n            tmp_path,\n            row_number,\n        )\n\ntests/test_outputs.py:656: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntests/test_outputs.py:618: in _run_raw_pivot_case\n    _assert_tableau_solves_lp(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntableau = [[0.0, 0.0, 0.5, 0.0, 1.0, 0.0, ...], [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, ...], [0.0, 0.0, -0.5, 0.0, 0.0, 0.0, ...], [0.0, 0.0, -0.5, 0.0, 0.0, 0.0, ...], [0.0, 1.0, -0.5, 0.0, 0.0, 0.0, ...], [0.0, 0.0, 0.5, 1.0, 0.0, 0.0, ...], ...]\nobjective = [5.0, -2.0, 7.0]\ncoeffs = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [-1.0, 0.0, -1.0], [1.0, 0.0, 0.0], [1.0, -1.0, -1.0], ...]\nops = ['<=', '<=', '<=', '>=', '>=', '=', ...]\nrhs = [8.0, 8.0, 5.0, -5.0, 0.0, -4.0, ...], expected_obj = 29.5\n\n    def _assert_tableau_solves_lp(tableau, objective, coeffs, ops, rhs, expected_obj: float):\n        assert isinstance(tableau, list)\n        assert all(isinstance(row, list) for row in tableau)\n    \n>       assert tableau[-1][-1] == pytest.approx(expected_obj, rel=0.0, abs=_scaled(expected_obj))\nE       assert 34.0 == 29.5 \u00b1 3.0e-05\nE         \nE         comparison failed\nE         Obtained: 34.0\nE         Expected: 29.5 \u00b1 3.0e-05\n\ntests/test_outputs.py:275: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_initial_pivots_minimum_count_stress_cases",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0455742699559778,
+                "start": 1782898136.4604275,
+                "stop": 1782898136.5062363,
+                "retries": 2,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::row_number::[4, 9, 23]::ids_['raw_row_4', 'raw_row_9', 'raw_row_23']"
+                ],
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_initial_pivots_minimum8')\nrow_number = 23\n\n    @pytest.mark.parametrize(\n        \"row_number\",\n        RAW_MIN_STRESS_ROWS,\n        ids=[f\"raw_row_{row}\" for row in RAW_MIN_STRESS_ROWS],\n    )\n    def test_HC_initial_pivots_minimum_count_stress_cases(\n        cli_name,\n        tmp_path: Path,\n        row_number,\n    ):\n        \"\"\"\n        Verifies raw-test rows 4, 9, and 23, whose calculated minimum pivot counts\n        are 3, 6, and 5. The counts are valid because each came from an independent\n        enumeration of valid continuation pivot paths after the required prefix,\n        with every path ending at a final Phase 2 optimal tableau.\n        \"\"\"\n>       _, _, calculated_min, entries = _run_raw_pivot_case(\n            cli_name,\n            tmp_path,\n            row_number,\n        )\n\ntests/test_outputs.py:681: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntests/test_outputs.py:618: in _run_raw_pivot_case\n    _assert_tableau_solves_lp(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntableau = [[0.0, 0.0, 2.0, -1.0, 0.0, 3.0, ...], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, ...], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, ...], [0.0,... 0.0, 1.0, 0.0, ...], [0.0, 0.0, 0.9999999999999999, 1.0, 0.0, -1.0, ...], [0.0, 0.0, -1.0, -1.0, 3.0, -1.0, ...], ...]\nobjective = [5.0, -3.0, -4.0, -1.0]\ncoeffs = [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 0.0], [-1.0, 1.0, 1.0, -3.0], ...]\nops = ['<=', '<=', '<=', '<=', '<=', '=', ...]\nrhs = [7.0, 5.0, 5.0, 9.0, 20.0, -25.0, ...], expected_obj = -5.0\n\n    def _assert_tableau_solves_lp(tableau, objective, coeffs, ops, rhs, expected_obj: float):\n        assert isinstance(tableau, list)\n        assert all(isinstance(row, list) for row in tableau)\n    \n>       assert tableau[-1][-1] == pytest.approx(expected_obj, rel=0.0, abs=_scaled(expected_obj))\nE       assert 35.0 == -5.0 \u00b1 6.0e-06\nE         \nE         comparison failed\nE         Obtained: 35.0\nE         Expected: -5.0 \u00b1 6.0e-06\n\ntests/test_outputs.py:275: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_initial_pivots_log_entries_are_actual_pivot_operations",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0510839979397133,
+                "start": 1782898136.659827,
+                "stop": 1782898136.7595797,
+                "retries": 8,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::row_number::[2, 8, 11, 12, 16, 19, 4, 9, 23]::ids_['raw_row_2', 'raw_row_8', 'raw_row_11', 'raw_row_12', 'raw_row_16', 'raw_row_19', 'raw_row_4', 'raw_row_9', 'raw_row_23']"
+                ],
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_initial_pivots_log_ent8')\nrow_number = 23\n\n    @pytest.mark.parametrize(\n        \"row_number\",\n        RAW_PIVOT_REPLAY_ROWS,\n        ids=[f\"raw_row_{row}\" for row in RAW_PIVOT_REPLAY_ROWS],\n    )\n    def test_HC_initial_pivots_log_entries_are_actual_pivot_operations(\n        cli_name,\n        tmp_path: Path,\n        row_number,\n    ):\n        \"\"\"\n        Verifies pivot-log entries are simplex basis exchanges. The replay checks\n        each pair of consecutive same-phase logged tableaus is related by exactly\n        one Gauss-Jordan pivot on the logged leaving row, so a solver cannot count\n        arbitrary tableau edits as pivot operations.\n        \"\"\"\n>       case, _, _, entries = _run_raw_pivot_case(cli_name, tmp_path, row_number)\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/test_outputs.py:706: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntests/test_outputs.py:618: in _run_raw_pivot_case\n    _assert_tableau_solves_lp(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntableau = [[0.0, 0.0, 2.0, -1.0, 0.0, 3.0, ...], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, ...], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, ...], [0.0,... 0.0, 1.0, 0.0, ...], [0.0, 0.0, 0.9999999999999999, 1.0, 0.0, -1.0, ...], [0.0, 0.0, -1.0, -1.0, 3.0, -1.0, ...], ...]\nobjective = [5.0, -3.0, -4.0, -1.0]\ncoeffs = [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0], [1.0, 1.0, 1.0, 0.0], [-1.0, 1.0, 1.0, -3.0], ...]\nops = ['<=', '<=', '<=', '<=', '<=', '=', ...]\nrhs = [7.0, 5.0, 5.0, 9.0, 20.0, -25.0, ...], expected_obj = -5.0\n\n    def _assert_tableau_solves_lp(tableau, objective, coeffs, ops, rhs, expected_obj: float):\n        assert isinstance(tableau, list)\n        assert all(isinstance(row, list) for row in tableau)\n    \n>       assert tableau[-1][-1] == pytest.approx(expected_obj, rel=0.0, abs=_scaled(expected_obj))\nE       assert 35.0 == -5.0 \u00b1 6.0e-06\nE         \nE         comparison failed\nE         Obtained: 35.0\nE         Expected: -5.0 \u00b1 6.0e-06\n\ntests/test_outputs.py:275: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_provided_input_files_preserved",
+                "status": "passed",
+                "duration": 0.00039374898187816143,
+                "start": 1782898137.4085934,
+                "stop": 1782898137.4091294,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_output_type_matches_signature",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0469870010856539,
+                "start": 1782898137.4092739,
+                "stop": 1782898137.4839203,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_output_type_matches_si0')\n\n    def test_HC_output_type_matches_signature(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies successful CLI output is pickled as list[list[float]].\n        This also checks the prompt-required row and column shape.\n        \"\"\"\n        objective_coeff = [2.0, 3.0]\n        constraints_coeff = [[1.0, 3.0], [1.0, 5.0]]\n        constraints_relational_operators = [\"<=\", \">=\"]\n        constraints_rhs = [10.0, 8.0]\n        out = tmp_path / \"out1.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[2.0, 3.0]', '--constraints_coeff', '[[1.0, 3.0], [1.0, 5.0]]...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:743: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_EC_degeneracy_report_file_required",
+                "status": "passed",
+                "duration": 0.04386119602713734,
+                "start": 1782898137.4841821,
+                "stop": 1782898137.5282948,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_problem_report_file_required",
+                "status": "passed",
+                "duration": 0.04200281610246748,
+                "start": 1782898137.5285094,
+                "stop": 1782898137.5707495,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_basic_variables_file_required",
+                "status": "passed",
+                "duration": 0.0422644920181483,
+                "start": 1782898137.5709631,
+                "stop": 1782898137.6134448,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_no_partial_output_when_io_exception_occurs",
+                "status": "passed",
+                "duration": 0.04428913595620543,
+                "start": 1782898137.6136727,
+                "stop": 1782898137.6581757,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::bad_out, bad_report::[(False, True), (True, False)]"
+                ]
+            },
+            {
+                "name": "test_outputs.py::test_EC_no_partial_output_when_final_report_replace_fails",
+                "status": "passed",
+                "duration": 0.04444837907794863,
+                "start": 1782898137.7044015,
+                "stop": 1782898137.7490706,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_no_partial_output_when_problem_report_replace_fails",
+                "status": "passed",
+                "duration": 0.0442955190083012,
+                "start": 1782898137.7492912,
+                "stop": 1782898137.7938192,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_no_partial_output_when_pivot_log_replace_fails",
+                "status": "passed",
+                "duration": 0.04546919488348067,
+                "start": 1782898137.7940688,
+                "stop": 1782898137.8397715,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_large_input_handling",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0608771659899503,
+                "start": 1782898137.83999,
+                "stop": 1782898137.9302554,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_EC_large_input_handling0')\n\n    def test_EC_large_input_handling(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies the CLI handles larger valid coefficient matrices.\n        The expected dimensions follow the final tableau column contract.\n        \"\"\"\n        objective_coeff = [float(i) for i in range(1, 101)]\n        constraints_coeff = [[float(j % (i + 1) + 1) for j in range(100)] for i in range(50)]\n        constraints_relational_operators = [\"<=\"] * 25 + [\">=\"] * 25\n        constraints_rhs = (\n            [float(sum(row) + 100.0) for row in constraints_coeff[:25]]\n            + [float(sum(row) - 100.0) for row in constraints_coeff[25:]]\n        )\n        out = tmp_path / \"out2.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12....ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:984: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_specification_example",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04605346207972616,
+                "start": 1782898137.9304893,
+                "stop": 1782898138.0044622,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_specification_example0')\n\n    def test_HC_specification_example(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies the exact sample input from instruction.md solves correctly.\n        The objective value and dimensions validate the final tableau output.\n        \"\"\"\n        objective_coeff = [3.0, 5.0]\n        constraints_coeff = [[1.0, 0.0], [0.0, 2.0], [3.0, 2.0]]\n        constraints_relational_operators = [\"<=\", \"<=\", \">=\"]\n        constraints_rhs = [4.0, 12.0, 18.0]\n        out = tmp_path / \"out3.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[3.0, 5.0]', '--constraints_coeff', '[[1.0, 0.0], [0.0, 2.0],...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1012: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_problem_report_rounds_decimal_inputs",
+                "status": "passed",
+                "duration": 0.04476494085974991,
+                "start": 1782898138.0047045,
+                "stop": 1782898138.0496829,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_problem_report_preserves_input_signs_and_operators",
+                "status": "passed",
+                "duration": 0.0430460290517658,
+                "start": 1782898138.0498996,
+                "stop": 1782898138.0931945,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_problem_report_rounds_four_and_five_decimal_inputs",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.043242601095698774,
+                "start": 1782898138.093415,
+                "stop": 1782898138.1657186,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_problem_report_rounds_1')\n\n    def test_HC_problem_report_rounds_four_and_five_decimal_inputs(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies 4-/5-decimal inputs and .xx5 ties use half-up rounding in the report.\n        \"\"\"\n        objective_coeff = [2.9949, 2.995]\n        constraints_coeff = [\n            [1.9951, 0.0049],\n            [0.0, 1.005],\n            [-2.995, -1.005],\n        ]\n        constraints_relational_operators = [\"<=\", \"<=\", \"<=\"]\n        constraints_rhs = [3.9999, 2.995, 0.0049]\n        out = tmp_path / \"rounded_report_many_decimals.pkl\"\n    \n        cp = _invoke_cli(\n            cli_name,\n            objective_coeff,\n            constraints_coeff,\n            constraints_relational_operators,\n            constraints_rhs,\n            out,\n        )\n    \n        assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\n        report_text = _problem_report_path(out).read_text(encoding=\"utf-8\")\n>       assert report_text == (\n            \"maximize 2.99*x1 + 3.00*x2\\n\"\n            \"\\n\"\n            \"subject to:\\n\"\n            \"    2.00*x1 + 0.00*x2 <= 4.00\\n\"\n            \"    1.01*x2 + 0.00*x1 <= 3.00\\n\"\n            \"    -3.00*x1 - 1.01*x2 <= 0.00\\n\"\n            \"    x1, x2 >= 0\"\n        )\nE       AssertionError: assert 'maximize 2.9...  x1, x2 >= 0' == 'maximize 2.9...  x1, x2 >= 0'\nE         \nE         Skipping 67 identical leading characters in diff, use -v to show\nE           00\nE         -     1.01*x2 + 0.00*x1 <= 3.00\nE         ?        ^\nE         +     1.00*x2 + 0.00*x1 <= 3.00\nE         ?        ^...\nE         \nE         ...Full output truncated (3 lines hidden), use '-vv' to show\n\ntests/test_outputs.py:1133: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_problem_report_orders_terms_after_rounding",
+                "status": "passed",
+                "duration": 0.04509227606467903,
+                "start": 1782898138.1659465,
+                "stop": 1782898138.2112737,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_problem_report_negative_values_round_to_positive_zero",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04338449996430427,
+                "start": 1782898138.2114832,
+                "stop": 1782898138.283563,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_problem_report_negativ0')\n\n    def test_HC_problem_report_negative_values_round_to_positive_zero(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies negative coefficients and RHS values that round to 0.00 render as positive zero.\n        \"\"\"\n        objective_coeff = [-0.0049, 1.005]\n        constraints_coeff = [\n            [1.0, 0.0],\n            [0.0, 1.0],\n            [-0.0049, 1.0],\n            [1.0, 1.0],\n        ]\n        constraints_relational_operators = [\"<=\", \"<=\", \"<=\", \">=\"]\n        constraints_rhs = [1.0, 1.0, 1.0, -0.0049]\n        out = tmp_path / \"negative_rounds_to_positive_zero.pkl\"\n    \n        cp = _invoke_cli(\n            cli_name,\n            objective_coeff,\n            constraints_coeff,\n            constraints_relational_operators,\n            constraints_rhs,\n            out,\n        )\n    \n        assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\n        report_text = _problem_report_path(out).read_text(encoding=\"utf-8\")\n>       assert report_text == (\n            \"maximize 1.01*x2 + 0.00*x1\\n\"\n            \"\\n\"\n            \"subject to:\\n\"\n            \"    1.00*x1 + 0.00*x2 <= 1.00\\n\"\n            \"    1.00*x2 + 0.00*x1 <= 1.00\\n\"\n            \"    1.00*x2 + 0.00*x1 <= 1.00\\n\"\n            \"    1.00*x1 + 1.00*x2 >= 0.00\\n\"\n            \"    x1, x2 >= 0\"\n        )\nE       AssertionError: assert 'maximize 1.0...  x1, x2 >= 0' == 'maximize 1.0...  x1, x2 >= 0'\nE         \nE         Skipping 153 identical trailing characters in diff, use -v to show\nE         - maximize 1.01*x2 + 0.0\nE         ?             ^\nE         + maximize 1.00*x2 + 0.0\nE         ?             ^\n\ntests/test_outputs.py:1212: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_problem_report_single_variable_leading_negative",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0446236691204831,
+                "start": 1782898138.283799,
+                "stop": 1782898138.3562725,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_problem_report_single_0')\n\n    def test_HC_problem_report_single_variable_leading_negative(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies the leading negative-term format and one-variable nonnegativity line.\n        \"\"\"\n        objective_coeff = [-1.005]\n        constraints_coeff = [[1.0]]\n        constraints_relational_operators = [\"<=\"]\n        constraints_rhs = [2.0]\n        out = tmp_path / \"single_variable_leading_negative.pkl\"\n    \n        cp = _invoke_cli(\n            cli_name,\n            objective_coeff,\n            constraints_coeff,\n            constraints_relational_operators,\n            constraints_rhs,\n            out,\n        )\n    \n        assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\n        report_text = _problem_report_path(out).read_text(encoding=\"utf-8\")\n>       assert report_text == (\n            \"maximize -1.01*x1\\n\"\n            \"\\n\"\n            \"subject to:\\n\"\n            \"    1.00*x1 <= 2.00\\n\"\n            \"    x1 >= 0\"\n        )\nE       AssertionError: assert 'maximize -1....\\n    x1 >= 0' == 'maximize -1....\\n    x1 >= 0'\nE         \nE         Skipping 39 identical trailing characters in diff, use -v to show\nE         - maximize -1.01*x1\nE         ?              ^\nE         + maximize -1.00*x1\nE         ?              ^\nE           \nE           subj\n\ntests/test_outputs.py:1246: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_all_operators_present",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04600390687119216,
+                "start": 1782898138.3565052,
+                "stop": 1782898138.4302328,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_all_operators_present0')\n\n    def test_HC_all_operators_present(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies all valid relational operators are accepted together.\n        The solved objective confirms the mixed-operator path works.\n        \"\"\"\n        objective_coeff = [1.0, 2.0]\n        constraints_coeff = [[1.0, 2.0], [2.0, 1.0], [1.0, 1.0]]\n        constraints_relational_operators = [\"<=\", \">=\", \"=\"]\n        constraints_rhs = [10.0, 15.0, 8.0]\n        out = tmp_path / \"out4.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0, 2.0]', '--constraints_coeff', '[[1.0, 2.0], [2.0, 1.0],...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1268: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_mixed_constraints_phase_two_respects_ge_bound",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.045788823161274195,
+                "start": 1782898138.4304752,
+                "stop": 1782898138.5041444,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_mixed_constraints_phas0')\n\n    def test_HC_mixed_constraints_phase_two_respects_ge_bound(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies Phase 2 preserves a bound introduced by a >= constraint.\n        The objective would be larger if that prompt-required bound were lost.\n        \"\"\"\n        # With x1 + x2 = 20, the >= row gives x2 <= 1. The objective heavily\n        # rewards x2, so Phase 2 must preserve that bound after artificial columns\n        # are removed and the original objective is restored.\n        objective_coeff = [1.0, 5.0]\n        constraints_coeff = [[1.0, 2.0], [2.0, 1.0], [1.0, 1.0]]\n        constraints_relational_operators = [\"<=\", \">=\", \"=\"]\n        constraints_rhs = [40.0, 39.0, 20.0]\n        out = tmp_path / \"out_mixed_ge_bound.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed on mixed-operator bounded input: {cp.stderr}\"\nE       AssertionError: CLI failed on mixed-operator bounded input: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0, 5.0]', '--constraints_coeff', '[[1.0, 2.0], [2.0, 1.0],...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1300: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_degenerate_phase_handoff",
+                "status": "passed",
+                "duration": 0.04449854209087789,
+                "start": 1782898138.504368,
+                "stop": 1782898138.549075,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_zero_bound_final_zero_rhs",
+                "status": "passed",
+                "duration": 0.042929571005515754,
+                "start": 1782898138.549287,
+                "stop": 1782898138.5924215,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_independent_equalities_zero_row_is_degenerate",
+                "status": "passed",
+                "duration": 0.04248753504361957,
+                "start": 1782898138.5926287,
+                "stop": 1782898138.6353328,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_degenerate_production_mix_zero_bound",
+                "status": "passed",
+                "duration": 0.04294974997173995,
+                "start": 1782898138.6355348,
+                "stop": 1782898138.6787257,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_large_degenerate_mixed_constraints",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04488479101564735,
+                "start": 1782898138.678955,
+                "stop": 1782898138.7528331,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_large_degenerate_mixed0')\n\n    def test_HC_large_degenerate_mixed_constraints(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies degeneracy reporting on a larger mixed-operator LP.\n        The tableau shape confirms artificial columns are removed afterward.\n        \"\"\"\n        # Larger degenerate feasible LP with mixed >=/<= constraints and a zero\n        # bound, but no duplicate/dependent equality rows.\n        objective_coeff = [10.0, 8.0, 6.0, 4.0]\n        constraints_coeff = [\n            [1.0, 1.0, 1.0, 1.0],\n            [1.0, 0.0, 0.0, 0.0],\n            [0.0, 1.0, 0.0, 0.0],\n            [0.0, 0.0, 1.0, 0.0],\n            [0.0, 0.0, 0.0, 1.0],\n            [0.0, 1.0, 1.0, 0.0],\n            [0.0, 0.0, 1.0, 1.0],\n            [0.0, 1.0, 0.0, 1.0],\n            [0.0, 0.0, 1.0, 0.0],\n        ]\n        constraints_relational_operators = [\"=\", \"<=\", \"<=\", \"<=\", \"<=\", \">=\", \">=\", \"<=\", \">=\"]\n        constraints_rhs = [10.0, 0.0, 3.0, 2.0, 5.0, 4.0, 6.0, 8.0, 1.0]\n        out = tmp_path / \"out_large_degenerate.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed on large degenerate input: {cp.stderr}\"\nE       AssertionError: CLI failed on large degenerate input: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[10.0, 8.0, 6.0, 4.0]', '--constraints_coeff', '[[1.0, 1.0, 1...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1439: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_bounded_degenerate_cycling_case",
+                "status": "passed",
+                "duration": 0.04495518596377224,
+                "start": 1782898138.7530742,
+                "stop": 1782898138.798264,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_invalid_operator",
+                "status": "passed",
+                "duration": 0.04423523508012295,
+                "start": 1782898138.7984645,
+                "stop": 1782898138.8429203,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_malformed_python_literal_prints_traceback",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.041866262909024954,
+                "start": 1782898138.843154,
+                "stop": 1782898138.9152534,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_EC_malformed_python_liter0')\n\n    def test_EC_malformed_python_literal_prints_traceback(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies malformed Python-literal input fails with a Python traceback.\n        \"\"\"\n        out = tmp_path / \"bad_literal.pkl\"\n        report = _degeneracy_report_path(out)\n        problem_report = _problem_report_path(out)\n        cmd = [\n            cli_name,\n            \"--objective_coeff\", \"[1.0\",\n            \"--constraints_coeff\", \"[[1.0]]\",\n            \"--constraints_relational_operators\", \"['<=']\",\n            \"--constraints_rhs\", \"[1.0]\",\n            \"--output_file\", str(out),\n            \"--degeneracy_report_file\", str(report),\n            \"--problem_report_file\", str(problem_report),\n            \"--basic_variables_file\", str(_basic_variables_path(out)),\n        ]\n    \n        cp = subprocess.run(cmd, capture_output=True, text=True)\n    \n        assert cp.returncode != 0\n        assert not out.exists()\n        assert not report.exists()\n        assert not problem_report.exists()\n        assert not _basic_variables_path(out).exists()\n>       assert \"Traceback (most recent call last)\" in (cp.stderr or \"\")\nE       assert 'Traceback (most recent call last)' in ((\"usage: lp_solve [-h] --objective_coeff OBJECTIVE_COEFF\\n                --constraints_coeff CONSTRAINTS_COEFF\\n      ...ivot_log_file PIVOT_LOG_FILE]\\nlp_solve: error: argument --objective_coeff: invalid parse_list_literal value: '[1.0'\\n\"))\nE        +  where \"usage: lp_solve [-h] --objective_coeff OBJECTIVE_COEFF\\n                --constraints_coeff CONSTRAINTS_COEFF\\n      ...ivot_log_file PIVOT_LOG_FILE]\\nlp_solve: error: argument --objective_coeff: invalid parse_list_literal value: '[1.0'\\n\" = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0', '--constraints_coeff', '[[1.0]]', '--constraints_relat...vot_log_file PIVOT_LOG_FILE]\\nlp_solve: error: argument --objective_coeff: invalid parse_list_literal value: '[1.0'\\n\").stderr\n\ntests/test_outputs.py:1544: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_EC_unbounded_solution",
+                "status": "passed",
+                "duration": 0.04546792001929134,
+                "start": 1782898138.9154792,
+                "stop": 1782898138.9612112,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_EC_unbounded_solution_2",
+                "status": "passed",
+                "duration": 0.04443044390063733,
+                "start": 1782898138.9614217,
+                "stop": 1782898139.0060802,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_three_vars_two_constraints",
+                "status": "passed",
+                "duration": 0.04331434308551252,
+                "start": 1782898139.0063157,
+                "stop": 1782898139.0498421,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_two_vars_three_constraints",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04457051714416593,
+                "start": 1782898139.0500464,
+                "stop": 1782898139.123787,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_two_vars_three_constra0')\n\n    def test_HC_two_vars_three_constraints(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies the sample two-variable, three-constraint tableau shape.\n        The objective value repeats the prompt example's solved optimum.\n        \"\"\"\n        objective_coeff = [3.0, 5.0]\n        constraints_coeff = [[1.0, 0.0], [0.0, 2.0], [3.0, 2.0]]\n        constraints_relational_operators = [\"<=\", \"<=\", \">=\"]\n        constraints_rhs = [4.0, 12.0, 18.0]\n        out = tmp_path / \"out6.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[3.0, 5.0]', '--constraints_coeff', '[[1.0, 0.0], [0.0, 2.0],...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1628: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_three_vars_three_constraints",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04601837997324765,
+                "start": 1782898139.1240335,
+                "stop": 1782898139.1987777,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_three_vars_three_const0')\n\n    def test_HC_three_vars_three_constraints(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies final formatting when <=, >=, and = all appear.\n        Artificial columns should not remain in the prompt-facing tableau.\n        \"\"\"\n        objective_coeff = [2.0, 1.0, 1.0]\n        constraints_coeff = [[2.0, 1.0, 1.0], [1.0, 3.0, 2.0], [2.0, 1.0, 2.0]]\n        constraints_relational_operators = [\"<=\", \">=\", \"=\"]\n        constraints_rhs = [180.0, 300.0, 240.0]\n        out = tmp_path / \"out7.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[2.0, 1.0, 1.0]', '--constraints_coeff', '[[2.0, 1.0, 1.0], [...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1651: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_two_vars_large_rhs",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.046996632823720574,
+                "start": 1782898139.1990519,
+                "stop": 1782898139.2742846,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_two_vars_large_rhs0')\n\n    def test_HC_two_vars_large_rhs(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies large RHS values still produce float tableau output.\n        The objective row RHS checks numerical behavior at larger scale.\n        \"\"\"\n        objective_coeff = [1.0, 2.0]\n        constraints_coeff = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]\n        constraints_relational_operators = [\"<=\", \"<=\", \">=\"]\n        constraints_rhs = [3000.0, 4000.0, 5000.0]\n        out = tmp_path / \"out8.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0, 2.0]', '--constraints_coeff', '[[1.0, 0.0], [0.0, 1.0],...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1674: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_tableau_encodes_feasible_optimum",
+                "status": "failed",
+                "duration": 0.046093322918750346,
+                "start": 1782898139.2745206,
+                "stop": 1782898139.3494074,
+                "retries": 7,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::name,objective,coeffs,ops,rhs,expected_obj::[('spec_example', [3.0, 5.0], [[1.0, 0.0], [0.0, 2.0], [3.0, 2.0]], ['<=', '<=', '>='], [4.0, 12.0, 18.0], 42.0), ('mixed_operators', [1.0, 2.0], [[1.0, 2.0], [2.0, 1.0], [1.0, 1.0]], ['<=', '>=', '='], [10.0, 15.0, 8.0], 9.0), ('ge_bound_respected', [1.0, 5.0], [[1.0, 2.0], [2.0, 1.0], [1.0, 1.0]], ['<=', '>=', '='], [40.0, 39.0, 20.0], 24.0), ('fractional_primal_from_mixed_basis', [2.0, 3.0, 1.0], [[1.0, 1.0, 1.0], [1.0, 2.0, 0.0], [0.0, 1.0, 1.0]], ['=', '<=', '>='], [5.0, 6.0, 2.0], 11.0), ('three_vars_two_constraints', [1.0, 2.0, 3.0], [[1.0, 3.0, 2.0], [1.0, 5.0, 1.0]], ['<=', '<='], [10.0, 8.0], 15.0), ('degenerate_zero_bound', [1.0, 2.0], [[1.0, 1.0], [1.0, 0.0]], ['=', '<='], [1.0, 0.0], 2.0), ('redundant_equalities', [7.0, 5.0, 3.0], [[1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], ['=', '=', '<=', '<=', '<='], [20.0, 40.0, 10.0, 12.0, 15.0], 120.0), ('all_le', [2.0, 3.0], [[1.0, 3.0], [1.0, 5.0]], ['<=', '<='], [10.0, 8.0], 16.0)]::ids_['spec_example', 'mixed_operators', 'ge_bound_respected', 'fractional_primal_from_mixed_basis', 'three_vars_two_constraints', 'degenerate_zero_bound', 'redundant_equalities', 'all_le']"
+                ],
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_tableau_encodes_feasib3')\nname = 'fractional_primal_from_mixed_basis', objective = [2.0, 3.0, 1.0]\ncoeffs = [[1.0, 1.0, 1.0], [1.0, 2.0, 0.0], [0.0, 1.0, 1.0]]\nops = ['=', '<=', '>='], rhs = [5.0, 6.0, 2.0], expected_obj = 11.0\n\n    @pytest.mark.parametrize(\n        \"name,objective,coeffs,ops,rhs,expected_obj\",\n        RESULT_BASED_OPTIMAL_CASES,\n        ids=[case[0] for case in RESULT_BASED_OPTIMAL_CASES],\n    )\n    def test_HC_tableau_encodes_feasible_optimum(\n        cli_name,\n        tmp_path: Path,\n        name,\n        objective,\n        coeffs,\n        ops,\n        rhs,\n        expected_obj,\n    ):\n        \"\"\"\n        Verifies the final tableau encodes a feasible primal solution with the true optimum.\n        This checks solver correctness rather than only tableau dimensions.\n        \"\"\"\n        out = tmp_path / f\"{name}.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective, coeffs, ops, rhs, out)\n>       assert cp.returncode == 0, f\"CLI failed: {cp.stderr}\"\nE       AssertionError: CLI failed: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[2.0, 3.0, 1.0]', '--constraints_coeff', '[[1.0, 1.0, 1.0], [...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1775: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_HC_large_constructed_known_optimum",
+                "status": "passed",
+                "duration": 0.1367069500265643,
+                "start": 1782898139.7497077,
+                "stop": 1782898139.8866408,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_HC_fuzz_bounded_feasible_against_reference",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.04680881998501718,
+                "start": 1782898139.8868592,
+                "stop": 1782898139.9636285,
+                "retries": 39,
+                "file_path": "test_outputs.py",
+                "tags": [
+                    "parametrize::name,objective,coeffs,ops,rhs::[('bounded_fuzz_0', [2.0, -3.0], [[1.0, 0.0], [0.0, -1.0], [1.0, 0.0], [-2.0, -0.0], [1.0, -2.0], [0.0, -1.0]], ['<=', '>=', '>=', '>=', '=', '<='], [4.0, -2.0, 0.0, -2.0, 1.0, 1.0]), ('bounded_fuzz_1', [2.0, 7.0, -3.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, -0.0, -0.0], [2.0, -1.0, -2.0], [-1.0, -2.0, -1.0], [-2.0, -0.0, 2.0]], ['>=', '<=', '>=', '>=', '=', '<=', '<='], [-6.0, 3.0, -4.0, 3.0, -1.0, -8.0, -0.0]), ('bounded_fuzz_2', [-1.0, -3.0], [[1.0, 0.0], [0.0, -1.0], [2.0, 2.0], [2.0, -2.0]], ['<=', '>=', '=', '<='], [3.0, -5.0, 6.0, -6.0]), ('bounded_fuzz_3', [5.0, 2.0], [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [-2.0, 2.0], [1.0, -2.0], [-1.0, 1.0], [-2.0, -2.0]], ['>=', '<=', '>=', '=', '>=', '=', '>='], [-4.0, 4.0, 1.0, 2.0, -5.0, 1.0, -6.0]), ('bounded_fuzz_4', [-5.0, 5.0, 1.0], [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 2.0, -2.0], [-1.0, -1.0, 0.0]], ['<=', '>=', '<=', '<=', '='], [4.0, -4.0, 4.0, 6.0, -5.0]), ('bounded_fuzz_5', [-3.0, 7.0, 7.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 2.0, -2.0], [-2.0, -1.0, 2.0]], ['>=', '<=', '>=', '<=', '<='], [-3.0, 3.0, -3.0, -1.0, 2.0]), ('bounded_fuzz_6', [7.0, 2.0], [[1.0, 0.0], [0.0, -1.0], [1.0, 0.0], [1.0, 0.0], [0.0, 2.0]], ['<=', '>=', '>=', '=', '>='], [6.0, -5.0, 2.0, 3.0, 3.0]), ('bounded_fuzz_7', [-3.0, -3.0, 3.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [0.0, -1.0, 1.0], [1.0, -1.0, -1.0]], ['>=', '<=', '>=', '<=', '<='], [-4.0, 2.0, -5.0, 3.0, -1.0]), ('bounded_fuzz_8', [5.0, 3.0], [[1.0, 0.0], [0.0, -1.0], [-2.0, -2.0], [-0.0, 2.0], [-1.0, 1.0], [2.0, -1.0]], ['<=', '>=', '=', '>=', '<=', '>='], [4.0, -4.0, -6.0, -1.0, -2.0, 4.0]), ('bounded_fuzz_9', [-3.0, 5.0], [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [-2.0, 1.0], [-1.0, -0.0]], ['>=', '<=', '>=', '=', '<='], [-2.0, 4.0, 2.0, 3.0, -0.0]), ('bounded_fuzz_10', [-5.0, 7.0], [[1.0, 0.0], [0.0, -1.0], [2.0, 1.0], [2.0, 2.0], [0.0, -1.0]], ['<=', '>=', '<=', '<=', '='], [4.0, -4.0, 6.0, 9.0, -3.0]), ('bounded_fuzz_11', [-5.0, -5.0], [[-1.0, 0.0], [0.0, 1.0], [-1.0, -0.0], [1.0, 1.0]], ['>=', '<=', '<=', '>='], [-4.0, 5.0, -1.0, 4.0]), ('bounded_fuzz_12', [3.0, 2.0], [[1.0, 0.0], [0.0, -1.0], [1.0, 0.0], [1.0, -1.0], [-1.0, -1.0], [1.0, -0.0], [-0.0, 2.0]], ['<=', '>=', '>=', '>=', '<=', '<=', '<='], [2.0, -5.0, 0.0, -3.0, -2.0, 1.0, 7.0]), ('bounded_fuzz_13', [3.0, 2.0], [[-1.0, 0.0], [0.0, 1.0], [-2.0, 0.0], [0.0, -1.0], [2.0, 0.0]], ['>=', '<=', '=', '=', '<='], [-2.0, 5.0, 0.0, -2.0, 1.0]), ('bounded_fuzz_14', [5.0, 5.0, 3.0], [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [-2.0, 1.0, 2.0], [-1.0, 1.0, -0.0], [2.0, -1.0, -1.0]], ['<=', '>=', '<=', '<=', '>=', '<=', '>='], [3.0, -2.0, 5.0, 4.0, -1.0, -1.0, 1.0]), ('bounded_fuzz_15', [5.0, 2.0, -3.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0, 0.0], [-2.0, -1.0, 2.0], [0.0, 2.0, 0.0], [-0.0, -1.0, 1.0], [-1.0, 0.0, 2.0]], ['>=', '<=', '>=', '>=', '<=', '<=', '>=', '='], [-4.0, 6.0, -2.0, 0.0, 1.0, 7.0, -3.0, 2.0]), ('bounded_fuzz_16', [3.0, 5.0, -3.0], [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [1.0, -2.0, 0.0], [2.0, 2.0, 0.0], [2.0, -1.0, 1.0], [2.0, -2.0, -2.0]], ['<=', '>=', '<=', '>=', '=', '=', '>='], [3.0, -3.0, 4.0, -4.0, 2.0, -1.0, -3.0]), ('bounded_fuzz_17', [2.0, 5.0], [[-1.0, 0.0], [0.0, 1.0], [2.0, 1.0], [-2.0, -0.0], [-2.0, 0.0], [1.0, 0.0]], ['>=', '<=', '=', '>=', '<=', '='], [-4.0, 6.0, 9.0, -6.0, -4.0, 3.0]), ('bounded_fuzz_18', [-5.0, -1.0], [[1.0, 0.0], [0.0, -1.0], [1.0, 0.0], [-1.0, 2.0], [1.0, -1.0], [1.0, 0.0], [-1.0, 2.0]], ['<=', '>=', '>=', '>=', '<=', '=', '>='], [3.0, -5.0, 1.0, 2.0, 0.0, 2.0, 2.0]), ('bounded_fuzz_19', [2.0, -5.0, 1.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [-2.0, 1.0, 0.0], [1.0, 2.0, 2.0]], ['>=', '<=', '>=', '>=', '<='], [-4.0, 4.0, -4.0, 3.0, 10.0]), ('bounded_fuzz_20', [-3.0, 7.0], [[1.0, 0.0], [0.0, -1.0], [1.0, -1.0], [2.0, -1.0], [2.0, 0.0]], ['<=', '>=', '<=', '<=', '<='], [4.0, -3.0, 2.0, 5.0, 6.0]), ('bounded_fuzz_21', [1.0, 2.0], [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [-2.0, 0.0], [-1.0, -0.0], [1.0, 1.0], [-0.0, 2.0]], ['>=', '<=', '>=', '=', '>=', '<=', '<='], [-2.0, 2.0, 0.0, -2.0, -2.0, 1.0, 1.0]), ('bounded_fuzz_22', [2.0, 5.0, -5.0], [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [2.0, 1.0, -1.0], [2.0, -1.0, 1.0]], ['<=', '>=', '<=', '>=', '='], [5.0, -3.0, 3.0, 3.0, 7.0]), ('bounded_fuzz_23', [7.0, -3.0, 3.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [0.0, 2.0, -1.0], [1.0, 0.0, -2.0], [-0.0, 1.0, -1.0]], ['>=', '<=', '>=', '=', '=', '<='], [-3.0, 4.0, -4.0, 5.0, -2.0, 4.0]), ('bounded_fuzz_24', [5.0, 5.0, 2.0], [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [1.0, -1.0, -2.0], [-0.0, -1.0, 2.0]], ['<=', '>=', '<=', '>=', '<=', '>='], [4.0, -5.0, 3.0, 2.0, -3.0, -0.0]), ('bounded_fuzz_25', [-1.0, 7.0, 3.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [-2.0, 2.0, 1.0], [2.0, -0.0, -0.0], [1.0, -2.0, 1.0], [-1.0, -1.0, -0.0]], ['>=', '<=', '>=', '=', '>=', '<=', '>='], [-5.0, 5.0, -5.0, 2.0, 4.0, 1.0, -7.0]), ('bounded_fuzz_26', [-5.0, 2.0], [[1.0, 0.0], [0.0, -1.0], [-1.0, 2.0], [1.0, -1.0], [2.0, 2.0]], ['<=', '>=', '<=', '>=', '>='], [3.0, -6.0, 7.0, -2.0, 6.0]), ('bounded_fuzz_27', [1.0, 5.0, 5.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0, 0.0], [-2.0, 1.0, -1.0], [-2.0, 0.0, 1.0], [1.0, 1.0, 1.0], [-0.0, -0.0, 1.0]], ['>=', '<=', '>=', '>=', '>=', '>=', '=', '>='], [-3.0, 3.0, -3.0, 0.0, -3.0, -3.0, 2.0, -1.0]), ('bounded_fuzz_28', [2.0, -1.0], [[1.0, 0.0], [0.0, -1.0], [-2.0, 0.0], [1.0, -2.0]], ['<=', '>=', '>=', '>='], [6.0, -2.0, -6.0, 3.0]), ('bounded_fuzz_29', [-3.0, 1.0, 7.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [2.0, 2.0, 1.0], [1.0, -1.0, 2.0]], ['>=', '<=', '>=', '=', '<='], [-5.0, 4.0, -4.0, 5.0, 4.0]), ('bounded_fuzz_30', [2.0, 5.0], [[1.0, 0.0], [0.0, -1.0], [1.0, 0.0], [2.0, -0.0], [1.0, -2.0], [2.0, 0.0]], ['<=', '>=', '>=', '>=', '>=', '='], [5.0, -5.0, 1.0, 2.0, -5.0, 4.0]), ('bounded_fuzz_31', [7.0, 2.0], [[-1.0, 0.0], [0.0, 1.0], [-2.0, 1.0], [2.0, -2.0]], ['>=', '<=', '<=', '>='], [-2.0, 4.0, 1.0, -1.0]), ('bounded_fuzz_32', [1.0, -5.0], [[1.0, 0.0], [0.0, -1.0], [-1.0, -2.0], [0.0, 1.0], [-1.0, 2.0], [1.0, 2.0]], ['<=', '>=', '<=', '<=', '<=', '>='], [4.0, -4.0, -6.0, 3.0, 4.0, 4.0]), ('bounded_fuzz_33', [2.0, -1.0], [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [-1.0, -0.0], [-2.0, 0.0], [0.0, 1.0]], ['>=', '<=', '>=', '<=', '>=', '>='], [-2.0, 2.0, 0.0, -1.0, -3.0, -1.0]), ('bounded_fuzz_34', [-5.0, 3.0], [[1.0, 0.0], [0.0, -1.0], [1.0, -1.0], [-2.0, -1.0]], ['<=', '>=', '<=', '<='], [3.0, -5.0, -2.0, -3.0]), ('bounded_fuzz_35', [-1.0, -1.0], [[-1.0, 0.0], [0.0, 1.0], [1.0, -1.0], [-1.0, 2.0], [1.0, 0.0]], ['>=', '<=', '=', '=', '>='], [-3.0, 4.0, 0.0, 1.0, -1.0]), ('bounded_fuzz_36', [3.0, 2.0], [[1.0, 0.0], [0.0, -1.0], [1.0, 0.0], [-2.0, 2.0], [1.0, 0.0], [1.0, -2.0], [-2.0, -1.0]], ['<=', '>=', '>=', '>=', '<=', '=', '<='], [5.0, -5.0, 2.0, -1.0, 3.0, -3.0, -8.0]), ('bounded_fuzz_37', [3.0, -3.0, -3.0], [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [2.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, -1.0, -2.0]], ['>=', '<=', '>=', '=', '<=', '<='], [-6.0, 5.0, -6.0, 1.0, -4.0, -3.0]), ('bounded_fuzz_38', [3.0, -1.0, 5.0], [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, 1.0], [1.0, -0.0, -2.0], [0.0, 1.0, -1.0], [-1.0, 1.0, -0.0], [2.0, -2.0, 0.0]], ['<=', '>=', '<=', '<=', '=', '<=', '='], [2.0, -2.0, 4.0, 1.0, 0.0, -0.0, 0.0]), ('bounded_fuzz_39', [3.0, 7.0], [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [1.0, 1.0], [1.0, -2.0]], ['>=', '<=', '>=', '=', '='], [-5.0, 4.0, 1.0, 4.0, -2.0])]::ids_['bounded_fuzz_0', 'bounded_fuzz_1', 'bounded_fuzz_2', 'bounded_fuzz_3', 'bounded_fuzz_4', 'bounded_fuzz_5', 'bounded_fuzz_6', 'bounded_fuzz_7', 'bounded_fuzz_8', 'bounded_fuzz_9', 'bounded_fuzz_10', 'bounded_fuzz_11', 'bounded_fuzz_12', 'bounded_fuzz_13', 'bounded_fuzz_14', 'bounded_fuzz_15', 'bounded_fuzz_16', 'bounded_fuzz_17', 'bounded_fuzz_18', 'bounded_fuzz_19', 'bounded_fuzz_20', 'bounded_fuzz_21', 'bounded_fuzz_22', 'bounded_fuzz_23', 'bounded_fuzz_24', 'bounded_fuzz_25', 'bounded_fuzz_26', 'bounded_fuzz_27', 'bounded_fuzz_28', 'bounded_fuzz_29', 'bounded_fuzz_30', 'bounded_fuzz_31', 'bounded_fuzz_32', 'bounded_fuzz_33', 'bounded_fuzz_34', 'bounded_fuzz_35', 'bounded_fuzz_36', 'bounded_fuzz_37', 'bounded_fuzz_38', 'bounded_fuzz_39']"
+                ],
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_HC_fuzz_bounded_feasible_39')\nname = 'bounded_fuzz_39', objective = [3.0, 7.0]\ncoeffs = [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [1.0, 1.0], [1.0, -2.0]]\nops = ['>=', '<=', '>=', '=', '='], rhs = [-5.0, 4.0, 1.0, 4.0, -2.0]\n\n    @pytest.mark.parametrize(\n        \"name,objective,coeffs,ops,rhs\",\n        BOUNDED_FUZZ_CASES,\n        ids=[case[0] for case in BOUNDED_FUZZ_CASES],\n    )\n    def test_HC_fuzz_bounded_feasible_against_reference(\n        cli_name,\n        tmp_path: Path,\n        name,\n        objective,\n        coeffs,\n        ops,\n        rhs,\n    ):\n        \"\"\"\n        Verifies generated bounded feasible LPs against an independent vertex oracle.\n        \"\"\"\n        expected_obj = _reference_optimum(objective, coeffs, ops, rhs, len(objective))\n        out = tmp_path / f\"{name}.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective, coeffs, ops, rhs, out, timeout=10)\n>       assert cp.returncode == 0, (\n            f\"CLI failed on fuzz case {name}: {cp.stderr}\\n\"\n            f\"{objective}\\n{coeffs}\\n{ops}\\n{rhs}\"\n        )\nE       AssertionError: CLI failed on fuzz case bounded_fuzz_39: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE         [3.0, 7.0]\nE         [[-1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [1.0, 1.0], [1.0, -2.0]]\nE         ['>=', '<=', '>=', '=', '=']\nE         [-5.0, 4.0, 1.0, 4.0, -2.0]\nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[3.0, 7.0]', '--constraints_coeff', '[[-1.0, 0.0], [0.0, 1.0]...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1940: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_EC_infeasible_best_effort",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.045704825897701085,
+                "start": 1782898142.8433912,
+                "stop": 1782898142.9177094,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_EC_infeasible_best_effort0')\n\n    def test_EC_infeasible_best_effort(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies infeasible inputs return a best-effort tableau.\n        The prompt requires this path to return the last-state best-effort tableau.\n        \"\"\"\n        objective_coeff = [1.0]\n        constraints_coeff = [[1.0], [1.0]]\n        constraints_relational_operators = [\"<=\", \">=\"]\n        constraints_rhs = [2.0, 5.0]\n        out = tmp_path / \"out_infeasible.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs,\n                         out)\n    \n>       assert cp.returncode == 0, f\"CLI failed on infeasible input: {cp.stderr}\"\nE       AssertionError: CLI failed on infeasible input: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0]', '--constraints_coeff', '[[1.0], [1.0]]', '--constrain...ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1964: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_EC_infeasible_best_effort_after_negative_rhs_normalization",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.057177129900082946,
+                "start": 1782898142.9179347,
+                "stop": 1782898143.0104141,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "cli_name = 'lp_solve'\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_EC_infeasible_best_effort1')\n\n    def test_EC_infeasible_best_effort_after_negative_rhs_normalization(cli_name, tmp_path: Path):\n        \"\"\"\n        Verifies an infeasible case with a negative RHS still returns a tableau.\n        This guards the prompt's last-state best-effort behavior.\n        \"\"\"\n        # After RHS normalization, this standard simplex input has no feasible\n        # nonnegative solution, but it still must produce best-effort output.\n        objective_coeff = [1.0, 1.0]\n        constraints_coeff = [[-2.0, -2.0], [-2.0, 0.0]]\n        constraints_relational_operators = [\"<=\", \">=\"]\n        constraints_rhs = [-2.0, 1.0]\n        out = tmp_path / \"out_infeasible_negative_rhs.pkl\"\n    \n        cp = _invoke_cli(cli_name, objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs,\n                         out)\n    \n>       assert cp.returncode == 0, f\"CLI failed on infeasible best-effort input: {cp.stderr}\"\nE       AssertionError: CLI failed on infeasible best-effort input: Traceback (most recent call last):\nE           File \"/app/simplex/parser.py\", line 70, in main\nE             result = two_phase_simplex(\nE                 args.objective_coeff,\nE             ...<3 lines>...\nE                 args.initial_pivots\nE             )\nE           File \"/app/simplex/phases.py\", line 70, in two_phase_simplex\nE             raise Exception(\"Unbounded\")\nE         Exception: Unbounded\nE         \nE       assert 1 == 0\nE        +  where 1 = CompletedProcess(args=['lp_solve', '--objective_coeff', '[1.0, 1.0]', '--constraints_coeff', '[[-2.0, -2.0], [-2.0, 0....ile \"/app/simplex/phases.py\", line 70, in two_phase_simplex\\n    raise Exception(\"Unbounded\")\\nException: Unbounded\\n').returncode\n\ntests/test_outputs.py:1992: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            }
+        ]
+    }
+}
