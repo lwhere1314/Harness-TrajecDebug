@@ -1,0 +1,186 @@
+diff -ru '--exclude=__pycache__' '--exclude=*.pyc' states/s2_artificial_cleanup/simplex/parser.py states/s3_protocol_best_effort/simplex/parser.py
+--- states/s2_artificial_cleanup/simplex/parser.py	2026-07-01 17:16:15.000000000 +0800
++++ states/s3_protocol_best_effort/simplex/parser.py	2026-07-01 20:44:27.402877161 +0800
+@@ -6,46 +6,31 @@
+ import os
+ import traceback
+ from simplex.phases import two_phase_simplex
+-from simplex.schema import FinalTableau, as_float_tableau
++from simplex.schema import as_float_tableau
+
+
+ def parse_list_literal(literal: str):
+     try:
+         return ast.literal_eval(literal)
+-    except:
+-        raise ValueError(f"Invalid Python literal for list: {literal}")
++    except Exception as exc:
++        raise ValueError(f"Invalid Python literal for list: {literal}") from exc
+
+
+ def main():
+     parser = argparse.ArgumentParser(description="Two-Phase Simplex Algorithm CLI")
+-    parser.add_argument('--objective_coeff', required=True, type=parse_list_literal,
+-                        help='Objective coefficients as Python literal list')
+-    parser.add_argument('--constraints_coeff', required=True, type=parse_list_literal,
+-                        help='Constraints coefficients as Python literal list of lists')
+-    parser.add_argument('--constraints_relational_operators', required=True, type=parse_list_literal,
+-                        help='Constraints relational operators as Python literal list of strings')
+-    parser.add_argument('--constraints_rhs', required=True, type=parse_list_literal,
+-                        help='Constraints RHS values as Python literal list')
+-    parser.add_argument('--output_file', required=True,
+-                        help='Output file to save the final tableau in pickle format')
+-    parser.add_argument('--degeneracy_report_file', required=True,
+-                        help='Degeneracy report file in pickle format')
+-    parser.add_argument('--problem_report_file', required=True,
+-                        help='Problem report text file')
+-    parser.add_argument('--basic_variables_file', required=True,
+-                        help='Basic variables report file in pickle format')
+-    parser.add_argument('--initial_pivots', type=parse_list_literal,
+-                        help='Initial pivots as Python literal list')
+-    parser.add_argument('--pivot_log_file',
+-                        help='Pivot log file in JSON Lines format')
++    parser.add_argument('--objective_coeff', required=True)
++    parser.add_argument('--constraints_coeff', required=True)
++    parser.add_argument('--constraints_relational_operators', required=True)
++    parser.add_argument('--constraints_rhs', required=True)
++    parser.add_argument('--output_file', required=True)
++    parser.add_argument('--degeneracy_report_file', required=True)
++    parser.add_argument('--problem_report_file', required=True)
++    parser.add_argument('--basic_variables_file', required=True)
++    parser.add_argument('--initial_pivots')
++    parser.add_argument('--pivot_log_file')
+
+     args = parser.parse_args()
+
+-    valid_ops = {'<=', '>=', '='}
+-    for op in args.constraints_relational_operators:
+-        if op not in valid_ops:
+-            raise ValueError(f"Invalid relational operator: {op}")
+-
+     if args.initial_pivots is not None and args.pivot_log_file is None:
+         parser.error("--pivot_log_file is required when --initial_pivots is provided")
+
+@@ -53,7 +38,7 @@
+         args.output_file,
+         args.degeneracy_report_file,
+         args.problem_report_file,
+-        args.basic_variables_file
++        args.basic_variables_file,
+     ]
+     if args.pivot_log_file:
+         output_files.append(args.pivot_log_file)
+@@ -63,43 +48,47 @@
+             try:
+                 if os.path.exists(f):
+                     os.remove(f)
+-            except:
++            except Exception:
+                 pass
+
+     try:
++        objective_coeff = parse_list_literal(args.objective_coeff)
++        constraints_coeff = parse_list_literal(args.constraints_coeff)
++        constraints_relational_operators = parse_list_literal(args.constraints_relational_operators)
++        constraints_rhs = parse_list_literal(args.constraints_rhs)
++        initial_pivots = parse_list_literal(args.initial_pivots) if args.initial_pivots is not None else None
++
++        valid_ops = {'<=', '>=', '='}
++        for op in constraints_relational_operators:
++            if op not in valid_ops:
++                raise ValueError(f"Invalid relational operator: {op}")
++
+         result = two_phase_simplex(
+-            args.objective_coeff,
+-            args.constraints_coeff,
+-            args.constraints_relational_operators,
+-            args.constraints_rhs,
+-            args.initial_pivots
++            objective_coeff,
++            constraints_coeff,
++            constraints_relational_operators,
++            constraints_rhs,
++            initial_pivots,
+         )
+
+-        final_tableau = result['final_tableau']
+-        problem_report = result['problem_report']
+-        basic_variables = result['basic_variables']
+-        degenerate = result['degenerate']
+-        pivot_log = result['pivot_log']
+-
+         with open(args.output_file, 'wb') as f:
+-            pickle.dump(as_float_tableau(final_tableau), f)
++            pickle.dump(as_float_tableau(result['final_tableau']), f)
+
+         with open(args.degeneracy_report_file, 'wb') as f:
+-            pickle.dump({'degenerate': degenerate}, f)
++            pickle.dump({'degenerate': result['degenerate']}, f)
+
+         with open(args.problem_report_file, 'w', encoding='utf-8') as f:
+-            f.write(problem_report)
++            f.write(result['problem_report'])
+
+         with open(args.basic_variables_file, 'wb') as f:
+-            pickle.dump({'basic_variables': basic_variables}, f)
++            pickle.dump({'basic_variables': result['basic_variables']}, f)
+
+         if args.pivot_log_file:
+             with open(args.pivot_log_file, 'w', encoding='utf-8') as f:
+-                for entry in pivot_log:
+-                    json_line = json.dumps(entry)
+-                    f.write(json_line + '\n')
++                for entry in result['pivot_log']:
++                    f.write(json.dumps(entry) + '\n')
+
+-    except Exception as e:
++    except Exception:
+         cleanup_files()
+         traceback.print_exc(file=sys.stderr)
+         sys.exit(1)
+diff -ru '--exclude=__pycache__' '--exclude=*.pyc' states/s2_artificial_cleanup/simplex/phases.py states/s3_protocol_best_effort/simplex/phases.py
+--- states/s2_artificial_cleanup/simplex/phases.py	2026-07-01 17:25:11.000000000 +0800
++++ states/s3_protocol_best_effort/simplex/phases.py	2026-07-01 20:43:55.893500146 +0800
+@@ -74,6 +74,21 @@
+             enter_name, leave_label, c_idx, r_idx = pivots[0]
+             apply_pivot_by_name(phase1_state, enter_name, leave_label)
+
++    if abs(phase1_state.data[-1][-1]) > 1e-8:
++        best_state = remove_artificial_columns(phase1_state, art_col_idx)
++        final_tableau = build_output_tableau(best_state)
++        original_constraint_dicts = [
++            {'coeff': cc, 'op': op, 'rhs': cr}
++            for cc, op, cr in zip(constraints_coeff, constraints_relational_operators, constraints_rhs)
++        ]
++        return {
++            'final_tableau': final_tableau,
++            'problem_report': format_problem_report(objective_coeff, original_constraint_dicts),
++            'basic_variables': extract_final_basic_variables(best_state),
++            'degenerate': is_degenerate(best_state),
++            'pivot_log': pivot_log,
++        }
++
+     phase2_state = remove_artificial_columns(phase1_state, art_col_idx)
+     setup_phase2_objective(phase2_state, objective_coeff)
+
+diff -ru '--exclude=__pycache__' '--exclude=*.pyc' states/s2_artificial_cleanup/simplex/tableau.py states/s3_protocol_best_effort/simplex/tableau.py
+--- states/s2_artificial_cleanup/simplex/tableau.py	2026-07-01 20:42:48.518693999 +0800
++++ states/s3_protocol_best_effort/simplex/tableau.py	2026-07-01 20:43:55.893500146 +0800
+@@ -27,10 +27,13 @@
+
+
+ def round_half_up(n: float, decimals: int = 2) -> float:
+-    """Round half up to the specified number of decimals."""
+-    import math
+-    multiplier = 10 ** decimals
+-    return math.floor(n * multiplier + 0.5) / multiplier
++    """Round half-up using decimal string semantics, including negatives."""
++    from decimal import Decimal, ROUND_HALF_UP
++    quant = Decimal("1").scaleb(-decimals)
++    value = Decimal(str(n)).quantize(quant, rounding=ROUND_HALF_UP)
++    if value == Decimal("-0." + "0" * decimals):
++        value = abs(value)
++    return float(value)
+
+
+ def build_initial_tableau(objective_coeff, constraints_coeff, constraints_relational_operators, constraints_rhs):

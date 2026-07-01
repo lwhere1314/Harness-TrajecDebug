@@ -1,0 +1,111 @@
+diff -ru '--exclude=__pycache__' '--exclude=*.pyc' states/s3_protocol_best_effort/simplex/phases.py states/s4_global_shortest/simplex/phases.py
+--- states/s3_protocol_best_effort/simplex/phases.py	2026-07-01 20:43:55.893500146 +0800
++++ states/s4_global_shortest/simplex/phases.py	2026-07-01 20:46:02.687017250 +0800
+@@ -16,6 +16,57 @@
+ )
+
+
++
++def minimal_total_pivot_path(phase1_state, art_col_idx, objective_coeff):
++    from collections import deque
++
++    def state_key(phase, state):
++        return (
++            phase,
++            tuple(tuple(round(v, 9) for v in row) for row in state.data),
++            tuple(state.column_names),
++            tuple(sorted(state.basic_vars.items())),
++        )
++
++    def to_phase2(state):
++        phase2 = remove_artificial_columns(state.copy(), art_col_idx)
++        setup_phase2_objective(phase2, objective_coeff)
++        return phase2
++
++    start = phase1_state.copy()
++    queue = deque([(1, start, [])])
++    visited = {state_key(1, start)}
++
++    while queue:
++        phase, state, path = queue.popleft()
++        if phase == 2 and is_optimal_phase(state):
++            return path
++
++        if phase == 1:
++            if is_optimal_phase(state):
++                phase2 = to_phase2(state)
++                key = state_key(2, phase2)
++                if key not in visited:
++                    visited.add(key)
++                    queue.append((2, phase2, path))
++            for enter_name, leave_label, _, _ in get_valid_pivots(state, 1):
++                next_state = state.copy()
++                apply_pivot_by_name(next_state, enter_name, leave_label)
++                key = state_key(1, next_state)
++                if key not in visited:
++                    visited.add(key)
++                    queue.append((1, next_state, path + [(1, enter_name, leave_label)]))
++        else:
++            for enter_name, leave_label, _, _ in get_valid_pivots(state, 2):
++                next_state = state.copy()
++                apply_pivot_by_name(next_state, enter_name, leave_label)
++                key = state_key(2, next_state)
++                if key not in visited:
++                    visited.add(key)
++                    queue.append((2, next_state, path + [(2, enter_name, leave_label)]))
++
++    return []
++
+ def two_phase_simplex(
+     objective_coeff,
+     constraints_coeff,
+@@ -50,19 +101,43 @@
+             })
+             step += 1
+
+-        # Finish phase1 with minimal pivots
+-        min_path_phase1 = minimal_pivot_path(phase1_state, phase=1)
+-        for en, lv in min_path_phase1:
+-            apply_pivot_by_name(phase1_state, en, lv)
+-            tableau_after = build_log_tableau(phase1_state)
++        # Search globally over the remaining Phase 1 pivots, the zero-cost
++        # Phase 1 -> Phase 2 handoff, and Phase 2 pivots. Local Phase 1 shortest
++        # paths can be globally suboptimal for the required total logged count.
++        total_path = minimal_total_pivot_path(phase1_state, art_col_idx, objective_coeff)
++        current_phase = 1
++        phase2_state = None
++        for phase, en, lv in total_path:
++            if phase == 2 and current_phase == 1:
++                phase2_state = remove_artificial_columns(phase1_state, art_col_idx)
++                setup_phase2_objective(phase2_state, objective_coeff)
++                current_phase = 2
++            active_state = phase1_state if current_phase == 1 else phase2_state
++            apply_pivot_by_name(active_state, en, lv)
++            tableau_after = build_log_tableau(active_state)
+             pivot_log.append({
+                 'step': step,
+-                'phase': 1,
++                'phase': phase,
+                 'enter_column': en,
+                 'leave_row': lv,
+                 'tableau': tableau_after
+             })
+             step += 1
++        if current_phase == 1:
++            phase2_state = remove_artificial_columns(phase1_state, art_col_idx)
++            setup_phase2_objective(phase2_state, objective_coeff)
++        final_tableau = build_output_tableau(phase2_state)
++        original_constraint_dicts = [
++            {'coeff': cc, 'op': op, 'rhs': cr}
++            for cc, op, cr in zip(constraints_coeff, constraints_relational_operators, constraints_rhs)
++        ]
++        return {
++            'final_tableau': final_tableau,
++            'problem_report': format_problem_report(objective_coeff, original_constraint_dicts),
++            'basic_variables': extract_final_basic_variables(phase2_state),
++            'degenerate': is_degenerate(phase2_state),
++            'pivot_log': pivot_log
++        }
+     else:
+         # No initial pivots: just simplex normally
+         while not is_optimal_phase(phase1_state):

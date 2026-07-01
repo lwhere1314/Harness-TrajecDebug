@@ -31,9 +31,16 @@ broad to identify the first actionable Phase 1 state transition.
 ## Search Evidence
 
 The MCTS-like repair search was Codex-in-the-loop rather than a single Harbor
-agent trajectory. The bundle keeps the compact artifacts needed to audit the
-claimed reward-1 path:
+agent trajectory. The bundle keeps a row-by-row search trace so each critical
+error step is linked to raw evidence:
 
+- [`search_trace/README.md`](search_trace/README.md) maps each search state to
+  the critical error step it located, the raw logs/probes/diffs, and the
+  resulting verifier footprint.
+- [`search_trace/s0_to_s1_phase1_sign.diff`](search_trace/s0_to_s1_phase1_sign.diff)
+- [`search_trace/s1_to_s2_artificial_cleanup.diff`](search_trace/s1_to_s2_artificial_cleanup.diff)
+- [`search_trace/s2_to_s3_protocol_best_effort.diff`](search_trace/s2_to_s3_protocol_best_effort.diff)
+- [`search_trace/s3_to_s4_global_shortest.diff`](search_trace/s3_to_s4_global_shortest.diff)
 - [`teacher_cards/tb3-cli-2ph-simplex-debug-action.md`](teacher_cards/tb3-cli-2ph-simplex-debug-action.md)
 - [`teacher_cards/tb3-cli-2ph-simplex-debug-action-v2.md`](teacher_cards/tb3-cli-2ph-simplex-debug-action-v2.md)
 - [`teacher_cards/tb3-cli-2ph-simplex-mcts-reward1-path.md`](teacher_cards/tb3-cli-2ph-simplex-mcts-reward1-path.md)

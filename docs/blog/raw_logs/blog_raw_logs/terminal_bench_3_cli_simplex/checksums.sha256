@@ -1,4 +1,4 @@
-6009b021af1085f39a41e8861c776095f32d23692b4603334210beadb4639869  ./README.md
+b343bfe2100663217e87361573ee1674c5bf0a2cb2e434d8e800a5589cc84224  ./README.md
 2b3092d7ed8f92a06d34bca913e212dec67330899c5a0a43c30a57d9b46d5cbe  ./harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629/cli-2ph-simplex__PiTA9w7/agent/claude-code.txt
 791869d79c8822eebc2814b0db0287424a0fe849ffe7230741c1482df04c230e  ./harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629/cli-2ph-simplex__PiTA9w7/agent/trajectory.json
 c5352d27e66db2f70802a3ac73cf3e5325f0c896582dc119b729cfc5fe5360a6  ./harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-seed-plan-20260629/cli-2ph-simplex__PiTA9w7/artifacts/manifest.json
@@ -27,6 +27,11 @@ a21a57439fd09b49d344d804ff390fd425ee4e550d878620af6acec1b81632e0  ./harbor_runs/
 3c4e918720e110ac1aa6c858f27baaaab3ad0d5aa819c41cda2c38c6c3f3244a  ./harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/result.json
 a97fd86e7462ce57c9460a2780da7d57d514a2dc2d7130ed810c15f169e3e0c3  ./search_probes/fuzz2.txt
 4368a9ae51abc8de767420d7107d106c89f41bc58635325d5edf1097f1b42cb1  ./search_probes/ge.txt
+096cb0b147900f2234bfb05b6d7c1b31cbc51b5afc9faae1abfaa78240ed1b1d  ./search_trace/README.md
+d02df9787db58983842a8f97db0257300ae3be75a3a3221d9505062a37a7669f  ./search_trace/s0_to_s1_phase1_sign.diff
+d94e0bdf9d083d41306d826c4b8b1a0c0b5243b3e13f02e2f4b9fbf1763c267d  ./search_trace/s1_to_s2_artificial_cleanup.diff
+3407bc29d678e6d6e1f3b7641d594d9db393d356d0e19c310ef4406f3e9273b5  ./search_trace/s2_to_s3_protocol_best_effort.diff
+1d1e2273544027d8e851f9e45d181e14d7755d7ee4eedba8a6bc64d31d76e717  ./search_trace/s3_to_s4_global_shortest.diff
 fe8816020bfb92687e47d87c65743026ec012993782d2d9da2b7f51dbf0fd35b  ./teacher_cards/tb3-cli-2ph-simplex-debug-action-v2.md
 7be2f9d9aa18ce5542db516d19333e7357f165342bf8855dc9a88c5eb85226d7  ./teacher_cards/tb3-cli-2ph-simplex-debug-action.md
 1f33f606f7cf2b2339c2a321652fe737e26a042dc667e378ad69b3878517bd6f  ./teacher_cards/tb3-cli-2ph-simplex-mcts-reward1-path.md

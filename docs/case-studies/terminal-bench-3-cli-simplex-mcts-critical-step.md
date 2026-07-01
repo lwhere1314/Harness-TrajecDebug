@@ -97,13 +97,15 @@ When that state was mounted as `/app`, the official verifier tests passed:
 103 passed in 4.69s
 ```
 
-| Search state | Action | Verifier footprint |
-| --- | --- | --- |
-| `s0_baseline` | failed first TD artifact | `63 failed, 40 passed` |
-| `s1_phase1_sign` | fix artificial objective sign | `12 failed, 91 passed` |
-| `s2_artificial_cleanup` | pivot zero-valued artificial basics out before dropping artificial columns | `7 failed, 96 passed` |
-| `s3_protocol_best_effort` | fix Decimal rounding, literal traceback behavior, and infeasible best-effort output | `2 failed, 101 passed` |
-| `s4_global_shortest` | search globally over Phase 1 plus Phase 2 pivot count | `103 passed` when mounted as `/app` |
+| Search state | Critical error step located | Raw logs / evidence | Result |
+| --- | --- | --- | --- |
+| `s0_baseline` | First interactive TD artifact still failed; the injected card named the broad simplex area but not a committed wrong transition. | [`TD trajectory`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/agent/trajectory.json), [`TD transcript`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/agent/claude-code.txt), [`verifier stdout`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/harbor_runs/tb3-cli-2ph-simplex-claude-code-claude-opus-4-7-td-icl-20260701/cli-2ph-simplex__2QHadn3/verifier/test-stdout.txt) | `63 failed, 40 passed` |
+| `s1_phase1_sign` | **Critical Step 1:** Phase 1 artificial objective sign was inverted in `simplex/tableau.py::build_initial_tableau`. | [`ge_bound_respected probe`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_probes/ge.txt), [`s0 -> s1 raw diff`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/s0_to_s1_phase1_sign.diff), [`reward path card`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/teacher_cards/tb3-cli-2ph-simplex-mcts-reward1-path.md) | `12 failed, 91 passed` |
+| `s2_artificial_cleanup` | **Critical Step 2:** zero-valued artificial basics were dropped instead of pivoted out before removing artificial columns. | [`bounded_fuzz_2 probe`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_probes/fuzz2.txt), [`s1 -> s2 raw diff`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/s1_to_s2_artificial_cleanup.diff), [`reward path card`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/teacher_cards/tb3-cli-2ph-simplex-mcts-reward1-path.md) | `7 failed, 96 passed` |
+| `s3_protocol_best_effort` | **Critical Step 3:** remaining failures were protocol mismatches: Decimal rounding, literal traceback behavior, and infeasible best-effort output. | [`s2 -> s3 raw diff`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/s2_to_s3_protocol_best_effort.diff), [`debug-action v2`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/teacher_cards/tb3-cli-2ph-simplex-debug-action-v2.md), [`search trace README`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/README.md) | `2 failed, 101 passed` |
+| `s4_global_shortest` | **Critical Step 4:** `--initial_pivots` minimized Phase 1 and Phase 2 locally rather than the global logged pivot count. | [`s3 -> s4 raw diff`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/s3_to_s4_global_shortest.diff), [`reward path card`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/teacher_cards/tb3-cli-2ph-simplex-mcts-reward1-path.md), [`search trace README`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/README.md) | `103 passed` when mounted as `/app` |
+
+For a compact evidence map, see [`search_trace/README.md`](../blog/raw_logs/blog_raw_logs/terminal_bench_3_cli_simplex/search_trace/README.md).
 
 The intermediate `s3` count included a host-only `/app/lp_solve` preservation
 failure caused by running outside the task container. Mounting the searched state

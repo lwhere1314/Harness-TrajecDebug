@@ -1,0 +1,12 @@
+diff -ru '--exclude=__pycache__' '--exclude=*.pyc' states/s0_baseline/simplex/tableau.py states/s1_phase1_sign/simplex/tableau.py
+--- states/s0_baseline/simplex/tableau.py	2026-07-01 17:24:38.000000000 +0800
++++ states/s1_phase1_sign/simplex/tableau.py	2026-07-01 20:39:27.011265720 +0800
+@@ -155,7 +155,7 @@
+
+     for a_name in artificial_column_names:
+         col = art_col_idx[a_name]
+-        data[obj_row][col] = -1.0
++        data[obj_row][col] = 1.0
+
+     for a_name in artificial_column_names:
+         if a_name in basic_vars:

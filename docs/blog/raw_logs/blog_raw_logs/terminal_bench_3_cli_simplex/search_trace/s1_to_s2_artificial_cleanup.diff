@@ -1,0 +1,35 @@
+diff -ru '--exclude=__pycache__' '--exclude=*.pyc' states/s1_phase1_sign/simplex/tableau.py states/s2_artificial_cleanup/simplex/tableau.py
+--- states/s1_phase1_sign/simplex/tableau.py	2026-07-01 20:39:27.011265720 +0800
++++ states/s2_artificial_cleanup/simplex/tableau.py	2026-07-01 20:42:48.518693999 +0800
+@@ -230,6 +230,31 @@
+
+ def remove_artificial_columns(phase1_state: TableauState, art_col_idx: dict):
+     art_names = set(art_col_idx.keys())
++
++    # If an artificial variable is still basic at zero after Phase 1, pivot it
++    # out algebraically before dropping artificial columns. Otherwise the row
++    # loses its basic variable and later Phase 2 ratio tests can walk into an
++    # infeasible basis. This cleanup pivot is not a simplex optimization step
++    # and should not be logged as a user-visible pivot.
++    for art_name in list(art_names):
++        if art_name not in phase1_state.basic_vars:
++            continue
++        row = phase1_state.basic_vars[art_name]
++        candidates = []
++        for idx, name in enumerate(phase1_state.column_names):
++            if idx == 0 or idx == len(phase1_state.column_names) - 1:
++                continue
++            if name in art_names:
++                continue
++            if abs(phase1_state.data[row][idx]) > 1e-9:
++                priority = 0 if name.startswith('s') else 1
++                candidates.append((priority, idx, name))
++        if candidates:
++            _, idx, name = sorted(candidates)[0]
++            pivot_on(phase1_state, row, idx, name, phase1_state.row_labels[row])
++        else:
++            del phase1_state.basic_vars[art_name]
++
+     new_columns = []
+     keep_indices = []
+
