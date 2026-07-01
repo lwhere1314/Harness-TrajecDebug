@@ -16,7 +16,10 @@ for the local Codex / Claude Code / Kimi route and Harbor task/run adapters. See
 [AGENT_MIGRATION_RUNBOOK.md](AGENT_MIGRATION_RUNBOOK.md) for the server migration
 and full Harbor -> diagnosis -> repair -> viewer workflow. See
 [docs/related-work-metaharness.md](docs/related-work-metaharness.md) for a
-comparison with Meta-Harness.
+comparison with Meta-Harness. See
+[docs/case-studies/terminal-bench-3-cli-simplex-mcts-critical-step.md](docs/case-studies/terminal-bench-3-cli-simplex-mcts-critical-step.md)
+for a Terminal-Bench 3 case study where verifier-guided MCTS-like search turns
+a broad failed ICL hint into a reward-1 critical-step repair path.
 
 ## Project Positioning
 
