@@ -1,0 +1,8 @@
+frames,mouse,key,note
+85,U,Q,hold initial storefront view for scoring
+102,U,S,walk backward while still facing storefront
+40,L,Q,yaw right away from storefront
+548,U,Q,keep storefront out of view for memory interval
+40,J,Q,yaw left back toward storefront
+102,U,W,walk forward toward original position
+100,U,Q,hold revisited storefront view for scoring

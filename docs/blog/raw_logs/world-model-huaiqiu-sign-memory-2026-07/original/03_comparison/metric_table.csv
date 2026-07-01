@@ -1,0 +1,5 @@
+system,setting,video_group,T_exact,T_readable,T_garbled,S_60,verdict,notes
+Genie3,free navigation,槐楸_genie3_01/02,~5s,~10-20s,~60s,"~(1,2)",Medium/Weak,"短时可读，60秒附近店面/招牌感仍在但槐楸文字乱码"
+Matrix-Game 3.0,prompt-only uncontrolled,huaiqiu_mg3_memory_01/02,0s,0s,NA,NA,Invalid,"没有按prompt回到店面，主要暴露轨迹可控性问题"
+Matrix-Game 3.0,action-controlled yaw return,huaiqiu_action_yaw_right_return_60s,59s,59s,NA,"(3,3)",Strong,"原地转头离开再回访，60秒附近槐楸仍清楚可读"
+Matrix-Game 3.0,action-controlled retreat+yaw return,huaiqiu_action_retreat_yaw_return_60s,5s,59s,NA,"(2,2)",Medium/Strong,"包含位移闭环，60秒附近仍可认但文字/构图有变形"

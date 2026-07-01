@@ -1,1 +1,2 @@
 docs/case-studies/**/raw-logs/*.tar.zst filter=lfs diff=lfs merge=lfs -text
+docs/blog/raw_logs/**/*.mp4 filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,17 @@
+system,video,action_protocol,video_duration_s,trajectory_matched,time_s,visible_state,revisit_score,text_score,identity_score,geometry_score,temporal_stability,offscreen_gap_s,confusion_flag,notes
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,0,visible,3,3,3,3,3,0,none,first frame reference
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,5,,,,,,,,,
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,10,,,,,,,,,
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,15,,,,,,,,,
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,20,,,,,,,,,
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,30,,,,,,,,,
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,45,,,,,,,,,
+Genie3,槐楸_genie3_01.mp4,free_navigation,71.2,no,60,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,0,visible,3,3,3,3,3,0,none,first frame reference
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,5,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,10,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,15,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,20,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,30,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,45,,,,,,,,,
+Matrix-Game 3.0,huaiqiu_action_yaw_right_return_60s.mp4,yaw_return_60s,59.8,no,60,,,,,,,,,

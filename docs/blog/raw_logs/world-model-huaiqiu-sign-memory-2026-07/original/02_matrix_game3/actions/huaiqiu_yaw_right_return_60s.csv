@@ -1,0 +1,6 @@
+frames,mouse,key,note
+57,U,Q,hold the initial 槐楸 storefront view
+40,L,Q,yaw right until the storefront leaves the view
+700,U,Q,keep looking away for the memory interval
+40,J,Q,yaw left back to the original storefront direction
+180,U,Q,hold the revisited storefront view near the end
