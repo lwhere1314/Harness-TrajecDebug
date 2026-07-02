@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Harness-TrajecDebug overview</title>
+  <desc id="desc">A three-part overview showing how reward-only benchmark results discard process evidence, how TrajectoryDebug converts traces into Debug-Action cards, and how those cards are injected into later agent runs.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 32px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel-title { font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
+      .panel-note { font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; }
+      .box { fill: #ffffff; stroke: #94a3b8; stroke-width: 1.3; }
+      .box-blue { fill: #eff6ff; stroke: #2563eb; }
+      .box-teal { fill: #f0fdfa; stroke: #0f766e; }
+      .box-amber { fill: #fffbeb; stroke: #d97706; }
+      .box-rose { fill: #fff1f2; stroke: #e11d48; }
+      .box-slate { fill: #f8fafc; stroke: #64748b; }
+      .box-title { font: 700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+      .box-text { font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 600 12px "SFMono-Regular", Consolas, monospace; fill: #334155; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrow-blue { stroke: #2563eb; stroke-width: 2.4; fill: none; marker-end: url(#arrowBlue); }
+      .arrow-teal { stroke: #0f766e; stroke-width: 2.4; fill: none; marker-end: url(#arrowTeal); }
+      .arrow-dashed { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrowGray); }
+      .label { font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; }
+      .small { font: 400 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #64748b; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1280" height="720"/>
+  <text class="title" x="60" y="58">Harness-TrajecDebug</text>
+  <text class="subtitle" x="60" y="88">From scalar benchmark failures to reusable, runtime-injected debugging evidence.</text>
+
+  <rect class="panel" x="45" y="125" width="365" height="520" rx="18"/>
+  <text class="panel-title" x="73" y="165">1. Reward-only benchmark view</text>
+  <text class="panel-note" x="73" y="187">Good for scoring, weak for explaining.</text>
+
+  <rect class="box box-blue" x="78" y="222" width="170" height="58" rx="12"/>
+  <text class="box-title" x="108" y="246">Agent run</text>
+  <text class="box-text" x="107" y="265">commands + files</text>
+  <path class="arrow" d="M 163 280 L 163 318"/>
+
+  <rect class="box box-slate" x="78" y="318" width="170" height="58" rx="12"/>
+  <text class="box-title" x="130" y="342">Verifier</text>
+  <text class="box-text" x="104" y="361">task tests + reward</text>
+  <path class="arrow" d="M 163 376 L 163 414"/>
+
+  <rect class="box box-rose" x="78" y="414" width="170" height="58" rx="12"/>
+  <text class="box-title" x="112" y="438">Scalar reward</text>
+  <text class="box-text" x="111" y="457">pass / fail only</text>
+  <path class="arrow" d="M 163 472 L 163 510"/>
+
+  <rect class="box box-slate" x="78" y="510" width="170" height="58" rx="12"/>
+  <text class="box-title" x="103" y="534">Leaderboard</text>
+  <text class="box-text" x="105" y="553">what, not why</text>
+
+  <rect class="box box-amber" x="270" y="222" width="112" height="154" rx="12"/>
+  <text class="box-title" x="296" y="250">Process</text>
+  <text class="box-title" x="294" y="269">evidence</text>
+  <text class="box-text" x="291" y="300">critical</text>
+  <text class="box-text" x="291" y="318">decision</text>
+  <text class="box-text" x="291" y="342">artifact</text>
+  <text class="box-text" x="291" y="366">validation</text>
+  <path class="arrow-dashed" d="M 326 376 C 326 426 352 444 336 490"/>
+  <text class="small" x="291" y="415">usually lost</text>
+
+  <rect class="panel" x="457" y="125" width="365" height="520" rx="18"/>
+  <text class="panel-title" x="485" y="165">2. TrajectoryDebug SKILL</text>
+  <text class="mono" x="485" y="187">skills/trajectorydebug/SKILL.md</text>
+
+  <rect class="box box-teal" x="535" y="218" width="210" height="50" rx="12"/>
+  <text class="box-title" x="584" y="242">Normalize trace</text>
+  <text class="box-text" x="573" y="259">agent log + verifier output</text>
+  <path class="arrow-teal" d="M 640 268 L 640 302"/>
+
+  <rect class="box box-teal" x="535" y="302" width="210" height="50" rx="12"/>
+  <text class="box-title" x="567" y="326">Extract evidence</text>
+  <text class="box-text" x="560" y="343">state, references, commitments</text>
+  <path class="arrow-teal" d="M 640 352 L 640 386"/>
+
+  <rect class="box box-teal" x="535" y="386" width="210" height="50" rx="12"/>
+  <text class="box-title" x="559" y="410">Locate critical step</text>
+  <text class="box-text" x="565" y="427">the decisive failure boundary</text>
+  <path class="arrow-teal" d="M 640 436 L 640 470"/>
+
+  <rect class="box box-teal" x="535" y="470" width="210" height="50" rx="12"/>
+  <text class="box-title" x="556" y="494">Classify failure pattern</text>
+  <text class="box-text" x="566" y="511">taxonomy-backed diagnosis</text>
+  <path class="arrow-teal" d="M 640 520 L 640 554"/>
+
+  <rect class="box box-blue" x="535" y="554" width="210" height="58" rx="12"/>
+  <text class="box-title" x="555" y="579">Debug-Action card</text>
+  <text class="box-text" x="563" y="598">compact repair context</text>
+
+  <rect class="panel" x="869" y="125" width="365" height="520" rx="18"/>
+  <text class="panel-title" x="897" y="165">3. Runtime reuse</text>
+  <text class="panel-note" x="897" y="187">Inject the repair signal where the agent acts.</text>
+
+  <rect class="box box-rose" x="952" y="222" width="205" height="54" rx="12"/>
+  <text class="box-title" x="993" y="246">No-TD run fails</text>
+  <text class="box-text" x="997" y="263">reward 0 / verifier fail</text>
+  <path class="arrow" d="M 1054 276 L 1054 312"/>
+
+  <rect class="box box-blue" x="952" y="312" width="205" height="62" rx="12"/>
+  <text class="box-title" x="974" y="338">Inject Debug-Action</text>
+  <text class="box-text" x="984" y="357">PreToolUse / runtime ICL</text>
+  <path class="arrow-blue" d="M 1054 374 L 1054 414"/>
+
+  <rect class="box box-blue" x="952" y="414" width="205" height="54" rx="12"/>
+  <text class="box-title" x="1000" y="438">Next run</text>
+  <text class="box-text" x="979" y="455">same harness, bounded context</text>
+  <path class="arrow" d="M 1054 468 L 1054 506"/>
+
+  <rect class="box box-teal" x="952" y="506" width="205" height="54" rx="12"/>
+  <text class="box-title" x="994" y="530">Verifier evidence</text>
+  <text class="box-text" x="1001" y="547">pass or diagnose again</text>
+
+  <path class="arrow-blue" d="M 745 584 C 808 584 850 346 952 346"/>
+  <text class="label" x="796" y="454">runtime card</text>
+  <path class="arrow-teal" d="M 1054 560 C 1054 635 820 635 640 635 C 520 635 510 570 510 411"/>
+  <text class="label" x="642" y="660">closed-loop evidence</text>
+
+  <path class="arrow-blue" d="M 382 299 C 418 299 438 244 535 244"/>
+  <text class="label" x="394" y="274">recover process evidence</text>
+
+  <rect x="60" y="666" width="1160" height="1" fill="#cbd5e1"/>
+  <text class="small" x="60" y="694">Core entry: plugins/harness-trajdebug-agent/skills/trajectorydebug/SKILL.md</text>
+</svg>
