@@ -12,17 +12,7 @@ Terminal-agent benchmarks usually end with a scalar reward: the verifier passed
 or failed. That is useful for scoring, but it throws away the most valuable
 part of the run: the process evidence that explains why the agent failed.
 
-```mermaid
-flowchart LR
-  run["Terminal-agent run"] --> verifier["Verifier"]
-  verifier --> reward["Scalar reward: pass / fail"]
-  run --> evidence["Process evidence"]
-  evidence --> decision["Critical decision"]
-  evidence --> artifact["Artifact state"]
-  evidence --> validation["Validation signal"]
-  reward --> leaderboard["Benchmark score"]
-  evidence --> lost["Usually discarded"]
-```
+![Harness-TrajecDebug overview](docs/assets/harness-trajecdebug-overview.svg)
 
 The same failure often repeats across agents and models. A trace may show the
 exact decision boundary where the agent chose the wrong artifact, trusted a
@@ -30,33 +20,10 @@ weak validation signal, entered a tool loop, or optimized the wrong metric. If
 that evidence is preserved and normalized, it can become reusable debugging
 context instead of one more failed run in a log directory.
 
-Harness-TrajecDebug is built around that idea:
-
-```mermaid
-flowchart LR
-  trace["Raw trajectory"] --> normalize["Normalize trace"]
-  verifier_log["Verifier output"] --> normalize
-  normalize --> process["Extract process evidence"]
-  process --> step["Locate critical step"]
-  step --> pattern["Classify failure pattern"]
-  pattern --> repair["Synthesize repair action"]
-  repair --> card["Debug-Action card"]
-```
-
-The card is useful because it can be injected at the next decision point
-instead of being left as an offline explanation:
-
-```mermaid
-flowchart TD
-  fail["No-TD run fails"] --> diagnose["TrajectoryDebug diagnosis"]
-  diagnose --> card["Debug-Action card"]
-  card --> inject["with-TD runtime injection"]
-  inject --> next_run["Next agent run"]
-  next_run --> verifier2["Verifier evidence"]
-  verifier2 --> passed["Pass / evidence bundle"]
-  verifier2 --> still_failing["Still failing"]
-  still_failing --> diagnose
-```
+Harness-TrajecDebug is built around a closed loop: recover the process evidence
+that reward-only benchmarks discard, localize the critical step through the
+TrajectoryDebug SKILL, synthesize a Debug-Action card, and inject that card
+back into a later run at the next decision point.
 
 The project deliberately stays harness-agnostic. Harbor, Terminal-Bench,
 Meta-Harness-style runners, Claude Code, Codex, and Kimi Code still own task
