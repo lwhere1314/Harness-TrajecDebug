@@ -1,0 +1,73 @@
+{
+  "iteration": 0,
+  "status": "route_a_cancel_reward_0_claude_adaptation_cancel_reward_1_query_optimize_shows_route_a_positive_and_claude_adaptation_incorrect",
+  "endpoint_profile": "seed-agent-plan",
+  "target_model": "kimi-k2.6",
+  "task_specific_hints_allowed": false,
+  "candidates": [
+    {
+      "route": "A",
+      "name": "route_a_terminus_general_review",
+      "import_path": "meta_harness_dual_route.agents.route_a_terminus_general_review:AgentHarness",
+      "base_harness": "Terminus2",
+      "hypothesis": "A generic final reliability review can improve harness robustness without task-specific failure hints.",
+      "changes": "Append a general review checklist to the Terminal-Bench instruction and completion confirmation.",
+      "upstream_faithfulness": "Upstream-shaped AgentHarness subclass for Terminal-Bench-style evaluation.",
+      "current_canary": {
+        "task": "cancel-async-tasks",
+        "job": "artifacts/meta_harness_dual_route/runs/mh-route-a-review-eval-patched-verifier-20260617T122331",
+        "trial": "cancel-async-tasks-local-image__uXTf3hM",
+        "reward_file": "artifacts/meta_harness_dual_route/runs/mh-route-a-review-eval-patched-verifier-20260617T122331/cancel-async-tasks-local-image__uXTf3hM/verifier/reward.txt",
+        "semantic_reward": 0,
+        "verifier": "5 passed, 1 failed: test_tasks_cancel_above_max_concurrent",
+        "harbor_result_caveat": "result.json records RewardFileNotFoundError even though verifier/reward.txt exists with 0"
+      }
+    },
+    {
+      "route": "claude-adaptation",
+      "name": "claude_code_generic_review_adaptation",
+      "import_path": "meta_harness_dual_route.agents.claude_code_generic_review_adaptation:AgentHarness",
+      "legacy_import_path": "meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness",
+      "base_harness": "ClaudeCode",
+      "hypothesis": "A generic Claude Code wrapper can be compared against the Claude Code baseline while keeping the intervention harness-level.",
+      "changes": "Append a general review checklist, avoid copying local Claude skills, and pass container proxy variables to the agent process.",
+      "upstream_faithfulness": "Diagnostic Claude Code adaptation only; not a faithful upstream Terminal-Bench AgentHarness reproduction and not valid to report as original Meta-Harness.",
+      "query_optimize_correction": "Baseline Claude Code + kimi-k2.6 passes query-optimize, while this adaptation fails the runtime gate. Treat as an incorrect or incomplete adaptation until redesigned.",
+      "current_canary": {
+        "task": "cancel-async-tasks",
+        "job": "/Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem",
+        "raw_log_copy": "experiments/meta_harness_dual_route/raw_logs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem",
+        "trial": "cancel-async-tasks-local-image__WhiKr2r",
+        "reward_file": "experiments/meta_harness_dual_route/raw_logs/mh-route-b-fulltools-cancel-async-tasks-local-image-kimi-k2.6-20260617T132307-docs-defaultmem/cancel-async-tasks-local-image__WhiKr2r/verifier/reward.txt",
+        "semantic_reward": 1,
+        "verifier": "6 passed, 0 failed",
+        "agent_execution_sec": 81.531815,
+        "verifier_sec": 15.585212,
+        "input_tokens": 272222,
+        "output_tokens": 10556,
+        "cache_tokens": 0,
+        "claude_code_version": "2.1.157",
+        "environment": "force_build=false, delete=false",
+        "runtime_caveat": "Earlier Route B 137 failures were caused by a local background guard killing docker processes whose cwd was /Users/hugo/Projects/Harness-TrajecDebug; clean runs must use a non-guarded shared path such as /Users/hugo/Documents/meta-harness-routeb-run."
+      },
+      "matched_infra_control": {
+        "task": "cancel-async-tasks",
+        "job": "/Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-control-claudecode-infra-noforce-cancel-async-tasks-local-image-kimi-k2.6-20260617T135955-samecc",
+        "raw_log_copy": "experiments/meta_harness_dual_route/raw_logs/mh-control-claudecode-infra-noforce-cancel-async-tasks-local-image-kimi-k2.6-20260617T135955-samecc",
+        "trial": "cancel-async-tasks-local-image__PABiFip",
+        "reward_file": "experiments/meta_harness_dual_route/raw_logs/mh-control-claudecode-infra-noforce-cancel-async-tasks-local-image-kimi-k2.6-20260617T135955-samecc/cancel-async-tasks-local-image__PABiFip/verifier/reward.txt",
+        "semantic_reward": 0,
+        "verifier": "5 passed, 1 failed: test_tasks_cancel_above_max_concurrent",
+        "agent_execution_sec": 148.996487,
+        "verifier_sec": 15.785449,
+        "input_tokens": 183738,
+        "output_tokens": 8754,
+        "cache_tokens": 0,
+        "claude_code_version": "2.1.157",
+        "environment": "force_build=false, delete=false",
+        "task_checksum": "5cc3ebd1ef601c07cece27fda6ed71bf3af372e447c6ad8cbf989e4391be1348",
+        "control_definition": "same Route B infra proxy/session behavior, no generic review prompt"
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+    "id": "ba3c91a1-bc41-4f72-b763-2a1cc8937be3",
+    "started_at": "2026-06-17T12:23:40.515493",
+    "finished_at": "2026-06-17T12:27:38.954224",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 1,
+        "evals": {
+            "terminus-2__kimi-k2.6__adhoc": {
+                "n_trials": 0,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "reward_stats": {},
+                "exception_stats": {
+                    "RewardFileNotFoundError": [
+                        "cancel-async-tasks-local-image__uXTf3hM"
+                    ]
+                }
+            }
+        }
+    }
+}

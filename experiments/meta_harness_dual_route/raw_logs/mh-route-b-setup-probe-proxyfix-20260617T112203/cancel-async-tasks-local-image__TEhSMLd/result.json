@@ -1,0 +1,81 @@
+{
+    "id": "d72ad145-fb85-4871-a7e0-49c76f065433",
+    "task_name": "cancel-async-tasks-local-image",
+    "trial_name": "cancel-async-tasks-local-image__TEhSMLd",
+    "trial_uri": "file:///Users/hugo/Projects/Harness-TrajecDebug/artifacts/meta_harness_dual_route/runs/mh-route-b-setup-probe-proxyfix-20260617T112203/cancel-async-tasks-local-image__TEhSMLd",
+    "task_id": {
+        "path": "artifacts/meta_harness_dual_route/tasks/cancel-async-tasks-local-image"
+    },
+    "source": null,
+    "task_checksum": "5c382ff9efcb44154a2aca77c9acc2c8b2e76b8a3be37c17371bd3cf1a18d8b1",
+    "config": {
+        "task": {
+            "path": "artifacts/meta_harness_dual_route/tasks/cancel-async-tasks-local-image",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "cancel-async-tasks-local-image__TEhSMLd",
+        "trials_dir": "artifacts/meta_harness_dual_route/runs/mh-route-b-setup-probe-proxyfix-20260617T112203",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "meta_harness_dual_route.agents.route_b_claudecode_general_review:AgentHarness",
+            "model_name": "kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": true
+        },
+        "job_id": "ce4eee74-16fd-467e-ace1-a14f61ecbc76"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 0,
+        "n_cache_tokens": 0,
+        "n_output_tokens": 0,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": null,
+    "exception_info": null,
+    "started_at": "2026-06-17T03:22:12.330102Z",
+    "finished_at": "2026-06-17T03:22:34.924326Z",
+    "environment_setup": {
+        "started_at": "2026-06-17T03:22:12.331832Z",
+        "finished_at": "2026-06-17T03:22:12.700756Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-17T03:22:12.700844Z",
+        "finished_at": "2026-06-17T03:22:14.253308Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-17T03:22:14.253435Z",
+        "finished_at": "2026-06-17T03:22:24.074409Z"
+    },
+    "verifier": null
+}

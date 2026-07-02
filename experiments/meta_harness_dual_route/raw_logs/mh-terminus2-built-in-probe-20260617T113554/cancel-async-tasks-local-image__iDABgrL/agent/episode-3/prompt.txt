@@ -1,0 +1,31 @@
+New Terminal Output:
+
+root@a96c151f54fe:/app# python3 -c "
+> import asyncio
+> from run import run_tasks
+>
+> results = []
+>
+> async def task1():
+>     results.append('task1 start')
+>     await asyncio.sleep(0.1)
+>     results.append('task1 end')
+>
+> async def task2():
+>     results.append('task2 start')
+>     await asyncio.sleep(0.1)
+>     results.append('task2 end')
+>
+> async def task_with_cleanup():
+>     try:
+>         results.append('cleanup start')
+>         await asyncio.sleep(0.2)
+>         results.append('cleanup middle')
+>     finally:
+>         results.append('cleanup finally')
+>
+> asyncio.run(run_tasks([task1, task2, task_with_cleanup], max_concurrent=2))
+> print('Results:', results)
+> "
+Results: ['task1 start', 'task2 start', 'task1 end', 'task2 end', 'cleanup start', 'cleanup middle', 'cleanup finally']
+root@a96c151f54fe:/app#

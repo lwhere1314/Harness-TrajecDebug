@@ -1,0 +1,6 @@
+New Terminal Output:
+
+root@cde43f0fd2a5:/app# sqlite3 /app/oewn.sqlite < /app/my-sql-query.sql > /tmp/orig_out.txt
+diff /tmp/opt_out.txt /tmp/orig_out.txt
+wc -l /tmp/opt_out.txt /tmp/orig_out.txt
+

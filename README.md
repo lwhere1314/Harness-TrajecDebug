@@ -1,31 +1,65 @@
 # Harness-TrajecDebug
 
+Repository: <https://github.com/lwhere1314/Harness-TrajecDebug>
+
 Harness-TrajecDebug is a harness-agnostic trajectory debugging layer for
 terminal agents. It reads raw agent traces plus verifier output, localizes the
-critical failure step, emits repair evidence, and turns that evidence into
-runtime Debug-Action cards that can be injected into future agent runs.
+critical failure step, and turns that evidence into Debug-Action cards that can
+be injected into future runs.
 
-The product direction is not "another benchmark harness." The goal is a plugin
-interface that Harbor, Terminal-Bench, Meta-Harness-style runners, Claude Code,
-Codex, and Kimi Code can call to:
+It is not another benchmark harness. Harbor, Terminal-Bench, Meta-Harness-style
+runners, Claude Code, Codex, and Kimi Code keep owning task execution; this
+project owns trace normalization, failure diagnosis, repair-card selection,
+runtime injection, and evidence export.
 
-- run or import experiments,
-- preserve raw traces and verifier footprints,
-- diagnose failures into critical-step evidence,
-- select or synthesize Debug-Action cards,
-- rerun with runtime ICL injection,
-- export reproducible evidence bundles.
+## Start Here
 
-## Demo
+| Need | Entry |
+| --- | --- |
+| See the end-to-end story | [`demo/README.md`](demo/README.md) |
+| Run the compact demo | `HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded` |
+| Use the agent SKILL | [`plugins/harness-trajdebug-agent/skills/trajectorydebug/SKILL.md`](plugins/harness-trajdebug-agent/skills/trajectorydebug/SKILL.md) |
+| Run no-TD versus with-TD canaries | [`plugins/harness-trajdebug-agent/skills/harness-runtime-icl/SKILL.md`](plugins/harness-trajdebug-agent/skills/harness-runtime-icl/SKILL.md) |
+| Install Claude/Codex/Kimi skill shims | [`docs/agent-plugin.md`](docs/agent-plugin.md) |
+| Read case studies and evidence bundles | [`docs/case-studies/README.md`](docs/case-studies/README.md) |
+| Understand the diagnosis model | [`docs/framework.md`](docs/framework.md) and [`docs/failure-taxonomy.md`](docs/failure-taxonomy.md) |
 
-The fastest way to understand the project is the top-level demo:
+## What It Does
+
+Harness-TrajecDebug follows one trace through a conservative evidence pipeline:
+
+```text
+trace + verifier output
+  -> reference view
+  -> state view
+  -> commitment / decision evidence
+  -> failure pattern
+  -> critical step
+  -> repair hint
+  -> Debug-Action card / runtime ICL signal
+```
+
+The framework only emits a concrete failure pattern when the trace contains
+process evidence and the final verifier footprint supports the diagnosis.
+
+Current primary use cases:
+
+- diagnose Harbor, Terminal-Bench, Claude Code, Codex, and Kimi Code runs,
+- preserve raw traces, verifier logs, rewards, artifacts, and diagnosis JSON,
+- generate or select Debug-Action cards from critical-step evidence,
+- compare no-TD versus with-TD runtime ICL runs,
+- export reproducible bundles for reports and case studies.
+
+## Quick Demo
+
+Install the package, then run the recorded `query-optimize` demo:
 
 ```bash
-cd Harness-TrajecDebug
+python3 -m pip install -e .
 HTD_DEMO_PAUSE=1 plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --recorded
 ```
 
-This shows the complete story on one Terminal-Bench / Harbor task:
+The demo shows:
 
 ```text
 first agent run fails
@@ -36,86 +70,81 @@ first agent run fails
 -> verifier passes
 ```
 
-For a real rerun of the second attempt:
+For a live second attempt with a failure-derived card:
 
 ```bash
-HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
-  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live
-```
-
-For a fail-teacher demo where the injected card is derived from reward-0 data,
-the recommended recording command is:
-
-```bash
-# Uses checked-in failed teacher evidence, then runs the second attempt live.
 HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
   plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-fail-teacher
 ```
 
-For research/debugging, there is also a slower full-live mode:
+Recording notes, expected terminal output, Docker warm-run policy, and
+agent-specific smoke checks are in [`demo/README.md`](demo/README.md).
+
+## Agent Skill Entrances
+
+The canonical skill source lives under the plugin package:
+
+| Skill | Purpose |
+| --- | --- |
+| [`trajectorydebug`](plugins/harness-trajdebug-agent/skills/trajectorydebug/SKILL.md) | Diagnose existing runs, localize failures, review reward/verifier evidence, select next actions. |
+| [`harness-runtime-icl`](plugins/harness-trajdebug-agent/skills/harness-runtime-icl/SKILL.md) | Run runtime ICL canaries and compare no-TD versus with-TD evidence. |
+
+Install project-local shims for Claude Code, Codex, and Kimi Code:
 
 ```bash
-# Runs a fresh first failure, generates a fail-teacher card, then reruns live.
-HTD_DEMO_PAUSE=1 HTD_DEMO_NO_FORCE_BUILD=1 HTD_DEMO_KEEP_ENVIRONMENT=1 \
-  plugins/harness-trajdebug-agent/scripts/htd-agent demo query-optimize --live-full-fail-teacher
+python3 scripts/install_agent_plugin.py
 ```
 
-For Claude Code or other agent-driven recordings, add `--compact` or set
-`HTD_DEMO_COMPACT=1` so long Harbor logs are written to files while the terminal
-shows the reward, diagnosis, card closure, injection count, and verifier
-summary.
+Installed shim locations:
 
-Live modes reuse warm Harbor / Terminal-Bench Docker images by default. During
-the `query-optimize` recording demo, `HTD_DEMO_TAG_LOCAL_HB_PREBUILT=1` also
-tags the local `hb__query-optimize:latest` image to the task `docker_image`
-name so Harbor's no-force path uses the Python/pip-capable image required by
-`sdk_live`. Set `HTD_DEMO_KEEP_ENVIRONMENT=1` during recording if you want
-Harbor containers to remain available after the run. Cold Docker builds,
-missing Python/pip inside the target image, or concurrent Harbor jobs are
-infrastructure failures, not Harness-TrajecDebug algorithm failures.
-
-The demo material lives in [`demo/`](demo/):
-
-| File | Purpose |
+| Surface | Local entry |
 | --- | --- |
-| [`demo/README.md`](demo/README.md) | Recording SOP, scene-by-scene narration, expected terminal output. |
-| [`demo/query-optimize-trace-to-card.sh`](demo/query-optimize-trace-to-card.sh) | One-command recorded, live, fail-teacher, and full-live demo runner. |
+| Claude Code | [`.claude/skills/trajectorydebug/SKILL.md`](.claude/skills/trajectorydebug/SKILL.md), [`.claude/skills/harness-runtime-icl/SKILL.md`](.claude/skills/harness-runtime-icl/SKILL.md) |
+| Codex / agents | [`.agents/skills/trajectorydebug/SKILL.md`](.agents/skills/trajectorydebug/SKILL.md), [`.agents/skills/harness-runtime-icl/SKILL.md`](.agents/skills/harness-runtime-icl/SKILL.md) |
+| Kimi Code | [`.kimi-code/skills/trajectorydebug/SKILL.md`](.kimi-code/skills/trajectorydebug/SKILL.md), [`.kimi-code/skills/harness-runtime-icl/SKILL.md`](.kimi-code/skills/harness-runtime-icl/SKILL.md) |
+| Codex plugin source | [`plugins/harness-trajdebug-agent/.codex-plugin/plugin.json`](plugins/harness-trajdebug-agent/.codex-plugin/plugin.json) |
+| Kimi plugin source | [`plugins/harness-trajdebug-agent/kimi.plugin.json`](plugins/harness-trajdebug-agent/kimi.plugin.json) |
 
-Expected evidence from the demo:
+Typical agent prompts:
 
-| Stage | Evidence |
+```text
+/trajectorydebug diagnose this Harbor run
+/harness-runtime-icl run a no-TD versus with-TD canary
+```
+
+Full compatibility notes are in [`docs/agent-plugin.md`](docs/agent-plugin.md)
+and [`docs/integrations.md`](docs/integrations.md).
+
+## Case Studies
+
+Use [`docs/case-studies/README.md`](docs/case-studies/README.md) as the case
+study entry point. It links to the main reports, metrics, repair briefs, and
+raw-log archives.
+
+High-signal entries:
+
+| Case | Entry |
 | --- | --- |
-| First run | `reward=0`, `5 passed, 1 failed`, runtime gate fails |
-| Diagnosis | `critical_step: pattern=budget debt loop` |
-| Pass-teacher card check | `closure: closure_passed`, artifact `/app/sol.sql` |
-| Fail-teacher card check | `Teacher outcome: reward=0.0`, synthesized repair action, `closure: closure_passed`, artifact `/app/sol.sql` |
-| Runtime injection | `injection_count: 1`, `injection_reasons: ['Bash']` |
-| Second run | `reward=1.0`, `6 passed` |
+| Query-optimize runtime Debug-Action card | [`docs/blog/query-optimize-runtime-debug-action.md`](docs/blog/query-optimize-runtime-debug-action.md) |
+| Kimi Code TB2.1 Meta-Harness sweep | [`docs/case-studies/kimi-code-tb21-metaharness-sweep-2026-06-10/REPORT.md`](docs/case-studies/kimi-code-tb21-metaharness-sweep-2026-06-10/REPORT.md) |
+| Cancel-async-tasks 4x reproduction | [`docs/case-studies/kimi-code-cancel-async-tasks-metaharness-2026-06-10/REPORT.md`](docs/case-studies/kimi-code-cancel-async-tasks-metaharness-2026-06-10/REPORT.md) |
+| Joint-failure lifting examples | [`docs/blog/sanitize-git-repo-joint-failure-lifting.md`](docs/blog/sanitize-git-repo-joint-failure-lifting.md), [`docs/blog/filter-js-from-html-clean-preservation.md`](docs/blog/filter-js-from-html-clean-preservation.md) |
+| Blog raw-log bundle | [`docs/blog/raw_logs/blog_raw_logs/README.md`](docs/blog/raw_logs/blog_raw_logs/README.md) |
 
 ## Repository Map
 
 | Path | What lives there |
 | --- | --- |
-| [`src/harness_trajecdebug/`](src/harness_trajecdebug/) | Diagnosis core: trace parsing, reference/state extraction, failure patterns, critical-step selection. |
-| [`plugins/harness-trajdebug-agent/`](plugins/harness-trajdebug-agent/) | Agent-facing plugin and skills used by Claude Code, Codex, and Kimi Code. |
-| [`.claude/skills/`](.claude/skills/), [`.agents/skills/`](.agents/skills/), [`.kimi-code/skills/`](.kimi-code/skills/) | Installed skill shims for the three CLI surfaces. |
-| [`demo/`](demo/) | Top-level demo and recording SOP. |
-| [`docs/`](docs/) | Framework notes, failure taxonomy, integrations, roadmap, related work, and case-study writeups. |
-| [`docs/blog/`](docs/blog/) | Blog-style case studies and raw-log explanations. |
-| [`docs/blog/raw_logs/`](docs/blog/raw_logs/) | Blog-facing raw trace bundles, prompts, teacher cards, task variants, Harbor runs, and checksums. |
-| [`docs/case-studies/`](docs/case-studies/) | Reproducibility reports, raw experiment archives, metrics, and task-pair summaries. |
+| [`src/harness_trajecdebug/`](src/harness_trajecdebug/) | Diagnosis core: parsing, adapters, failure patterns, critical-step selection. |
+| [`plugins/harness-trajdebug-agent/`](plugins/harness-trajdebug-agent/) | Agent-facing plugin, skills, and `htd-agent` wrapper. |
+| [`demo/`](demo/) | Top-level recorded and live demo workflow. |
+| [`docs/`](docs/) | Framework docs, integrations, roadmap, case studies, and blog-style reports. |
 | [`experiments/harbor_icl_baseline/`](experiments/harbor_icl_baseline/) | ICL baseline protocol and runners. |
-| [`scripts/`](scripts/) | Experiment runners, endpoint checks, closure checks, summarizers, and batch utilities. |
-| [`examples/`](examples/) | Minimal normalized traces and diagnoses. |
+| [`scripts/`](scripts/) | Experiment runners, preflight checks, closure checks, and batch utilities. |
+| [`examples/`](examples/) | Minimal normalized traces and diagnosis outputs. |
 | [`api/diagnose.py`](api/diagnose.py), [`index.html`](index.html), [`app.js`](app.js) | Lightweight Vercel demo surface. |
 
-## Quick Start
-
-Install the package in editable mode:
-
-```bash
-python3 -m pip install -e .
-```
+## CLI Quick Start
 
 Run a bundled near-miss diagnosis:
 
@@ -124,156 +153,6 @@ harness-trajdebug diagnose \
   --trace examples/traces/train-fasttext-kimi-k26-minimal.json \
   --run-id train-fasttext-kimi-k26-minimal \
   --output examples/diagnoses/train-fasttext-kimi-k26-diagnosis.json
-```
-
-Run a passing example:
-
-```bash
-harness-trajdebug diagnose \
-  --trace examples/traces/cancel-async-tasks-passed-minimal.json \
-  --run-id cancel-async-tasks-passed-minimal \
-  --output examples/diagnoses/cancel-async-tasks-diagnosis.json
-```
-
-The longer command alias `harness-trajecdebug` is also available.
-
-## How It Works
-
-Harness-TrajecDebug reads one trace through three complementary views:
-
-```text
-trace + verifier output
-  -> reference view
-  -> state view
-  -> commitment / decision evidence
-  -> failure pattern
-  -> critical step
-  -> repair hint
-  -> Debug-Action card / ICL data-quality signal
-```
-
-The framework is intentionally conservative: it only emits a failure pattern
-when the trace has concrete process evidence and the final verifier footprint
-supports the diagnosis.
-
-The first target application is ICL data selection for terminal agents. Instead
-of feeding small models random successful traces or outcome-only summaries, the
-framework selects trajectories with reusable process signal:
-
-- successful traces with verifier-aligned artifact closure,
-- near-miss traces with clear critical-step evidence,
-- contrastive traces where a bad branch and a repairable decision are visible,
-- traces that demonstrate planning, validation, recovery, and state checking.
-
-SFT, preference learning, process rewards, and RL curricula are downstream
-uses. The current milestone is a reliable trace-to-ICL-example and
-trace-to-Debug-Action-card pipeline.
-
-## Agent Plugin Surface
-
-The current plugin path is:
-
-```text
-agent CLI
-  -> skill / plugin shim
-  -> Harness-TrajecDebug CLI
-  -> trace import / diagnosis / card selection
-  -> runtime injection runner
-```
-
-Supported or exercised surfaces:
-
-| Surface | Current role |
-| --- | --- |
-| Claude Code | Verified for the compact recorded demo and for launching the live Harbor `sdk_live` path. Live success requires a warm Python/pip-capable task image. |
-| Kimi Code | Verified for the compact recorded demo through the local skill-smoke wrapper using a short explicit Bash prompt; full live reuse goes through the same Harbor runner. |
-| Codex | Verified as the current Codex app/thread calling the same wrapper and suitable for detached launcher orchestration. Nested `codex exec` has a gate script, [`scripts/run_codex_skill_smoke.sh`](scripts/run_codex_skill_smoke.sh), and is not passing locally yet even for `echo CODEX_EXEC_OK`. |
-| Harbor / Terminal-Bench | Provides task environments, official verifier output, and raw run directories. |
-
-See [`docs/agent-plugin.md`](docs/agent-plugin.md) and
-[`docs/integrations.md`](docs/integrations.md) for installation and adapter
-details.
-
-## Documentation Map
-
-| File | Use it for |
-| --- | --- |
-| [`docs/framework.md`](docs/framework.md) | Reference/state/commitment workflow and ICL selection logic. |
-| [`docs/failure-taxonomy.md`](docs/failure-taxonomy.md) | Failure routing tree, pattern definitions, and repair levers. |
-| [`docs/integrations.md`](docs/integrations.md) | Codex, Claude Code, Kimi Code, Harbor, and ATIF viewer adapters. |
-| [`docs/trajectorydebug-hint-and-icl-flow.md`](docs/trajectorydebug-hint-and-icl-flow.md) | TD hint generation and runtime ICL injection diagrams. |
-| [`docs/related-work-metaharness.md`](docs/related-work-metaharness.md) | Positioning against Meta-Harness and proposed comparisons. |
-| [`docs/roadmap.md`](docs/roadmap.md) | Current progress and planned experiments. |
-| [`docs/closed-loop-case-summary.md`](docs/closed-loop-case-summary.md) | Closed-loop case summary. |
-| [`docs/candidate-search-status.md`](docs/candidate-search-status.md) | Accepted/rejected candidate status and endpoint notes. |
-| [`AGENT_MIGRATION_RUNBOOK.md`](AGENT_MIGRATION_RUNBOOK.md) | Server migration, Harbor run, diagnosis, repair, and viewer-export workflow. |
-
-Blog-style case studies:
-
-- [`docs/blog/trajectorydebug-algorithm-flow.md`](docs/blog/trajectorydebug-algorithm-flow.md)
-- [`docs/blog/query-optimize-runtime-debug-action.md`](docs/blog/query-optimize-runtime-debug-action.md)
-- [`docs/blog/sanitize-git-repo-joint-failure-lifting.md`](docs/blog/sanitize-git-repo-joint-failure-lifting.md)
-- [`docs/blog/filter-js-from-html-clean-preservation.md`](docs/blog/filter-js-from-html-clean-preservation.md)
-- [`docs/blog/raman-fitting-axis-critical-step.md`](docs/blog/raman-fitting-axis-critical-step.md)
-- [`docs/blog/pytorch-model-recovery-forward-api-critical-step.md`](docs/blog/pytorch-model-recovery-forward-api-critical-step.md)
-
-## Current Mechanism Results
-
-The current runtime-ICL canaries show that process-aware Debug-Action cards can
-repair failures that outcome-only context does not fix.
-
-On `query-optimize`, Claude Code + `kimi-k2.6` produced a semantically correct
-SQL rewrite that still failed the official runtime gate. A same-task controlled
-canary compared:
-
-| Condition | Runtime injection | Result |
-| --- | --- | --- |
-| `no_icl` | none | reward `0.0`; solution slower than the official golden query |
-| `outcome_only + sdk_live` | teacher outcome summary only | reward `0.0`; injection happened, but the agent rebuilt the insufficient route |
-| `debug_action + sdk_live` | Debug-Action repair card with `/app/sol.sql` | reward `1.0`; the agent materialized the artifact and passed 6/6 verifier tests |
-
-The stronger current signal is joint-failure lifting: failed traces can still be
-useful ICL data when their process evidence identifies the critical decision
-boundary.
-
-| Task | Context source | Historical Codex + GPT-5.5 | Historical Claude Code + Kimi-k2.6 | HTD runtime rerun |
-| --- | --- | ---: | ---: | ---: |
-| `sanitize-git-repo` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
-| `sanitize-git-repo` | oracle-free joint-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `3/3` tests passed |
-| `filter-js-from-html` | oracle-grounded critical step | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
-| `filter-js-from-html` | oracle-free shared-failure diagnosis | reward `0.0` | reward `0.0` | reward `1.0`, `2/2` tests passed |
-
-These are mechanism checks, not final held-out generalization claims. The
-benchmark work is moving toward held-out task matrices.
-
-## Experiment Material
-
-| Material | Location | Notes |
-| --- | --- | --- |
-| ICL baseline design and runner scripts | [`experiments/harbor_icl_baseline/`](experiments/harbor_icl_baseline/) | Fairness protocol for comparing against random, raw-trace, outcome-only, prompt-filtered, and Meta-Harness-style baselines. |
-| Query-optimize raw-log bundle | [`docs/blog/raw_logs/blog_raw_logs/`](docs/blog/raw_logs/blog_raw_logs/) | Prompts, teacher cards, task variants, raw Harbor runs, and checksums. |
-| Meta-Harness-style Harbor comparison | `harbor/runs/` and [`docs/blog/raw_logs/meta-harness/`](docs/blog/raw_logs/meta-harness/) | Includes small changed-harness and injection comparisons when present. |
-| Kimi-Code Terminal-Bench sweep | [`docs/case-studies/kimi-code-tb21-metaharness-sweep-2026-06-10/`](docs/case-studies/kimi-code-tb21-metaharness-sweep-2026-06-10/) | Reports, metrics, raw-log archives, and repair briefs. |
-| Raw Kimi agent sessions | `artifacts/kimi-session-records-usage-20260611/` | Archived wire records plus token summaries when present locally. |
-
-Raw and generated research material is intentionally kept outside the core
-package so the reusable library remains small while the evidence remains
-auditable.
-
-## Harbor And Harness Workflows
-
-List locally discoverable harnesses:
-
-```bash
-harness-trajdebug harnesses
-```
-
-List Harbor-compatible tasks:
-
-```bash
-harness-trajdebug harbor-tasks \
-  --root /Volumes/SSD/terminal-bench-harbor/harbor/datasets/terminal-bench-2.1-proxy/tasks \
-  --limit 5
 ```
 
 Import and diagnose a Harbor run:
@@ -285,128 +164,48 @@ harness-trajdebug harbor-import \
   --diagnose
 ```
 
-Export a Harbor run into the local ATIF trajectory viewer:
+Run a runtime ICL canary through the wrapper:
 
 ```bash
-harness-trajdebug atif-viewer-export \
-  --run /path/to/harbor/run \
-  --viewer-root /path/to/ATIF-trajectory-viewer \
-  --label example-run \
-  --diagnose
-```
-
-For a new server, start with:
-
-```bash
-bash scripts/preflight.sh
-```
-
-Then follow [`AGENT_MIGRATION_RUNBOOK.md`](AGENT_MIGRATION_RUNBOOK.md) for the
-full migration, Harbor run, diagnosis, repair, and viewer-export workflow.
-
-## Harbor ICL Baseline
-
-The baseline suite compares random, outcome-only, raw-trace, prompt-filtered,
-and Harness-TrajecDebug debug-card context variants. The full design lives in
-[`experiments/harbor_icl_baseline/README.md`](experiments/harbor_icl_baseline/README.md);
-the fairness boundary lives in
-[`experiments/harbor_icl_baseline/fairness_protocol.md`](experiments/harbor_icl_baseline/fairness_protocol.md).
-
-Common entry points:
-
-```bash
-scripts/build_icl_task_matrix.py
-scripts/build_joint_failure_matrix.py
-scripts/run_daily_icl_mechanism.sh \
-  --task gcode-to-text \
+plugins/harness-trajdebug-agent/scripts/htd-agent run-icl \
+  --task TASK \
+  --model kimi-k2.6 \
+  --endpoint-profile auto \
   --context-variant debug_action \
-  --verifier-timeout 300
+  --inject-mode prelude \
+  --dry-run
 ```
 
-Daily canaries separate mechanism health from model quality. No-model checks
-exercise artifact closure and runtime injection paths; real model reward
-benchmarking should wait until endpoint preflight and verifier readiness are
-healthy.
+Check local agent/plugin readiness:
 
-## Trace Input Schema
-
-The minimal input is a JSON object:
-
-```json
-{
-  "steps": [
-    {
-      "index": 0,
-      "role": "user",
-      "text": "Task prompt",
-      "observation": "Optional tool output"
-    }
-  ],
-  "verifierLog": "Final verifier stdout/stderr"
-}
+```bash
+plugins/harness-trajdebug-agent/scripts/htd-agent doctor
 ```
 
-The parser also understands simple `toolCalls`, `reasoning`, nested string
-fields from common trace viewers, ATIF `trajectory.json`, and Codex-style JSONL
-streams when imported through the Harbor adapter.
+## Documentation
+
+| File | Use it for |
+| --- | --- |
+| [`docs/framework.md`](docs/framework.md) | Reference/state/commitment workflow and ICL selection logic. |
+| [`docs/failure-taxonomy.md`](docs/failure-taxonomy.md) | Failure routing tree, pattern definitions, and repair levers. |
+| [`docs/trajectorydebug-hint-and-icl-flow.md`](docs/trajectorydebug-hint-and-icl-flow.md) | TD hint generation and runtime ICL injection diagrams. |
+| [`docs/interactive-icl-v1-implementation.md`](docs/interactive-icl-v1-implementation.md) | Interactive ICL implementation notes. |
+| [`docs/related-work-metaharness.md`](docs/related-work-metaharness.md) | Positioning against Meta-Harness and proposed comparisons. |
+| [`docs/roadmap.md`](docs/roadmap.md) | Current progress and planned experiments. |
+| [`AGENT_MIGRATION_RUNBOOK.md`](AGENT_MIGRATION_RUNBOOK.md) | Server migration, Harbor run, diagnosis, repair, and viewer-export workflow. |
 
 ## Development
-
-Run the test suite:
 
 ```bash
 make test
 make examples
-```
-
-Or run the underlying checks directly:
-
-```bash
 python3 -m unittest discover -s tests
 python3 -m py_compile src/harness_trajecdebug/*.py
 ```
 
-Run the Vercel demo locally or deploy it with:
+Run or deploy the lightweight Vercel demo:
 
 ```bash
 npx vercel --prod
-```
-
-Then verify the cloud API:
-
-```bash
 curl https://your-deployment-url.vercel.app/api/diagnose?example=all
 ```
-
-## Current Scope
-
-Implemented failure patterns:
-
-- `thin-margin promotion`
-- `validation mismatch`
-- `compact-frontier search gap`
-- `accuracy objective gap`
-- `final artifact validation`
-- `tool/API loop`
-- `budget debt loop`
-- `no critical failure detected`
-
-Implemented capabilities:
-
-- rule-based reference/state/commitment parser,
-- failure taxonomy and critical-step selector,
-- harness inventory for Codex, Claude Code, and Kimi routes,
-- Harbor-compatible task discovery,
-- Harbor run import for Claude Code ATIF traces and Codex JSONL traces,
-- ATIF trajectory viewer local-bundle export for Harbor runs,
-- bundled train-fasttext and cancel-async-tasks examples,
-- Vercel demo API that runs diagnosis on example traces,
-- runtime ICL smoke tests and closure checks.
-
-Next milestones:
-
-- broader adapters for common harness trace formats,
-- Harbor-compatible dataset adapters beyond Terminal-Bench, such as SWE-bench Pro,
-- reusable plugin packaging for third-party harnesses,
-- held-out ICL data selection benchmark against random, outcome-only,
-  prompt-filtered, and raw-trace retrieval baselines.

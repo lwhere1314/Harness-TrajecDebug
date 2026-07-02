@@ -1,0 +1,23 @@
+{
+    "id": "ce4eee74-16fd-467e-ace1-a14f61ecbc76",
+    "started_at": "2026-06-17T11:22:12.325005",
+    "finished_at": "2026-06-17T11:22:34.929212",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "claude-code__adhoc": {
+                "n_trials": 0,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "reward_stats": {},
+                "exception_stats": {}
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+Previous response had warnings:
+WARNINGS: - Command 1 should end with newline when followed by another command. Otherwise the two commands will be concatenated together on the same line.
+
+New Terminal Output:
+
+root@9e5a53ad6d54:/app# sqlite3 /app/oewn.sqlite < /app/my-sql-query.sql > /tmp/original_result.txt; echo "Exit code: $?"
+^CRuntime error near line 1: interrupted (9)
+Program interrupted.
+Exit code: 1
+root@9e5a53ad6d54:/app# wc -l /tmp/original_result.txt 2>/dev/null || echo 'No output file'
+0 /tmp/original_result.txt
+root@9e5a53ad6d54:/app#

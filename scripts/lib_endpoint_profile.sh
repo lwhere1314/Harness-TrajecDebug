@@ -31,6 +31,11 @@ apply_endpoint_profile() {
       export ANTHROPIC_BASE_URL="${SEED_CODING_PLAN_BASE_URL:-}"
       export ANTHROPIC_API_KEY="${SEED_CODING_PLAN_API_KEY:-}"
       ;;
+    seed-agent-plan|seed_agent_plan|seed-dance-agent-plan|seed_dance_agent_plan|seed-dance|seed_dance)
+      export HTD_ENDPOINT_RESOLVED_PROFILE="seed-agent-plan"
+      export ANTHROPIC_BASE_URL="${SEED_AGENT_PLAN_ANTHROPIC_BASE_URL:-${SEED_AGENT_PLAN_BASE_URL:-}}"
+      export ANTHROPIC_API_KEY="${SEED_AGENT_PLAN_API_KEY:-}"
+      ;;
     ark)
       export HTD_ENDPOINT_RESOLVED_PROFILE="ark"
       export ANTHROPIC_BASE_URL="${ARK_BASE_URL:-https://ark.cn-beijing.volces.com/api/coding}"

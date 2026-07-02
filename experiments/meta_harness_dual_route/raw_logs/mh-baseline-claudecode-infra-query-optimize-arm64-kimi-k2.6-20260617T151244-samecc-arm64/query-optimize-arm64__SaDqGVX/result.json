@@ -1,0 +1,88 @@
+{
+    "id": "4d4c279f-f19a-4737-89ea-bbf2a95d1486",
+    "task_name": "query-optimize-arm64",
+    "trial_name": "query-optimize-arm64__SaDqGVX",
+    "trial_uri": "file:///Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-baseline-claudecode-infra-query-optimize-arm64-kimi-k2.6-20260617T151244-samecc-arm64/query-optimize-arm64__SaDqGVX",
+    "task_id": {
+        "path": "artifacts/meta_harness_dual_route/tasks/query-optimize-arm64"
+    },
+    "source": null,
+    "task_checksum": "abcb19219b86eeb8e86b767bdbc7329d49b2259e82873ef55876037009f55536",
+    "config": {
+        "task": {
+            "path": "artifacts/meta_harness_dual_route/tasks/query-optimize-arm64",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "query-optimize-arm64__SaDqGVX",
+        "trials_dir": "artifacts/meta_harness_dual_route/runs/mh-baseline-claudecode-infra-query-optimize-arm64-kimi-k2.6-20260617T151244-samecc-arm64",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "meta_harness_dual_route.agents.route_b_claudecode_infra_control:AgentHarness",
+            "model_name": "kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {}
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": false,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "b82d1cd2-df82-4906-b98e-6efac5365a41"
+    },
+    "agent_info": {
+        "name": "claude-code",
+        "version": "unknown",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 696058,
+        "n_cache_tokens": 0,
+        "n_output_tokens": 13866,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-17T07:12:52.893492Z",
+    "finished_at": "2026-06-17T07:30:04.386543Z",
+    "environment_setup": {
+        "started_at": "2026-06-17T07:12:52.894975Z",
+        "finished_at": "2026-06-17T07:12:53.264488Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-17T07:12:53.264566Z",
+        "finished_at": "2026-06-17T07:12:54.790471Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-17T07:12:54.790605Z",
+        "finished_at": "2026-06-17T07:21:59.540933Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-17T07:21:59.541275Z",
+        "finished_at": "2026-06-17T07:29:53.911902Z"
+    }
+}

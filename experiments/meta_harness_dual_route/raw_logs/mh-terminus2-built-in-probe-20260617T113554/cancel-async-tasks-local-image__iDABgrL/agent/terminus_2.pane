@@ -1,0 +1,86 @@
+[?2004hroot@a96c151f54fe:/app# python3 --version
+[?2004lPython 3.13.13
+[?2004hroot@a96c151f54fe:/app# cat > /app/run.py << 'EOF'
+[?2004l[?2004h> import asyncio
+[?2004l[?2004h> from collections.abc import Callable
+[?2004l[?2004h> from typing import Awaitable
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> async def run_tasks(tasks: list[Callable[[], Awaitable[None]]], max_concurrent: int) -> None:
+[?2004l[?2004h>     """Run async tasks with limited concurrency.
+[?2004l[?2004h> 
+[?2004l[?2004h>     If the run is cancelled or interrupted via keyboard, all tasks are
+[?2004l[?2004h>     cancelled but still allowed to finish so their cleanup code runs.
+[?2004l[?2004h>     """
+[?2004l[?2004h>     semaphore = asyncio.Semaphore(max_concurrent)
+[?2004l[?2004h> 
+[?2004l[?2004h>     async def _bounded(task: Callable[[], Awaitable[None]]) -> None:
+[?2004l[?2004h>         async with semaphore:
+[?2004l[?2004h>             await task()
+[?2004l[?2004h> 
+[?2004l[?2004h>     created_tasks = [asyncio.create_task(_bounded(t)) for t in tasks]
+[?2004l[?2004h> 
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         await asyncio.gather(*created_tasks)
+[?2004l[?2004h>     except (asyncio.CancelledError, KeyboardInterrupt):
+[?2004l[?2004h>         for t in created_tasks:
+[?2004l[?2004h>             t.cancel()
+[?2004l[?2004h>         await asyncio.gather(*created_tasks, return_exceptions=True)
+[?2004l[?2004h>         raise
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@a96c151f54fe:/app# python3 -c "
+[?2004l[?2004h> import asyncio
+[?2004l[?2004h> from run import run_tasks
+[?2004l[?2004h> 
+[?2004l[?2004h> results = []
+[?2004l[?2004h> 
+[?2004l[?2004h> async def task1():
+[?2004l[?2004h>     results.append('task1 start')
+[?2004l[?2004h>     await asyncio.sleep(0.1)
+[?2004l[?2004h>     results.append('task1 end')
+[?2004l[?2004h> 
+[?2004l[?2004h> async def task2():
+[?2004l[?2004h>     results.append('task2 start')
+[?2004l[?2004h>     await asyncio.sleep(0.1)
+[?2004l[?2004h>     results.append('task2 end')
+[?2004l[?2004h> 
+[?2004l[?2004h> async def task_with_cleanup():
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         results.append('cleanup start')
+[?2004l[?2004h>         await asyncio.sleep(0.2)
+[?2004l[?2004h>         results.append('cleanup middle')
+[?2004l[?2004h>     finally:
+[?2004l[?2004h>         results.append('cleanup finally')
+[?2004l[?2004h> 
+[?2004l[?2004h> asyncio.run(run_tasks([task1, task2, task_with_cleanup], max_concurrent=2))
+[?2004l[?2004h> print('Results:', results)
+[?2004l[?2004h> "
+[?2004lResults: ['task1 start', 'task2 start', 'task1 end', 'task2 end', 'cleanup start', 'cleanup middle', 'cleanup finally']
+[?2004hroot@a96c151f54fe:/app# python3 -c "
+[?2004l[?2004h> import asyncio
+[?2004l[?2004h> from run import run_tasks
+[?2004l[?2004h> 
+[?2004l[?2004h> results = []
+[?2004l[?2004h> 
+[?2004l[?2004h> async def slow_task():
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         results.append('slow start')
+[?2004l[?2004h>         await asyncio.sleep(10)
+[?2004l[?2004h>         results.append('slow end')
+[?2004l[?2004h>     finally:
+[?2004l[?2004h>         results.append('slow finally')
+[?2004l[?2004h> 
+[?2004l[?2004h> async def main():
+[?2004l[?2004h>     task = asyncio.create_task(run_tasks([slow_task], max_concurrent=1))
+[?2004l[?2004h>     await asyncio.sleep(0.1)
+[?2004l[?2004h>     task.cancel()
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         await task
+[?2004l[?2004h>     except asyncio.CancelledError:
+[?2004l[?2004h>         pass
+[?2004l[?2004h>     print('Results after cancel:', results)
+[?2004l[?2004h> 
+[?2004l[?2004h> asyncio.run(main())
+[?2004l[?2004h> "
+[?2004lResults after cancel: ['slow start', 'slow finally']
+[?2004hroot@a96c151f54fe:/app# 

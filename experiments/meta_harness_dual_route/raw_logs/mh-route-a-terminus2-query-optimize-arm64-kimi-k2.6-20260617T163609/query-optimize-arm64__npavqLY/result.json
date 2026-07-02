@@ -1,0 +1,119 @@
+{
+    "id": "45334009-2cd4-43af-8014-4bcc496e6c0d",
+    "task_name": "query-optimize-arm64",
+    "trial_name": "query-optimize-arm64__npavqLY",
+    "trial_uri": "file:///Users/hugo/Documents/meta-harness-routeb-run/artifacts/meta_harness_dual_route/runs/mh-route-a-terminus2-query-optimize-arm64-kimi-k2.6-20260617T163609/query-optimize-arm64__npavqLY",
+    "task_id": {
+        "path": "artifacts/meta_harness_dual_route/tasks/query-optimize-arm64"
+    },
+    "source": null,
+    "task_checksum": "abcb19219b86eeb8e86b767bdbc7329d49b2259e82873ef55876037009f55536",
+    "config": {
+        "task": {
+            "path": "artifacts/meta_harness_dual_route/tasks/query-optimize-arm64",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "query-optimize-arm64__npavqLY",
+        "trials_dir": "artifacts/meta_harness_dual_route/runs/mh-route-a-terminus2-query-optimize-arm64-kimi-k2.6-20260617T163609",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "meta_harness_dual_route.agents.route_a_terminus_general_review:AgentHarness",
+            "model_name": "anthropic/kimi-k2.6",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "api_base": "https://ark.cn-beijing.volces.com/api/plan",
+                "temperature": 0.2,
+                "record_terminal_session": false,
+                "llm_kwargs": {
+                    "max_tokens": 8192
+                }
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": false,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "suppress_override_warnings": false,
+            "kwargs": {}
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "33592a03-2338-4212-8492-2e2229d8a613"
+    },
+    "agent_info": {
+        "name": "terminus-2",
+        "version": "2.0.0",
+        "model_info": {
+            "name": "kimi-k2.6",
+            "provider": "anthropic"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": 84951,
+        "n_cache_tokens": 0,
+        "n_output_tokens": 8239,
+        "cost_usd": null,
+        "rollout_details": [],
+        "metadata": {
+            "n_episodes": 16,
+            "api_request_times_msec": [
+                10970.991134643555,
+                129068.50695610046,
+                184044.88587379456,
+                7693.300008773804,
+                9176.369905471802,
+                7213.052034378052,
+                11028.68390083313,
+                6522.455930709839,
+                8623.072862625122,
+                10470.347166061401,
+                7593.914031982422,
+                17054.81195449829,
+                25986.5562915802,
+                19243.157863616943,
+                10340.846061706543,
+                21373.294830322266
+            ],
+            "summarization_count": 0
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 1.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-06-17T08:36:18.067648Z",
+    "finished_at": "2026-06-17T08:54:56.294294Z",
+    "environment_setup": {
+        "started_at": "2026-06-17T08:36:18.069092Z",
+        "finished_at": "2026-06-17T08:36:18.382764Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-06-17T08:36:18.382841Z",
+        "finished_at": "2026-06-17T08:36:35.124828Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-06-17T08:36:35.124996Z",
+        "finished_at": "2026-06-17T08:46:43.609291Z"
+    },
+    "verifier": {
+        "started_at": "2026-06-17T08:46:43.609490Z",
+        "finished_at": "2026-06-17T08:54:45.873312Z"
+    }
+}

@@ -1,0 +1,6 @@
+New Terminal Output:
+
+diff /tmp/opt_out.txt /tmp/orig_out.txt
+
+echo hello
+

@@ -1,0 +1,30 @@
+New Terminal Output:
+
+root@cde43f0fd2a5:/app# sqlite3 /app/oewn.sqlite "PRAGMA index_list('senses');"
+root@cde43f0fd2a5:/app# sqlite3 /app/oewn.sqlite "PRAGMA index_list('words');"
+root@cde43f0fd2a5:/app# sqlite3 /app/oewn.sqlite "PRAGMA index_list('synsets');"
+root@cde43f0fd2a5:/app# sqlite3 /app/oewn.sqlite "EXPLAIN QUERY PLAN $(cat /app/my-sql-query.sql)" | head -50
+QUERY PLAN
+|--CO-ROUTINE w
+|  |--SCAN w
+|  |--BLOOM FILTER ON s (wordid=?)
+|  |--SEARCH s USING AUTOMATIC COVERING INDEX (wordid=?)
+|  |--BLOOM FILTER ON syn (synsetid=?)
+|  |--SEARCH syn USING AUTOMATIC COVERING INDEX (synsetid=?)
+|  |--USE TEMP B-TREE FOR GROUP BY
+|  |--USE TEMP B-TREE FOR count(DISTINCT)
+|  |--USE TEMP B-TREE FOR count(DISTINCT)
+|  `--USE TEMP B-TREE FOR count(DISTINCT)
+|--SCAN w
+|--CORRELATED SCALAR SUBQUERY 1
+|  |--SCAN s
+|  |--USE TEMP B-TREE FOR GROUP BY
+|  `--USE TEMP B-TREE FOR ORDER BY
+|--CORRELATED SCALAR SUBQUERY 3
+|  |--SCAN s
+|  `--CORRELATED SCALAR SUBQUERY 2
+|     |--SCAN s2
+|     |--USE TEMP B-TREE FOR GROUP BY
+|     `--USE TEMP B-TREE FOR ORDER BY
+`--USE TEMP B-TREE FOR ORDER BY
+root@cde43f0fd2a5:/app#

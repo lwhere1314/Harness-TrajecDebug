@@ -1,0 +1,82 @@
+[?2004hroot@15b540b59597:/app# python3 --version
+[?2004lPython 3.13.13
+[?2004hroot@15b540b59597:/app# cat > /app/run.py << 'EOF'
+[?2004l[?2004h> import asyncio
+[?2004l[?2004h> from collections.abc import Awaitable, Callable
+[?2004l[?2004h> 
+[?2004l[?2004h> 
+[?2004l[?2004h> async def run_tasks(
+[?2004l[?2004h>     tasks: list[Callable[[], Awaitable[None]]],
+[?2004l[?2004h>     max_concurrent: int,
+[?2004l[?2004h> ) -> None:
+[?2004l[?2004h>     if max_concurrent <= 0:
+[?2004l[?2004h>         raise ValueError("max_concurrent must be positive")
+[?2004l[?2004h> 
+[?2004l[?2004h>     semaphore = asyncio.Semaphore(max_concurrent)
+[?2004l[?2004h> 
+[?2004l[?2004h>     async def _wrapper(task: Callable[[], Awaitable[None]]) -> None:
+[?2004l[?2004h>         async with semaphore:
+[?2004l[?2004h>             await task()
+[?2004l[?2004h> 
+[?2004l[?2004h>     # Start an asyncio.Task for each callable so the semaphore limits concurrency
+[?2004l[?2004h>     pending = [asyncio.create_task(_wrapper(t)) for t in tasks]
+[?2004l[?2004h> 
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         await asyncio.gather(*pending)
+[?2004l[?2004h>     except asyncio.CancelledError:
+[?2004l[?2004h>         # Propagate cancellation to children so their teardown can begin
+[?2004l[?2004h>         for t in pending:
+[?2004l[?2004h>             if not t.done():
+[?2004l[?2004h>                 t.cancel()
+[?2004l[?2004h>         # Wait for children to finish their finally blocks / cleanup
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             await asyncio.gather(*pending, return_exceptions=True)
+[?2004l[?2004h>         except asyncio.CancelledError:
+[?2004l[?2004h>             pass
+[?2004l[?2004h>         raise
+[?2004l[?2004h> EOF
+[?2004l[?2004hroot@15b540b59597:/app# python3 -c "
+[?2004l[?2004h> import asyncio
+[?2004l[?2004h> from run import run_tasks
+[?2004l[?2004h> 
+[?2004l[?2004h> async def test_concurrency():
+[?2004l[?2004h>     active = 0
+[?2004l[?2004h>     max_active = 0
+[?2004l[?2004h>     async def task():
+[?2004l[?2004h>         nonlocal active, max_active
+[?2004l[?2004h>         active += 1
+[?2004l[?2004h>         max_active = max(max_active, active)
+[?2004l[?2004h>         await asyncio.sleep(0.1)
+[?2004l[?2004h>         active -= 1
+[?2004l[?2004h>     await run_tasks([task] * 4, 2)
+[?2004l[?2004h>     assert max_active == 2, f'Expected max_active=2, got {max_active}'
+[?2004l[?2004h>     assert active == 0
+[?2004l[?2004h>     print('Concurrency test passed')
+[?2004l[?2004h> 
+[?2004l[?2004h> async def test_cleanup_on_cancel():
+[?2004l[?2004h>     cleaned = 0
+[?2004l[?2004h>     async def task():
+[?2004l[?2004h>         nonlocal cleaned
+[?2004l[?2004h>         try:
+[?2004l[?2004h>             await asyncio.sleep(10)
+[?2004l[?2004h>         finally:
+[?2004l[?2004h>             cleaned += 1
+[?2004l[?2004h>     coro = run_tasks([task] * 3, 3)
+[?2004l[?2004h>     main = asyncio.create_task(coro)
+[?2004l[?2004h>     await asyncio.sleep(0.05)
+[?2004l[?2004h>     main.cancel()
+[?2004l[?2004h>     try:
+[?2004l[?2004h>         await main
+[?2004l[?2004h>     except asyncio.CancelledError:
+[?2004l[?2004h>         pass
+[?2004l[?2004h>     assert cleaned == 3, f'Expected cleaned=3, got {cleaned}'
+[?2004l[?2004h>     print('Cleanup test passed')
+[?2004l[?2004h> 
+[?2004l[?2004h> asyncio.run(test_concurrency())
+[?2004l[?2004h> asyncio.run(test_cleanup_on_cancel())
+[?2004l[?2004h> print('All tests passed')
+[?2004l[?2004h> "
+[?2004lConcurrency test passed
+Cleanup test passed
+All tests passed
+[?2004hroot@15b540b59597:/app# 

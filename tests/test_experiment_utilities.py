@@ -275,6 +275,22 @@ class ExperimentUtilitiesTest(unittest.TestCase):
         self.assertEqual(ark["api_key_source"], "ARK_API_KEY")
         self.assertEqual(ark["api_key"], "ark-secret")
 
+        seed_agent = resolve_endpoint_config(
+            profile="seed-agent-plan",
+            env={
+                "SEED_AGENT_PLAN_ANTHROPIC_BASE_URL": "https://agent.example/api/plan",
+                "SEED_AGENT_PLAN_BASE_URL": "https://agent.example/api/plan/v3",
+                "SEED_AGENT_PLAN_API_KEY": "agent-secret",
+            },
+        )
+        self.assertEqual(seed_agent["base_url"], "https://agent.example/api/plan")
+        self.assertEqual(seed_agent["resolved_profile"], "seed-agent-plan")
+        self.assertEqual(
+            seed_agent["base_url_source"], "SEED_AGENT_PLAN_ANTHROPIC_BASE_URL"
+        )
+        self.assertEqual(seed_agent["api_key_source"], "SEED_AGENT_PLAN_API_KEY")
+        self.assertEqual(seed_agent["api_key"], "agent-secret")
+
         dashscope = resolve_endpoint_config(
             profile="dashscope",
             env={"DASHSCOPE_BASE_URL": "https://dash.example/apps/anthropic"},

@@ -1,0 +1,82 @@
+New Terminal Output:
+
+root@15b540b59597:/app# cat > /app/run.py << 'EOF'
+> import asyncio
+> from collections.abc import Awaitable, Callable
+>
+>
+> async def run_tasks(
+>     tasks: list[Callable[[], Awaitable[None]]],
+>     max_concurrent: int,
+> ) -> None:
+>     if max_concurrent <= 0:
+>         raise ValueError("max_concurrent must be positive")
+>
+>     semaphore = asyncio.Semaphore(max_concurrent)
+>
+>     async def _wrapper(task: Callable[[], Awaitable[None]]) -> None:
+>         async with semaphore:
+>             await task()
+>
+>     # Start an asyncio.Task for each callable so the semaphore limits concurrency
+>     pending = [asyncio.create_task(_wrapper(t)) for t in tasks]
+>
+>     try:
+>         await asyncio.gather(*pending)
+>     except asyncio.CancelledError:
+>         # Propagate cancellation to children so their teardown can begin
+>         for t in pending:
+>             if not t.done():
+>                 t.cancel()
+>         # Wait for children to finish their finally blocks / cleanup
+>         try:
+>             await asyncio.gather(*pending, return_exceptions=True)
+>         except asyncio.CancelledError:
+>             pass
+>         raise
+> EOF
+root@15b540b59597:/app# python3 -c "
+> import asyncio
+> from run import run_tasks
+>
+> async def test_concurrency():
+>     active = 0
+>     max_active = 0
+>     async def task():
+>         nonlocal active, max_active
+>         active += 1
+>         max_active = max(max_active, active)
+>         await asyncio.sleep(0.1)
+>         active -= 1
+>     await run_tasks([task] * 4, 2)
+>     assert max_active == 2, f'Expected max_active=2, got {max_active}'
+>     assert active == 0
+>     print('Concurrency test passed')
+>
+> async def test_cleanup_on_cancel():
+>     cleaned = 0
+>     async def task():
+>         nonlocal cleaned
+>         try:
+>             await asyncio.sleep(10)
+>         finally:
+>             cleaned += 1
+>     coro = run_tasks([task] * 3, 3)
+>     main = asyncio.create_task(coro)
+>     await asyncio.sleep(0.05)
+>     main.cancel()
+>     try:
+>         await main
+>     except asyncio.CancelledError:
+>         pass
+>     assert cleaned == 3, f'Expected cleaned=3, got {cleaned}'
+>     print('Cleanup test passed')
+>
+> asyncio.run(test_concurrency())
+> asyncio.run(test_cleanup_on_cancel())
+> print('All tests passed')
+> "
+Concurrency test passed
+Cleanup test passed
+All tests passed
+root@15b540b59597:/app#

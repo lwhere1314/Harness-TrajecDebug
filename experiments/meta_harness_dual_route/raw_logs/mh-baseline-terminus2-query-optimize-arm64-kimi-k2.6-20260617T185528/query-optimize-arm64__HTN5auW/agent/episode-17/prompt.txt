@@ -1,0 +1,5 @@
+New Terminal Output:
+
+root@9e5a53ad6d54:/app# grep -n '^\s*--' /app/sol.sql; grep -n '/\*' /app/sol.sql; echo "Comment check done"
+Comment check done
+root@9e5a53ad6d54:/app#

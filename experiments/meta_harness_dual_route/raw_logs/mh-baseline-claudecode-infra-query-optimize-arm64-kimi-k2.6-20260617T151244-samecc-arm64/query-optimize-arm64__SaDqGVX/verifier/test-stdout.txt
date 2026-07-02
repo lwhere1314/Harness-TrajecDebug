@@ -1,0 +1,30 @@
+/tests/test.sh: line 14: /root/.local/bin/env: No such file or directory
+Downloading cpython-3.13.9-linux-aarch64-gnu (download) (27.1MiB)
+ Downloading cpython-3.13.9-linux-aarch64-gnu (download)
+Downloading pygments (1.2MiB)
+ Downloading pygments
+Installed 6 packages in 9ms
+============================= test session starts ==============================
+platform linux -- Python 3.13.9, pytest-8.4.1, pluggy-1.6.0
+rootdir: /tests
+plugins: json-ctrf-0.3.5
+collected 6 items
+
+../tests/test_outputs.py ......                                          [100%]
+
+==================================== PASSES ====================================
+___________________ test_compare_golden_vs_solution_runtime ____________________
+----------------------------- Captured stdout call -----------------------------
+Running iteration 0 of 5
+{'iterations': 5, 'golden': {'median_s': 0.9016735020013584, 'min_s': 0.8870494639995741, 'max_s': 0.9232536010003969}, 'solution': {'median_s': 0.9161180410010274, 'min_s': 0.9041744920014025, 'max_s': 0.9216184110009635}, 'speedup_solution_vs_golden': 0.9842328844611709}
+___________________ test_solution_contains_single_sql_query ____________________
+----------------------------- Captured stdout call -----------------------------
+✓ Solution file contains exactly one valid SQL SELECT statement
+=========================== short test summary info ============================
+PASSED ../tests/test_outputs.py::test_compare_golden_vs_my_sql_query_correctness
+PASSED ../tests/test_outputs.py::test_check_for_db_modifications
+PASSED ../tests/test_outputs.py::test_compare_golden_vs_solution_runtime
+PASSED ../tests/test_outputs.py::test_outputs_match_exactly
+PASSED ../tests/test_outputs.py::test_solution_contains_single_sql_query
+PASSED ../tests/test_outputs.py::test_solution_is_small
+======================== 6 passed in 452.99s (0:07:32) =========================

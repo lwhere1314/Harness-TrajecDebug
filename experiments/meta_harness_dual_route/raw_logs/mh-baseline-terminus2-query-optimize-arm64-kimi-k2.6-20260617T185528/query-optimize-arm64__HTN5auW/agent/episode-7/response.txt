@@ -1,0 +1,18 @@
+{
+  "analysis": "The optimized query returns 500 rows matching the expected count (out of 17834 qualifying words). Now I need to verify correctness by comparing the outputs on a small subset since the original is too slow to run completely.",
+  "plan": "Run both queries on a small subset of specific word IDs to verify they produce identical results. I'll pick word IDs from my output and compare.",
+  "commands": [
+    {
+      "keystrokes": "cat > /tmp/test_orig.sql << 'EOF'\nSELECT\n  w.wordid AS word_id,\n  w.word AS word,\n  total_synsets,\n  total_senses,\n  distinct_domains,\n  distinct_posids,\n  (SELECT s.synsetid FROM senses s\n   WHERE s.wordid = w.wordid\n   GROUP BY s.synsetid\n   ORDER BY COUNT(*) DESC, s.synsetid ASC\n   LIMIT 1) AS top_synsetid,\n  (SELECT COUNT(*) FROM senses s\n   WHERE s.wordid = w.wordid\n   AND s.synsetid = (SELECT s2.synsetid FROM senses s2\n                     WHERE s2.wordid = w.wordid\n                     GROUP BY s2.synsetid\n                     ORDER BY COUNT(*) DESC, s2.synsetid ASC\n                     LIMIT 1)) AS top_synset_sense_count\nFROM (\n  SELECT\n    w.wordid,\n    w.word,\n    COUNT(DISTINCT s.synsetid) AS total_synsets,\n    COUNT(*) AS total_senses,\n    COUNT(DISTINCT syn.domainid) AS distinct_domains,\n    COUNT(DISTINCT syn.posid) AS distinct_posids\n  FROM words w\n  JOIN senses s ON w.wordid = s.wordid\n  JOIN synsets syn ON s.synsetid = syn.synsetid\n  WHERE w.wordid IN (17710, 33833, 117295, 104919, 83700, 80076, 40345, 66644, 122139, 26768)\n  GROUP BY w.wordid, w.word\n  HAVING total_synsets >= 2\n    AND distinct_domains >= 2\n    AND total_senses >= 2\n) w\nORDER BY\n  total_senses DESC,\n  total_synsets DESC,\n  distinct_domains DESC,\n  word_id ASC\nLIMIT 500;\nEOF\n",
+      "duration": 0.5
+    },
+    {
+      "keystrokes": "cat > /tmp/test_opt.sql << 'EOF'\nWITH word_sense_stats AS (\n  SELECT\n    w.wordid,\n    w.word,\n    s.synsetid,\n    syn.domainid,\n    syn.posid,\n    COUNT(*) AS sense_count_per_synset\n  FROM words w\n  JOIN senses s ON w.wordid = s.wordid\n  JOIN synsets syn ON s.synsetid = syn.synsetid\n  WHERE w.wordid IN (17710, 33833, 117295, 104919, 83700, 80076, 40345, 66644, 122139, 26768)\n  GROUP BY w.wordid, w.word, s.synsetid, syn.domainid, syn.posid\n),\nword_stats AS (\n  SELECT\n    wordid,\n    word,\n    COUNT(DISTINCT synsetid) AS total_synsets,\n    SUM(sense_count_per_synset) AS total_senses,\n    COUNT(DISTINCT domainid) AS distinct_domains,\n    COUNT(DISTINCT posid) AS distinct_posids\n  FROM word_sense_stats\n  GROUP BY wordid, word\n  HAVING total_synsets >= 2\n    AND distinct_domains >= 2\n    AND total_senses >= 2\n),\nranked_synsets AS (\n  SELECT\n    wordid,\n    synsetid,\n    sense_count_per_synset,\n    ROW_NUMBER() OVER (PARTITION BY wordid ORDER BY sense_count_per_synset DESC, synsetid ASC) AS rn\n  FROM word_sense_stats\n)\nSELECT\n  ws.wordid AS word_id,\n  ws.word AS word,\n  ws.total_synsets,\n  ws.total_senses,\n  ws.distinct_domains,\n  ws.distinct_posids,\n  rs.synsetid AS top_synsetid,\n  rs.sense_count_per_synset AS top_synset_sense_count\nFROM word_stats ws\nJOIN ranked_synsets rs ON ws.wordid = rs.wordid AND rs.rn = 1\nORDER BY\n  ws.total_senses DESC,\n  ws.total_synsets DESC,\n  ws.distinct_domains DESC,\n  ws.wordid ASC\nLIMIT 500;\nEOF\n",
+      "duration": 0.5
+    },
+    {
+      "keystrokes": "diff <(sqlite3 /app/oewn.sqlite < /tmp/test_orig.sql) <(sqlite3 /app/oewn.sqlite < /tmp/test_opt.sql) && echo 'MATCH!'\n",
+      "duration": 5.0
+    }
+  ]
+}
