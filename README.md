@@ -190,6 +190,12 @@ plugins/harness-trajdebug-agent/scripts/htd-agent doctor
 | [`examples/`](examples/) | Minimal traces and diagnosis outputs. |
 | [`scripts/`](scripts/) | Experiment runners, preflight checks, and batch utilities. |
 
+The installable package, agent/plugin integration surface, and research
+evidence are intentionally separate. See
+[`docs/repository-architecture.md`](docs/repository-architecture.md) for the
+boundary and artifact-retention policy. CI builds both release formats and
+rejects distributions that contain case studies, raw logs, or experiments.
+
 ## Development
 
 ```bash
@@ -197,4 +203,7 @@ make test
 make examples
 python3 -m unittest discover -s tests
 python3 -m py_compile src/harness_trajecdebug/*.py
+python3 scripts/check_repository_boundaries.py
+python3 -m build
+python3 scripts/check_distribution_contents.py dist/*
 ```

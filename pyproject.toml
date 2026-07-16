@@ -40,5 +40,13 @@ harness-trajecdebug = "harness_trajecdebug.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/harness_trajecdebug"]
 
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src/harness_trajecdebug",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml",
+]
+
 [tool.vercel]
 entrypoint = "api.diagnose:handler"
